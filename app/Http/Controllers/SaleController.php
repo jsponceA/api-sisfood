@@ -37,8 +37,8 @@ class SaleController extends Controller
             ->when(!empty($search), function ($q) use ($search) {
                 $q->where(DB::raw("CONCAT(serie,'-',num_document)"), "LIKE", "%{$search}%");
             })
-            ->where("serie","001")
-            ->where("deal_in_form","SUBVENCION")
+            //->where("serie","001")
+            //->where("deal_in_form","SUBVENCION")
             //->where("worker_id",$workerId)
             ->orderByDesc("id")
             ->paginate($perPage, ["*"], "page", $page);
