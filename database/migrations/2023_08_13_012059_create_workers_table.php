@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -39,6 +40,7 @@ return new class extends Migration
             $table->foreign("cost_center_id")->references("id")->on("cost_centers");
             $table->foreign("campus_id")->references("id")->on("campuses");
         });
+
     }
 
     /**

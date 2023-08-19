@@ -110,7 +110,7 @@ class ProductController extends Controller
 
         $response = [];
         if (in_array("categories", $resourceTypes)) {
-            $response["categories"] = ["BEBIDAS","COMIDAS","SNACK"];
+            $response["categories"] = ["BEBIDAS","COMIDAS","SNACK","EXTRAS"];
         }
 
         return response()->json($response, Response::HTTP_OK);
