@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string("surnames",100);
             $table->enum("typedoc",["DNI","CARNET_EXTRANJERIA","RUC"]);
             $table->string("numdoc",20);
-            $table->enum("gender",["HOMBRE","MUJER"]);
+            $table->enum("gender",["HOMBRE","MUJER"])->nullable();
             $table->string("phone",20)->nullable();
             $table->string("email",100)->nullable();
             $table->string("address",250)->nullable();
