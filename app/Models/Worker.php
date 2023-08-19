@@ -31,6 +31,12 @@ class Worker extends Model
         "dinner",
     ];
 
+    protected $casts = [
+        "breakfast" => "integer",
+        "lunch" => "integer",
+        "dinner" => "integer",
+    ];
+
     public function area(): BelongsTo
     {
         return $this->belongsTo(Area::class);

@@ -113,12 +113,11 @@ class SaleController extends Controller
                 $product = Product::query()->findOrFail($saleData["product_id"]);
 
 
-
                 $foodConsumed = null;
                 $existsFoodType = false;
                 foreach ($searchSale as $srSale) {
                     foreach ($srSale->saleDetails as $saleDetail) {
-                        if ($saleDetail->product_id === $saleData["product_id"]){
+                        if ($saleDetail->product_id == $product->id){
                             $existsFoodType = true;
                             $foodConsumed = Sale::query()->find($saleDetail->sale_id);
                         }
@@ -127,17 +126,17 @@ class SaleController extends Controller
 
 
 
-                if (empty($worker->breakfast) && mb_strtoupper($product->name) === "DESAYUNO"){
+                if (empty($worker->breakfast) && mb_strtoupper($product->name) == "DESAYUNO"){
                     $response["error"] = true;
                     $response["alertType"] = 4;
                     $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, no tienen acceso a {$product->name} ";
                     $response["messageContent"] = "";
-                }elseif(empty($worker->lunch) && mb_strtoupper($product->name) === "ALMUERZO") {
+                }elseif(empty($worker->lunch) && mb_strtoupper($product->name) == "ALMUERZO") {
                     $response["error"] = true;
                     $response["alertType"] = 4;
                     $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, no tienen acceso a {$product->name} ";
                     $response["messageContent"] = "";
-                }elseif(empty($worker->dinner) && mb_strtoupper($product->name) === "CENA") {
+                }elseif(empty($worker->dinner) && mb_strtoupper($product->name) == "CENA") {
                     $response["error"] = true;
                     $response["alertType"] = 4;
                     $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, no tienen acceso a {$product->name} ";
@@ -247,6 +246,9 @@ class SaleController extends Controller
                 ->findOrFail($request->input("id"));
             $user = auth()->user();
 
+            //variables
+            $comensal = !empty($sale->worker->names) ? mb_strtoupper($sale->worker->names." ".$sale->worker->surnames) : 'PUBLICO GENERAL';
+
             $nombreImpresora = "smb://DESKTOP-VML2HCG/POS-90";
             $connector = new WindowsPrintConnector($nombreImpresora);
             //$connector = new FilePrintConnector(storage_path('app/simulated-print.txt'));
@@ -271,7 +273,7 @@ class SaleController extends Controller
             $printer->text("FECHA Y HORA: ".now()->parse($sale->sale_date)->format("d/m/Y H:i:s A"). "\n");
             $printer->setJustification(Printer::JUSTIFY_LEFT);
             $printer->text("CAJERO: ".mb_strtoupper($user->username)."        PEDIDOS: 92485988"."\n");
-            $printer->text("COMENSAL: ".mb_strtoupper($sale->worker->names." ".$sale->worker->surnames)."\n");
+            $printer->text("COMENSAL: ".$comensal."\n");
 
 
             $printer->text("------------------------------------------------"."\n");
@@ -296,7 +298,7 @@ class SaleController extends Controller
             $printer->setJustification(Printer::JUSTIFY_RIGHT);
             $printer->text("-----------"."\n");
             $printer->text("TOTAL: S/ ".number_format($total,2)."\n");
-            $printer->text("FORMA DE PAGO: ".($sale->pay_type === "EFECTIVO" ? 'EFECTIVO' : 'Descuento por planilla') ."\n");
+            $printer->text("FORMA DE PAGO: ".($sale->pay_type == "EFECTIVO" ? 'EFECTIVO' : 'Descuento por planilla') ."\n");
 
             /*Alimentamos el papel 3 veces*/
            // $printer->feed(1);
