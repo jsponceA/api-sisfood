@@ -24,7 +24,7 @@
             <td style="border: 1px solid black;background-color: #C6E0B4">{{$c->worker?->names}} {{$c->worker?->surnames}}</td>
             <td style="border: 1px solid black;background-color: #C6E0B4">{{$c->worker?->typeForm?->name}}</td>
             <td style="border: 1px solid black;background-color: #C6E0B4">{{ !empty($c->sale_date) ? now()->parse($c->sale_date)->format("d/m/Y") : ""}}</td>
-            <td style="border: 1px solid black;background-color: #C6E0B4">{{$c->total_sale}}</td>
+            <td style="border: 1px solid black;background-color: #C6E0B4">{{number_format($c->total_salem,2)}}</td>
             <td style="border: 1px solid black;background-color: #C6E0B4">
                 @foreach($c->saleDetails as $det)
                     {{$det->product_name.'/'}}

@@ -34,11 +34,11 @@
             <td style="text-align: center">{{$c->sale?->worker?->area?->name}}</td>
             <td style="text-align: center">{{ !empty($c->sale->sale_date) ? now()->parse($c->sale->sale_date)->format("d/m/Y") : ""}}</td>
             <td style="text-align: center">{{$c->product_name}}</td>
-            <td style="text-align: center">{{$c->sale?->total_igv}}</td>
-            <td style="text-align: center">{{$c->quantity}}</td>
-            <td style="text-align: center">{{$c->sale?->total_pay_company}}</td>
-            <td style="text-align: center">{{$c->sale?->total_dsct_form}}</td>
-            <td style="text-align: center">{{$c->sale?->total_igv * $c->quantity}}</td>
+            <td style="text-align: center">{{number_format($c->sale?->total_igv,2)}}</td>
+            <td style="text-align: center">{{number_format($c->quantity,2)}}</td>
+            <td style="text-align: center">{{number_format($c->sale?->total_pay_company,2)}}</td>
+            <td style="text-align: center">{{number_format($c->sale?->total_dsct_form,2)}}</td>
+            <td style="text-align: center">{{number_format($c->sale?->total_igv * $c->quantity,2)}}</td>
         </tr>
     @endforeach
     </tbody>
