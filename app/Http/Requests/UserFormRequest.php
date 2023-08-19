@@ -29,7 +29,7 @@ class UserFormRequest extends FormRequest
                     'branch_id' => ['required', Rule::exists("branches", "id")],
                     'username' => ['required', "max:50",Rule::unique("users","username")->whereNull("deleted_at")],
                     'password' => ['required', "max:255"],
-                    'email' => ['required','email', "max:100"],
+                    'email' => ['nullable','email', "max:100"],
                     'photo' => ['nullable', "image", "max:5120"],
                 ];
              case "PUT":
@@ -38,7 +38,7 @@ class UserFormRequest extends FormRequest
                      'branch_id' => ['required', Rule::exists("branches", "id")],
                      'username' => ['required', "max:50",Rule::unique("users","username")->ignore($this->route("user"))->whereNull("deleted_at")],
                      'password' => ['nullable', "max:255"],
-                     'email' => ['required','email', "max:100"],
+                     'email' => ['nullable','email', "max:100"],
                      'photo' => ['nullable', "image", "max:5120"],
                  ];
              default:

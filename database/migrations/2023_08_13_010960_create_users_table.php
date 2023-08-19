@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger("branch_id");
             $table->string('username',50)->unique();
             $table->string('password');
-            $table->string('email',100);
+            $table->string('email',100)->nullable();
             $table->string('photo')->nullable();
             $table->rememberToken();
             $table->datetimes();
