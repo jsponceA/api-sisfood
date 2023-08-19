@@ -38,7 +38,8 @@ class SaleController extends Controller
                 $q->where(DB::raw("CONCAT(serie,'-',num_document)"), "LIKE", "%{$search}%");
             })
             ->where("serie","001")
-            ->where("worker_id",$workerId)
+            ->where("deal_in_form","SUBVENCION")
+            //->where("worker_id",$workerId)
             ->orderByDesc("id")
             ->paginate($perPage, ["*"], "page", $page);
 
@@ -249,7 +250,7 @@ class SaleController extends Controller
             //variables
             $comensal = !empty($sale->worker->names) ? mb_strtoupper($sale->worker->names." ".$sale->worker->surnames) : 'PUBLICO GENERAL';
 
-            $nombreImpresora = "smb://DESKTOP-VML2HCG/POS-90";
+            $nombreImpresora = env("PRINTER_NAME");
             $connector = new WindowsPrintConnector($nombreImpresora);
             //$connector = new FilePrintConnector(storage_path('app/simulated-print.txt'));
             $printer = new Printer($connector);
@@ -266,19 +267,24 @@ class SaleController extends Controller
             /*
                 Ahora vamos a imprimir un encabezado
             */
-            $printer->setEmphasis(true);
+            //$printer->setEmphasis(true);
+            $printer->setFont(Printer::FONT_B);
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->text("TICKET: ".$sale->serie.'-'.Str::padLeft($sale->num_document,7,"0")."\n");
+            $printer->setEmphasis(true);
+            $printer->setFont(Printer::FONT_A);
             $printer->text("CONCESIONARIO DE ALIMENTOS LUCEMIR\n");
+            $printer->setFont(Printer::FONT_B);
+            $printer->setEmphasis(false);
             $printer->text("FECHA Y HORA: ".now()->parse($sale->sale_date)->format("d/m/Y H:i:s A"). "\n");
             $printer->setJustification(Printer::JUSTIFY_LEFT);
             $printer->text("CAJERO: ".mb_strtoupper($user->username)."        PEDIDOS: 92485988"."\n");
             $printer->text("COMENSAL: ".$comensal."\n");
 
 
-            $printer->text("------------------------------------------------"."\n");
-            $printer->text("DESCRIPCIÓN                 PRECIO     TOT."."\n");
-            $printer->text("------------------------------------------------"."\n");
+            $printer->text("------------------------------------------------------------"."\n");
+            $printer->text("DESCRIPCIÓN                                 PRECIO      TOT."."\n");
+            $printer->text("------------------------------------------------------------"."\n");
             //$printer->selectPrintMode();
             //$printer->setEmphasis(false);
             $printer->setJustification(Printer::JUSTIFY_LEFT);
@@ -287,7 +293,7 @@ class SaleController extends Controller
 
             foreach ($sale->saleDetails as $detail) {
                 //$productName = wordwrap($detail->product_name, 20, "\n", true); // Dividir en líneas de 20 caracteres
-                $printer->text(number_format($detail->quantity)."x ".mb_strtoupper($detail->product_name)."                 "."S/ ".number_format($detail->sale_price,2)."     "."S/ ".number_format($detail->total,2)."\n");
+                $printer->text(number_format($detail->quantity)."x ".mb_strtoupper($detail->product_name)."                                 "."S/ ".number_format($detail->sale_price,2)."      "."S/ ".number_format($detail->total,2)."\n");
             }
 
             //$printer->text("------------------------------------------------"."\n");
@@ -296,12 +302,12 @@ class SaleController extends Controller
             $total = $sale->total_sale;
 
             $printer->setJustification(Printer::JUSTIFY_RIGHT);
-            $printer->text("-----------"."\n");
+            $printer->text("------------"."\n");
             $printer->text("TOTAL: S/ ".number_format($total,2)."\n");
             $printer->text("FORMA DE PAGO: ".($sale->pay_type == "EFECTIVO" ? 'EFECTIVO' : 'Descuento por planilla') ."\n");
 
             /*Alimentamos el papel 3 veces*/
-           // $printer->feed(1);
+            $printer->feed(2);
             $printer->cut();
             $printer->pulse();
             $printer->close();
