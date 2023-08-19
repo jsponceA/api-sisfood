@@ -146,7 +146,7 @@ class SaleController extends Controller
                 }elseif ($existsFoodType){
                     $response["error"] = true;
                     $response["alertType"] = 2;
-                    $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, ya consumio su {$product->name} el ".now()->parse($foodConsumed->sale_date)->format("d/m/Y H:i A");
+                    $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, ya consumio su {$product->name} el ".now()->parse($foodConsumed->sale_date)->format("d/m/Y h:i:s A");
                     $response["messageContent"] = "";
                 }else{
                     $response["error"] = false;
