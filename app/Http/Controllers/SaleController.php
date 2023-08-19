@@ -268,24 +268,23 @@ class SaleController extends Controller
             /*
                 Ahora vamos a imprimir un encabezado
             */
-            //$printer->setEmphasis(true);
-            $printer->setFont(Printer::FONT_B);
             $printer->setJustification(Printer::JUSTIFY_CENTER);
-            $printer->text("TICKET: ".$sale->serie.'-'.Str::padLeft($sale->num_document,7,"0")."\n");
             $printer->setEmphasis(true);
             $printer->setFont(Printer::FONT_A);
             $printer->text("CONCESIONARIO DE ALIMENTOS LUCEMIR\n");
             $printer->setFont(Printer::FONT_B);
             $printer->setEmphasis(false);
+            $printer->text("TICKET: ".$sale->serie.'-'.Str::padLeft($sale->num_document,7,"0")."\n");
+            $printer->setFont(Printer::FONT_B);
             $printer->text("FECHA Y HORA: ".now()->parse($sale->sale_date)->format("d/m/Y H:i:s A"). "\n");
             $printer->setJustification(Printer::JUSTIFY_LEFT);
             $printer->text("CAJERO: ".mb_strtoupper($user->username)."        PEDIDOS: 92485988"."\n");
             $printer->text("COMENSAL: ".$comensal."\n");
+            $printer->text("\n");
 
-
-            $printer->text("------------------------------------------------------------"."\n");
-            $printer->text("DESCRIPCIÓN                                 PRECIO      TOT."."\n");
-            $printer->text("------------------------------------------------------------"."\n");
+            //$printer->text("------------------------------------------------------------"."\n");
+            $printer->text("DESCRIPCIÓN                          PRECIO      TOT."."\n");
+            //$printer->text("------------------------------------------------------------"."\n");
             //$printer->selectPrintMode();
             //$printer->setEmphasis(false);
             $printer->setJustification(Printer::JUSTIFY_LEFT);
@@ -294,7 +293,7 @@ class SaleController extends Controller
 
             foreach ($sale->saleDetails as $detail) {
                 //$productName = wordwrap($detail->product_name, 20, "\n", true); // Dividir en líneas de 20 caracteres
-                $printer->text(number_format($detail->quantity)."x ".mb_strtoupper($detail->product_name)."                                 "."S/ ".number_format($detail->sale_price,2)."      "."S/ ".number_format($detail->total,2)."\n");
+                $printer->text(number_format($detail->quantity)."x ".mb_strtoupper($detail->product_name)."                          "."S/ ".number_format($detail->sale_price,2)."      "."S/ ".number_format($detail->total,2)."\n");
             }
 
             //$printer->text("------------------------------------------------"."\n");
