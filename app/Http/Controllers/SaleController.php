@@ -40,6 +40,7 @@ class SaleController extends Controller
             //->where("serie","001")
             //->where("deal_in_form","SUBVENCION")
             //->where("worker_id",$workerId)
+            ->whereDate("sale_date",now()->format("Y-m-d"))
             ->orderByDesc("id")
             ->paginate($perPage, ["*"], "page", $page);
 
