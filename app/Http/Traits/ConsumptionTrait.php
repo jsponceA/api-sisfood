@@ -126,9 +126,6 @@ trait ConsumptionTrait
         $sales = Sale::query()
             ->with(["worker","saleDetails"])
             ->where("deal_in_form","DESCUENTO_PLANILLA")
-            ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
-                $query->where("deal_in_form", $typeDiscount);
-            })
             ->when(!empty($dateStartSuspended), function ($query) use ($dateStartConsumption) {
                 $query->whereDate("sale_date", ">=", $dateStartConsumption);
             })
