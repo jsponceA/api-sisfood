@@ -19,7 +19,7 @@ class SubvencionExport implements FromView, ShouldAutoSize
 
     public function view(): View
     {
-        $consumptions = $this->queryList($this->params)->get();
+        $consumptions = $this->queryListSubvencion($this->params)->get();
 
         return view("reports.consumption.list_excel_subvencion")->with(compact("consumptions"));
     }
