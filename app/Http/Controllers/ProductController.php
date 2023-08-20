@@ -114,12 +114,12 @@ class ProductController extends Controller
 
     public function updateBarCodes()
     {
-        $products = Product::query()->get();
+        /*$products = Product::query()->get();
         foreach ($products as $p) {
             $p = Product::query()->findOrFail($p->id);
             $p->barcode = $this->generateBarCode($p->id,$p->created_at);
             $p->update();
-        }
+        }*/
     }
 
     public function getAllResources(Request $request): JsonResponse
