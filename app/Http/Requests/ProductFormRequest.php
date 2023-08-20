@@ -28,14 +28,14 @@ class ProductFormRequest extends FormRequest
                     //'name' => ['required', "max:255",Rule::unique("products","name")->whereNull("deleted_at")],
                     'name' => ['required','max:255'],
                     'category' => ['required'],
-                    'barcode' => ['required', "max:100"],
+                    'barcode' => ['nullable', "max:100"],
                 ];
             case "PUT":
                 return [
                     //'name' => ['required', "max:255",Rule::unique("products","name")->ignore($this->route("product"))->whereNull("deleted_at")],
                     'name' => ['required','max:255'],
                     'category' => ['required'],
-                    'barcode' => ['required', "max:100"],
+                    'barcode' => ['nullable', "max:100"],
                 ];
             default:
                 return [];

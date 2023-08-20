@@ -41,6 +41,9 @@ class ProductController extends Controller
 
         $product = Product::query()->create($data);
 
+        Product::query()->where("id",$product->id)
+            ->update(["barcode"=>$this->generateBarCode($product->id,$product->created_at)]);
+
         return response()->json([
             "message" => "Producto creado satisfactoriamente"
         ], Response::HTTP_CREATED);
@@ -66,6 +69,7 @@ class ProductController extends Controller
         $data = $request->all();
 
         $product = Product::query()->findOrFail($id);
+        $data["barcode"] = $this->generateBarCode($product->id,$product->created_at);
         $product->update($data);
 
         return response()->json([
@@ -101,6 +105,21 @@ class ProductController extends Controller
         return response()->json([
             "products" => $products
         ], Response::HTTP_OK);
+    }
+
+    public function generateBarCode(int $id, $created_at)
+    {
+        return $id.now()->parse($created_at)->format("dmy");
+    }
+
+    public function updateBarCodes()
+    {
+        $products = Product::query()->get();
+        foreach ($products as $p) {
+            $p = Product::query()->findOrFail($p->id);
+            $p->barcode = $this->generateBarCode($p->id,$p->created_at);
+            $p->update();
+        }
     }
 
     public function getAllResources(Request $request): JsonResponse

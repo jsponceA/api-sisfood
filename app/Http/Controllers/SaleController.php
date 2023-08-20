@@ -320,6 +320,22 @@ class SaleController extends Controller
         }
     }
 
+    public function totalsSaleProductsByCategory(): JsonResponse
+    {
+        $now = now()->format("Y-m-d");
+
+        $salesQty = Sale::query()
+            ->selectRaw("SUM(sale_details.quantity) AS quantity_products,products.name AS product_name,products.category AS category_name")
+            ->join("sale_details","sales.id","=","sale_details.sale_id")
+            ->join("products","sale_details.product_id","=","products.id")
+            ->whereDate("sale_date",$now)
+            ->groupBy("products.name","products.category")
+            ->get();
+
+        return response()->json($salesQty,Response::HTTP_OK);
+    }
+
+
     /**
      * Get All resource for all actions
      */

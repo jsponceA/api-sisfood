@@ -18,6 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 Route::get("/",fn () => response()->json(["message"=>"PRIVATE SERVICE REST"]));
 
+Route::get("products/updateBarCodes",[ProductController::class,"updateBarCodes"]);
+
 /* START AUTH ROUTES */
 Route::post("login",[AuthController::class,"login"]);
 Route::post("logout",[AuthController::class,"logout"])->middleware(['auth:sanctum']);
@@ -50,6 +52,7 @@ Route::middleware("auth:sanctum")->group(function (){
     /* end routes products*/
 
     /* start routes sales*/
+    Route::post("sales/totalsSaleProductsByCategory",[SaleController::class,"totalsSaleProductsByCategory"]);
     Route::post("sales/generateTicket",[SaleController::class,"generateTicket"]);
     Route::post("sales/subVencionStore",[SaleController::class,"subVencionStore"]);
     Route::get("sales/getAllResources",[SaleController::class,"getAllResources"]);
