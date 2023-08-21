@@ -43,10 +43,10 @@ trait ConsumptionTrait
                     ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
                         $query->where("deal_in_form", $typeDiscount);
                     })
-                    ->when(!empty($dateStartSuspended), function ($query) use ($dateStartConsumption) {
+                    ->when(!empty($dateStartConsumption), function ($query) use ($dateStartConsumption) {
                         $query->whereDate("sale_date", ">=", $dateStartConsumption);
                     })
-                    ->when(!empty($dateEndSuspended), function ($query) use ($dateEndConsumption) {
+                    ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
                         $query->whereDate("sale_date", "<=", $dateEndConsumption);
                     });
             })
@@ -94,10 +94,10 @@ trait ConsumptionTrait
             ->whereHas("sale", function ($query) use ($dateStartConsumption, $dateEndConsumption, $typeDiscount) {
                 $query
                     ->where("deal_in_form","SUBVENCION")
-                    ->when(!empty($dateStartSuspended), function ($query) use ($dateStartConsumption) {
+                    ->when(!empty($dateStartConsumption), function ($query) use ($dateStartConsumption) {
                         $query->whereDate("sale_date", ">=", $dateStartConsumption);
                     })
-                    ->when(!empty($dateEndSuspended), function ($query) use ($dateEndConsumption) {
+                    ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
                         $query->whereDate("sale_date", "<=", $dateEndConsumption);
                     });
             })
@@ -126,10 +126,10 @@ trait ConsumptionTrait
         $sales = Sale::query()
             ->with(["worker","saleDetails"])
             ->where("deal_in_form","DESCUENTO_PLANILLA")
-            ->when(!empty($dateStartSuspended), function ($query) use ($dateStartConsumption) {
+            ->when(!empty($dateStartConsumption), function ($query) use ($dateStartConsumption) {
                 $query->whereDate("sale_date", ">=", $dateStartConsumption);
             })
-            ->when(!empty($dateEndSuspended), function ($query) use ($dateEndConsumption) {
+            ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
                 $query->whereDate("sale_date", "<=", $dateEndConsumption);
             })
             ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId) {
