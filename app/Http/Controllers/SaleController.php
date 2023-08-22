@@ -243,7 +243,7 @@ class SaleController extends Controller
     public function generateTicket(Request $request)
     {
         try {
-            $sale = Sale::query()
+            /*$sale = Sale::query()
                 ->with(["worker","saleDetails"])
                 ->findOrFail($request->input("id"));
             $user = auth()->user();
@@ -259,15 +259,6 @@ class SaleController extends Controller
             $printer->initialize();
             # Vamos a alinear al centro lo próximo que imprimamos
             //$printer->setJustification(Printer::JUSTIFY_CENTER);
-
-            /*try{
-                $logo = EscposImage::load("/img/logolucemir.jpg", false);
-                $printer->bitImage($logo);
-            }catch(\Throwable $e){}*/
-
-            /*
-                Ahora vamos a imprimir un encabezado
-            */
 
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->setEmphasis(true);
@@ -308,12 +299,11 @@ class SaleController extends Controller
             $printer->text("TOTAL: S/ ".number_format($total,2)."\n");
             $printer->text("FORMA DE PAGO: ".($sale->pay_type == "EFECTIVO" ? 'EFECTIVO' : 'Descuento por planilla') ."\n");
 
-            /*Alimentamos el papel 3 veces*/
             $printer->feed(2);
             $printer->cut();
             $printer->pulse();
             $printer->close();
-
+*/
             return response()->json(["message" => "Impresion OK"],Response::HTTP_OK);
         }catch (\Throwable $t){
             return response()->json(["message" => $t->getMessage()],Response::HTTP_BAD_REQUEST);
