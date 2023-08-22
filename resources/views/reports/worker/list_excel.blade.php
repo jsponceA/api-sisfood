@@ -33,7 +33,7 @@
     <tbody>
     @foreach ($workers as $w)
         <tr>
-            <td style="text-align: center">{{ $w->numdoc }}</td>
+            <td style="text-align: center">{{ $w->numdoc.'' }}</td>
             <td style="text-align: center">{{ $w->surnames.' '.$w->names }}</td>
             <td style="text-align: center">{{ !empty($w->admission_date) ? now()->parse($w->admission_date)->format("d/m/Y") : ""}}</td>
             <td style="text-align: center">{{ !empty($w->suspension_date) ? now()->parse($w->suspension_date)->format("d/m/Y") : ""}}</td>

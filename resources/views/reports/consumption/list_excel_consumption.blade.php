@@ -20,8 +20,8 @@
     <tbody>
     @foreach ($consumptions as $c)
         <tr>
-            <td style="border: 1px solid black;background-color: #C6E0B4">{{$c->worker?->numdoc}}</td>
-            <td style="border: 1px solid black;background-color: #C6E0B4">{{$c->worker?->names}} {{$c->worker?->surnames}}</td>
+            <td style="border: 1px solid black;background-color: #C6E0B4">{{$c->worker?->numdoc.''}}</td>
+            <td style="border: 1px solid black;background-color: #C6E0B4">{{$c->worker?->surnames}} {{$c->worker?->names}}</td>
             <td style="border: 1px solid black;background-color: #C6E0B4">{{$c->worker?->typeForm?->name}}</td>
             <td style="border: 1px solid black;background-color: #C6E0B4">{{ !empty($c->sale_date) ? now()->parse($c->sale_date)->format("d/m/Y") : ""}}</td>
             <td style="border: 1px solid black;background-color: #C6E0B4">{{number_format($c->total_sale,2)}}</td>

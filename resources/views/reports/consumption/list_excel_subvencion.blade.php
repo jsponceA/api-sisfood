@@ -26,9 +26,9 @@
     <tbody>
     @foreach ($consumptions as $c)
         <tr>
-            <td style="text-align: center">{{$c->sale?->worker?->numdoc}}</td>
-            <td style="text-align: center">{{$c->sale?->worker?->numdoc}}</td>
-            <td style="text-align: center">{{$c->sale?->worker?->names}} {{$c->sale->worker?->surnames}}</td>
+            <td style="text-align: center">{{$c->sale?->worker?->numdoc.''}}</td>
+            <td style="text-align: center">{{$c->sale?->worker?->numdoc.''}}</td>
+            <td style="text-align: center">{{$c->sale->worker?->surnames}} {{$c->sale?->worker?->names}}</td>
             <td style="text-align: center">{{$c->sale?->worker?->typeForm?->name}}</td>
             <td style="text-align: center">{{$c->sale?->worker?->area?->name}}</td>
             <td style="text-align: center">{{$c->sale?->worker?->area?->name}}</td>
