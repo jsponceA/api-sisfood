@@ -22,7 +22,7 @@ trait WorkerTrait
         $dinner = $request->input("dinner");
 
         $workers = Worker::query()
-            //->with(["rol", "branch"])
+            ->with(["area", "typeForm","costCenter"])
             ->when(!empty($search), function ($q) use ($search) {
                 $q->where("names", "LIKE", "%{$search}%")
                     ->orWhere("surnames", "LIKE", "%{$search}%")

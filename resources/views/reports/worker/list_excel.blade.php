@@ -21,6 +21,9 @@
         <th style="font-weight: bold;text-align: center">APELLIDOS Y NOMBRES</th>
         <th style="font-weight: bold;text-align: center">FECHA DE INGRESO</th>
         <th style="font-weight: bold;text-align: center">FECHA DE CESE</th>
+        <th style="font-weight: bold;text-align: center">AREA</th>
+        <th style="font-weight: bold;text-align: center">TIPO PLANILLA</th>
+        <th style="font-weight: bold;text-align: center">CENTRO DE COSTO</th>
         <th style="font-weight: bold;text-align: center">DESAYUNO</th>
         <th style="font-weight: bold;text-align: center">ALMUERZO</th>
         <th style="font-weight: bold;text-align: center">CENA</th>
@@ -34,6 +37,9 @@
             <td style="text-align: center">{{ $w->surnames.' '.$w->names }}</td>
             <td style="text-align: center">{{ !empty($w->admission_date) ? now()->parse($w->admission_date)->format("d/m/Y") : ""}}</td>
             <td style="text-align: center">{{ !empty($w->suspension_date) ? now()->parse($w->suspension_date)->format("d/m/Y") : ""}}</td>
+            <td style="text-align: center">{{ $w->area->name }}</td>
+            <td style="text-align: center">{{ $w->typeForm->name }}</td>
+            <td style="text-align: center">{{ $w->costCenter->name }}</td>
             <td style="text-align: center">
                 @if(!empty($w->breakfast))
                     <p style="color: green">SI</p>

@@ -39,11 +39,16 @@ class Worker extends Model
 
     public function area(): BelongsTo
     {
-        return $this->belongsTo(Area::class);
+        return $this->belongsTo(Area::class)->withDefault();
     }
 
     public function typeForm(): BelongsTo
     {
-        return $this->belongsTo(TypeForm::class);
+        return $this->belongsTo(TypeForm::class)->withDefault();
+    }
+
+    public function costCenter(): BelongsTo
+    {
+        return $this->belongsTo(CostCenter::class)->withDefault();
     }
 }
