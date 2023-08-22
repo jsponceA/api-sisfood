@@ -120,7 +120,7 @@ class SaleController extends Controller
                 foreach ($searchSale as $srSale) {
                     foreach ($srSale->saleDetails as $saleDetail) {
                         if ($saleDetail->product_id == $product->id){
-                            $existsFoodType = true;
+                            $existsFoodType = false;//volver a su valor true
                             $foodConsumed = Sale::query()->find($saleDetail->sale_id);
                         }
                     }
