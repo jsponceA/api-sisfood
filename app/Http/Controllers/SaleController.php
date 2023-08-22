@@ -64,6 +64,7 @@ class SaleController extends Controller
                 $saleData["serie"] = "001";
                 $saleData["num_document"] = Sale::query()->where("serie","001")->max("num_document") + 1;
                 $saleData["pay_type"] = "CREDITO";
+                $saleData["total_dsct_form"] = 0;
                 $saleData["total_pay_company"] = 0;
                 $saleData["total_igv"] = 0;
             }else{
