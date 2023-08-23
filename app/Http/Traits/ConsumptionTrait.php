@@ -33,9 +33,12 @@ trait ConsumptionTrait
                     })
                     ->when(!empty($search), function ($query) use ($search) {
                         $query
-                            ->where("names", "LIKE", "%{$search}%")
-                            ->orWhere("surnames", "LIKE", "%{$search}%")
-                            ->orWhere("numdoc", "LIKE", "%{$search}%");
+                            ->where(function ($query) use ($search){
+                                $query
+                                    ->where("names", "LIKE", "%{$search}%")
+                                    ->orWhere("surnames", "LIKE", "%{$search}%")
+                                    ->orWhere("numdoc", "LIKE", "%{$search}%");
+                            });
                     });
             })
             ->whereHas("sale", function ($query) use ($dateStartConsumption, $dateEndConsumption, $typeDiscount) {
@@ -86,9 +89,12 @@ trait ConsumptionTrait
                     })
                     ->when(!empty($search), function ($query) use ($search) {
                         $query
-                            ->where("names", "LIKE", "%{$search}%")
-                            ->orWhere("surnames", "LIKE", "%{$search}%")
-                            ->orWhere("numdoc", "LIKE", "%{$search}%");
+                            ->where(function ($query) use ($search){
+                                $query
+                                    ->where("names", "LIKE", "%{$search}%")
+                                    ->orWhere("surnames", "LIKE", "%{$search}%")
+                                    ->orWhere("numdoc", "LIKE", "%{$search}%");
+                            });
                     });
             })
             ->whereHas("sale", function ($query) use ($dateStartConsumption, $dateEndConsumption, $typeDiscount) {
@@ -144,9 +150,12 @@ trait ConsumptionTrait
                     })
                     ->when(!empty($search), function ($query) use ($search) {
                         $query
-                            ->where("names", "LIKE", "%{$search}%")
-                            ->orWhere("surnames", "LIKE", "%{$search}%")
-                            ->orWhere("numdoc", "LIKE", "%{$search}%");
+                            ->where(function ($query) use ($search){
+                                $query
+                                    ->where("names", "LIKE", "%{$search}%")
+                                    ->orWhere("surnames", "LIKE", "%{$search}%")
+                                    ->orWhere("numdoc", "LIKE", "%{$search}%");
+                            });
                     });
             })
             ->whereHas("saleDetails.product", function ($query) use ($categoryId) {
