@@ -121,7 +121,7 @@ class SaleController extends Controller
                 foreach ($searchSale as $srSale) {
                     foreach ($srSale->saleDetails as $saleDetail) {
                         if ($saleDetail->product_id == $product->id){
-                            $existsFoodType = false;//volver a su valor true
+                            $existsFoodType = true;
                             $foodConsumed = Sale::query()->find($saleDetail->sale_id);
                         }
                     }
@@ -244,7 +244,7 @@ class SaleController extends Controller
     public function generateTicket(Request $request)
     {
         try {
-            /*$sale = Sale::query()
+            $sale = Sale::query()
                 ->with(["worker","saleDetails"])
                 ->findOrFail($request->input("id"));
             $user = auth()->user();
@@ -304,7 +304,7 @@ class SaleController extends Controller
             $printer->cut();
             $printer->pulse();
             $printer->close();
-*/
+
             return response()->json(["message" => "Impresion OK"],Response::HTTP_OK);
         }catch (\Throwable $t){
             return response()->json(["message" => $t->getMessage()],Response::HTTP_BAD_REQUEST);
