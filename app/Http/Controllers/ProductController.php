@@ -91,15 +91,29 @@ class ProductController extends Controller
      * Get All resource for all actions
      */
 
+    public function searchOneProduct(Request $request)
+    {
+        $search = trim($request->input("search"));
+
+        $product = Product::query()
+            ->where("barcode", $search)
+            ->orWhere("name", $search)
+            ->first();
+
+        return response()->json([
+            "product" => $product
+        ], Response::HTTP_OK);
+    }
+
     public function searchSensitive(Request $request)
     {
         $search = trim($request->input("search"));
 
         $products = Product::query()
-            ->where("barcode", $search)
-            ->orWhere("name", $search)
+            ->where("barcode", "LIKE","%{$search}%")
+            ->orWhere("name", "LIKE","%{$search}%")
             ->orderByDesc("id")
-            ->take(10)
+            ->take(5)
             ->get();
 
         return response()->json([

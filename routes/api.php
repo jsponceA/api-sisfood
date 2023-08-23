@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 Route::get("/",fn () => response()->json(["message"=>"PRIVATE SERVICE REST"]));
 
-Route::get("products/updateBarCodes",[ProductController::class,"updateBarCodes"]);
+//Route::get("products/updateBarCodes",[ProductController::class,"updateBarCodes"]);
 
 /* START AUTH ROUTES */
 Route::post("login",[AuthController::class,"login"]);
@@ -46,6 +46,7 @@ Route::middleware("auth:sanctum")->group(function (){
     /* end routes workers*/
 
     /* start routes products*/
+    Route::get("products/searchOneProduct",[ProductController::class,"searchOneProduct"]);
     Route::get("products/searchSensitive",[ProductController::class,"searchSensitive"]);
     Route::get("products/getAllResources",[ProductController::class,"getAllResources"]);
     Route::apiResource("products",ProductController::class);
