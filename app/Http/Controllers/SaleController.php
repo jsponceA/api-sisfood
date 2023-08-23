@@ -129,7 +129,13 @@ class SaleController extends Controller
 
 
 
-                if (empty($worker->breakfast) && mb_strtoupper($product->name) == "DESAYUNO"){
+                if($worker->terminated_worker){
+                    $suspendDateFormat = now()->parse($worker->suspension_date)->format("d/m/Y");
+                    $response["error"] = true;
+                    $response["alertType"] = 4;
+                    $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, ya fue cesado en la fecha {$suspendDateFormat} ";
+                    $response["messageContent"] = "";
+                }else if(empty($worker->breakfast) && mb_strtoupper($product->name) == "DESAYUNO"){
                     $response["error"] = true;
                     $response["alertType"] = 4;
                     $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, no tienen acceso a {$product->name} ";

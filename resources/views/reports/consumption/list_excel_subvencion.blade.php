@@ -11,7 +11,6 @@
         <th style="font-weight: bold;text-align: center">DNI</th>
         <th style="font-weight: bold;text-align: center">CODIGO</th>
         <th style="font-weight: bold;text-align: center">CLIENTE</th>
-        <th style="font-weight: bold;text-align: center">PLANILLA</th>
         <th style="font-weight: bold;text-align: center">AREA</th>
         <th style="font-weight: bold;text-align: center">C.Costp</th>
         <th style="font-weight: bold;text-align: center">FECHA</th>
@@ -21,24 +20,34 @@
         <th style="font-weight: bold;text-align: center">PASI</th>
         <th style="font-weight: bold;text-align: center">COMEDOR</th>
         <th style="font-weight: bold;text-align: center">TOTAL</th>
+        <th style="font-weight: bold;text-align: center">TIPO_DESCUENTO</th>
+        <th style="font-weight: bold;text-align: center">TIPO_PLANILLA</th>
     </tr>
     </thead>
     <tbody>
     @foreach ($consumptions as $c)
+        @php
+                $totalIgv = number_format($c->deal_in_form == "SUBVENCION" ? $c->total_igv : $c->total_sale,2);
+                $quantity = number_format($c->saleDetails()->sum("quantity"));
+                $totalPayCompany = number_format($c->total_pay_company,2);
+                $totalDsctForm = number_format($c->total_dsct_form,2);
+                $total= number_format($totalIgv * $quantity,2);
+        @endphp
         <tr>
-            <td style="text-align: center">{{$c->sale?->worker?->numdoc.''}}</td>
-            <td style="text-align: center">{{$c->sale?->worker?->numdoc.''}}</td>
-            <td style="text-align: center">{{$c->sale->worker?->surnames}} {{$c->sale?->worker?->names}}</td>
-            <td style="text-align: center">{{$c->sale?->worker?->typeForm?->name}}</td>
-            <td style="text-align: center">{{$c->sale?->worker?->area?->name}}</td>
-            <td style="text-align: center">{{$c->sale?->worker?->area?->name}}</td>
-            <td style="text-align: center">{{ !empty($c->sale->sale_date) ? now()->parse($c->sale->sale_date)->format("d/m/Y") : ""}}</td>
-            <td style="text-align: center">{{$c->product_name}}</td>
-            <td style="text-align: center">{{number_format($c->sale?->total_igv,2)}}</td>
-            <td style="text-align: center">{{number_format($c->quantity,2)}}</td>
-            <td style="text-align: center">{{number_format($c->sale?->total_pay_company,2)}}</td>
-            <td style="text-align: center">{{number_format($c->sale?->total_dsct_form,2)}}</td>
-            <td style="text-align: center">{{number_format($c->sale?->total_igv * $c->quantity,2)}}</td>
+            <td style="text-align: center">{{$c->worker?->numdoc.''}}</td>
+            <td style="text-align: center">{{$c->worker?->numdoc.''}}</td>
+            <td style="text-align: center">{{$c->worker?->surnames}} {{$c->worker?->names}}</td>
+            <td style="text-align: center">{{$c->worker?->area?->name}}</td>
+            <td style="text-align: center">{{$c->worker?->costCenter?->name}}</td>
+            <td style="text-align: center">{{ !empty($c->sale_date) ? now()->parse($c->sale_date)->format("d/m/Y") : ""}}</td>
+            <td style="text-align: center">{{$c->saleDetails()->get()->map(fn($q)=> number_format($q->quantity).'x '.$q->product->name)->implode("/ ")}}</td>
+            <td style="text-align: center">{{$totalIgv}}</td>
+            <td style="text-align: center">{{$quantity}}</td>
+            <td style="text-align: center">{{$totalPayCompany}}</td>
+            <td style="text-align: center">{{$totalDsctForm}}</td>
+            <td style="text-align: center">{{$total}}</td>
+            <td style="text-align: center">{{$c->deal_in_form}}</td>
+            <td style="text-align: center">{{$c->worker?->typeForm?->name}}</td>
         </tr>
     @endforeach
     </tbody>

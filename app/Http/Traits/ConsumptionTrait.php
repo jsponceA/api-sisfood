@@ -73,11 +73,18 @@ trait ConsumptionTrait
         $areaId = $request->input("areaId");
         $typeDiscount = $request->input("typeDiscount");
 
-
-        $sales = SaleDetail::query()
-            ->with(["sale", "product"])
-
-            ->whereHas("sale.worker", function ($query) use ($search, $typeFormId, $areaId) {
+        $sales = Sale::query()
+            ->with(["worker","saleDetails"])
+            ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
+                $query->where("deal_in_form", $typeDiscount);
+            })
+            ->when(!empty($dateStartConsumption), function ($query) use ($dateStartConsumption) {
+                $query->whereDate("sale_date", ">=", $dateStartConsumption);
+            })
+            ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
+                $query->whereDate("sale_date", "<=", $dateEndConsumption);
+            })
+            ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId) {
                 $query
                     ->when(!empty($typeFormId), function ($query) use ($typeFormId) {
                         $query
@@ -97,17 +104,7 @@ trait ConsumptionTrait
                             });
                     });
             })
-            ->whereHas("sale", function ($query) use ($dateStartConsumption, $dateEndConsumption, $typeDiscount) {
-                $query
-                    ->where("deal_in_form","SUBVENCION")
-                    ->when(!empty($dateStartConsumption), function ($query) use ($dateStartConsumption) {
-                        $query->whereDate("sale_date", ">=", $dateStartConsumption);
-                    })
-                    ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
-                        $query->whereDate("sale_date", "<=", $dateEndConsumption);
-                    });
-            })
-            ->whereHas("product", function ($query) use ($categoryId) {
+            ->whereHas("saleDetails.product", function ($query) use ($categoryId) {
                 $query->when(!empty($categoryId), function ($query) use ($categoryId) {
                     $query->where("category", $categoryId);
                 });
