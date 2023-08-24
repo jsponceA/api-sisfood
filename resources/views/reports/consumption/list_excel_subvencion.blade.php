@@ -27,11 +27,11 @@
     <tbody>
     @foreach ($consumptions as $c)
         @php
-                $totalIgv = number_format($c->deal_in_form == "SUBVENCION" ? $c->total_igv : $c->total_sale,2);
                 $quantity = number_format($c->saleDetails()->sum("quantity"));
                 $totalPayCompany = number_format($c->total_pay_company,2);
                 $totalDsctForm = number_format($c->total_dsct_form,2);
-                $total= number_format($totalIgv * $quantity,2);
+                $total = number_format($c->deal_in_form == "SUBVENCION" ? $c->total_igv : $c->total_sale,2);
+
         @endphp
         <tr>
             <td style="text-align: center">{{$c->worker?->numdoc.''}}</td>
@@ -41,7 +41,7 @@
             <td style="text-align: center">{{$c->worker?->costCenter?->name}}</td>
             <td style="text-align: center">{{ !empty($c->sale_date) ? now()->parse($c->sale_date)->format("d/m/Y") : ""}}</td>
             <td style="text-align: center">{{$c->saleDetails()->get()->map(fn($q)=> number_format($q->quantity).'x '.$q->product->name)->implode("/ ")}}</td>
-            <td style="text-align: center">{{$totalIgv}}</td>
+            <td style="text-align: center">{{$total}}</td>
             <td style="text-align: center">{{$quantity}}</td>
             <td style="text-align: center">{{$totalPayCompany}}</td>
             <td style="text-align: center">{{$totalDsctForm}}</td>
