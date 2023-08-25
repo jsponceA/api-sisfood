@@ -29,7 +29,13 @@
         @php
                 $quantity = number_format($c->saleDetails()->sum("quantity"));
                 $totalPayCompany = number_format($c->total_pay_company,2);
-                $totalDsctForm = number_format($c->total_dsct_form,2);
+                if ($c->deal_in_form == "SUBVENCION"){
+                    $totalDsctForm = $c->total_dsct_form;
+                }elseif ($c->deal_in_form == "DESCUENTO_PLANILLA"){
+                    $totalDsctForm = $c->total_sale;
+                }else{
+                    $totalDsctForm = 0;
+                }
                 $total = number_format($c->deal_in_form == "SUBVENCION" ? $c->total_igv : $c->total_sale,2);
 
         @endphp

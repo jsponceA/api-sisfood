@@ -96,7 +96,14 @@ class SaleController extends Controller
             $searchWorker = $request->input("searchWorker");
             $saleData = $request->except("sale_details");
             $saleDetailsData = $request->input("sale_details");
-            $currentDay = now()->format("Y-m-d");
+
+
+            if ($saleData["isPastSale"] && !empty($saleData["sale_date"])){
+                $currentDay = $saleData["sale_date"];
+            }else{
+                $currentDay = now()->format("Y-m-d");
+            }
+
             $response = [];
 
             //validate worker
@@ -110,7 +117,7 @@ class SaleController extends Controller
                     ->where("serie","001")
                     ->where("deal_in_form","SUBVENCION")
                     ->where("worker_id",$worker->id)
-                    ->whereDate("sale_date",$currentDay)
+                    ->whereDate("sale_date",now()->parse($currentDay)->format("Y-m-d"))
                     ->get();
 
                 $product = Product::query()->findOrFail($saleData["product_id"]);
@@ -171,11 +178,18 @@ class SaleController extends Controller
 
             //success - create sale and details
             if (empty($response["error"])){
+
+                if ($saleData["isPastSale"] && !empty($saleData["sale_date"])){
+                    $saleData["created_at"] = $saleData["sale_date"];
+                    $saleData["updated_at"] = $saleData["sale_date"];
+                }else{
+                    $saleData["sale_date"] = now()->format("Y-m-d H:i:s");
+                }
+
                 $saleData["deal_in_form"] = "SUBVENCION";
                 $saleData["pay_type"] = "CREDITO";
                 $saleData["serie"] = "001";
                 $saleData["num_document"] = Sale::query()->where("serie","001")->max("num_document") + 1;
-                $saleData["sale_date"] = now()->format("Y-m-d H:i:s");
                 $sale = Sale::query()->create($saleData);
                 $sale->saleDetails()->createMany($saleDetailsData);
                 $response["id"] = $sale->id;

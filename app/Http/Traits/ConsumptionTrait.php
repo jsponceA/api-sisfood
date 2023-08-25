@@ -109,6 +109,7 @@ trait ConsumptionTrait
                     $query->where("category", $categoryId);
                 });
             })
+            ->orderByDesc("sale_date")
             ->orderByDesc("id");
 
         return $sales;

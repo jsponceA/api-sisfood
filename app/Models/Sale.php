@@ -21,6 +21,8 @@ class Sale extends Model
         "total_pay_company",
         "deal_in_form",
         "pay_type",
+        "created_at",
+        "updated_at"
     ];
 
     public function worker(): BelongsTo
