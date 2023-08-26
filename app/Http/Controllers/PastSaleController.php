@@ -2,24 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\SaleFormRequest;
+
+
 use App\Http\Traits\SaleTrait;
 use App\Models\Product;
 use App\Models\Sale;
-use App\Models\SaleDetail;
 use App\Models\Worker;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Mike42\Escpos\EscposImage;
-use Mike42\Escpos\PrintConnectors\DummyPrintConnector;
-use Mike42\Escpos\PrintConnectors\FilePrintConnector;
 use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 use Mike42\Escpos\Printer;
 use Symfony\Component\HttpFoundation\Response;
 
-class SaleController extends Controller
+class PastSaleController extends Controller
 {
     use SaleTrait;
     /**
@@ -40,7 +37,7 @@ class SaleController extends Controller
             //->where("serie","001")
             //->where("deal_in_form","SUBVENCION")
             //->where("worker_id",$workerId)
-            ->whereDate("sale_date",now()->format("Y-m-d"))
+            //->whereDate("sale_date",now()->format("Y-m-d"))
             ->orderByDesc("id")
             ->paginate($perPage, ["*"], "page", $page);
 
@@ -58,8 +55,11 @@ class SaleController extends Controller
         try {
             $saleData = $request->except("sale_details");
             $saleDetailsData = $request->input("sale_details");
+            $currentDay = $saleData["sale_date"];
+            $saleData["created_at"] = $currentDay;
+            $saleData["updated_at"] = $currentDay;
 
-            $saleData["sale_date"] = now()->format("Y-m-d H:i:s");
+
             if ($saleData["deal_in_form"] == "DESCUENTO_PLANILLA"){
                 $saleData["serie"] = "001";
                 $saleData["num_document"] = Sale::query()->where("serie","001")->max("num_document") + 1;
@@ -96,8 +96,9 @@ class SaleController extends Controller
             $searchWorker = $request->input("searchWorker");
             $saleData = $request->except("sale_details");
             $saleDetailsData = $request->input("sale_details");
-
-            $currentDay = now()->format("Y-m-d");
+            $currentDay = $saleData["sale_date"];
+            $saleData["created_at"] = $currentDay;
+            $saleData["updated_at"] = $currentDay;
             $response = [];
 
             //validate worker
@@ -111,7 +112,7 @@ class SaleController extends Controller
                     ->where("serie","001")
                     ->where("deal_in_form","SUBVENCION")
                     ->where("worker_id",$worker->id)
-                    ->whereDate("sale_date",$currentDay)
+                    ->whereDate("sale_date",now()->parse($currentDay)->format("Y-m-d"))
                     ->get();
 
                 $product = Product::query()->findOrFail($saleData["product_id"]);
@@ -173,7 +174,6 @@ class SaleController extends Controller
             //success - create sale and details
             if (empty($response["error"])){
 
-                $saleData["sale_date"] = now()->format("Y-m-d H:i:s");
                 $saleData["deal_in_form"] = "SUBVENCION";
                 $saleData["pay_type"] = "CREDITO";
                 $saleData["serie"] = "001";
@@ -194,49 +194,6 @@ class SaleController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(int $id): JsonResponse
-    {
-        $sale = Sale::query()->findOrFail($id);
-
-        return response()->json([
-            "sale" => $sale
-        ], Response::HTTP_OK);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(SaleFormRequest $request, int $id): JsonResponse
-    {
-        DB::beginTransaction();
-        try {
-            /*$saleData = $request->except("sale_details");
-            $saleDetailsData = collect($request->input("sale_details"));
-
-            $sale = Sale::query()->findOrFail($id);
-            $sale->update($saleData);
-
-            //delete items not exists id
-            $existsId = $saleDetailsData->map(fn($item)=>$item->id);
-            $sale->saleDetails()->whereNotIn("id",$existsId)->delete();
-
-            $saleDetail = $sale->saleDetails()->upsert($saleDetailsData,$existsId);*/
-
-            DB::commit();
-            return response()->json([
-                "message" => "Venta modificado satisfactoriamente",
-            ], Response::HTTP_OK);
-
-        }catch (\Throwable $e){
-            DB::rollBack();
-            return response()->json([
-                "message" => "No ha sido posible modificar esta venta ocurrio el siguiente error {$e->getMessage()}",
-            ], Response::HTTP_BAD_REQUEST);
-        }
-    }
 
     /**
      * Remove the specified resource from storage.
@@ -319,25 +276,6 @@ class SaleController extends Controller
         }
     }
 
-    public function totalsSaleProductsByCategory(): JsonResponse
-    {
-        $now = now()->format("Y-m-d");
-
-        $salesQty = Sale::query()
-            ->selectRaw("SUM(sale_details.quantity) AS quantity_products,products.name AS product_name,products.category AS category_name")
-            ->join("sale_details","sales.id","=","sale_details.sale_id")
-            ->join("products","sale_details.product_id","=","products.id")
-            ->whereDate("sale_date",$now)
-            ->groupBy("products.name","products.category")
-            ->get();
-
-        return response()->json($salesQty,Response::HTTP_OK);
-    }
-
-
-    /**
-     * Get All resource for all actions
-     */
 
     public function getAllResources(Request $request): JsonResponse
     {
@@ -356,3 +294,4 @@ class SaleController extends Controller
         return response()->json($response, Response::HTTP_OK);
     }
 }
+

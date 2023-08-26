@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConsumptionController;
+use App\Http\Controllers\PastSaleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SaleController;
@@ -59,6 +60,13 @@ Route::middleware("auth:sanctum")->group(function (){
     Route::get("sales/getAllResources",[SaleController::class,"getAllResources"]);
     Route::apiResource("sales",SaleController::class);
     /* end routes sales*/
+
+    /* start routes past sales*/
+    Route::post("pastSales/generateTicket",[PastSaleController::class,"generateTicket"]);
+    Route::post("pastSales/subVencionStore",[PastSaleController::class,"subVencionStore"]);
+    Route::get("pastSales/getAllResources",[PastSaleController::class,"getAllResources"]);
+    Route::apiResource("pastSales",PastSaleController::class);
+    /* end routes past sales*/
 
     /* start routes consumption*/
     Route::post("consumptions/generateExcelConsumption",[ConsumptionController::class,"generateExcelConsumption"]);
