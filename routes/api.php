@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConsumptionController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PastSaleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -74,6 +75,13 @@ Route::middleware("auth:sanctum")->group(function (){
     Route::get("consumptions/getAllResources",[ConsumptionController::class,"getAllResources"]);
     Route::apiResource("consumptions",ConsumptionController::class);
     /* end routes consumption*/
+
+    /* start routes home dashboard */
+    Route::get("home/getSalesProductCount",[HomeController::class,"getSalesProductCount"]);
+    Route::get("home/getAllResources",[HomeController::class,"getAllResources"]);
+
+
+    /* end routes home dashboard */
 
 });
 /* END PROTECTED ROUTES */
