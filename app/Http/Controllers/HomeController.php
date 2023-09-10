@@ -86,6 +86,7 @@ class HomeController extends Controller
                 ->leftJoin("sale_details AS sd","products.id","=","sd.product_id")
                 ->leftJoin("sales AS s","sd.sale_id","=","s.id")
                 ->whereMonth("s.sale_date",$dateLabel)
+                ->whereYear("s.sale_date",$dateLabel)
                 ->where("category","COMIDAS")
                 ->where("name","DESAYUNO")
                 ->sum("sd.quantity");
@@ -94,6 +95,7 @@ class HomeController extends Controller
                 ->leftJoin("sale_details AS sd","products.id","=","sd.product_id")
                 ->leftJoin("sales AS s","sd.sale_id","=","s.id")
                 ->whereMonth("s.sale_date",$dateLabel)
+                ->whereYear("s.sale_date",$dateLabel)
                 ->where("category","COMIDAS")
                 ->where("name","ALMUERZO")
                 ->sum("sd.quantity");
@@ -102,6 +104,7 @@ class HomeController extends Controller
                 ->leftJoin("sale_details AS sd","products.id","=","sd.product_id")
                 ->leftJoin("sales AS s","sd.sale_id","=","s.id")
                 ->whereMonth("s.sale_date",$dateLabel)
+                ->whereYear("s.sale_date",$dateLabel)
                 ->where("category","COMIDAS")
                 ->where("name","CENA")
                 ->sum("sd.quantity");
