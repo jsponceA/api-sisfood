@@ -20,7 +20,7 @@ class HomeController extends Controller
         $category = $request->input("category");
 
         $sales = Product::query()
-            ->selectRaw("name,category,SUM(sd.quantity) AS quantityProducts,SUM(s.total_sale) AS totalSale")
+            ->selectRaw("name,category,SUM(sd.quantity) AS quantityProducts,SUM(s.total_sale) AS totalSale,SUM(s.total_pay_company) AS totalSaleCompany")
             ->leftJoin("sale_details AS sd","products.id","=","sd.product_id")
             ->leftJoin("sales AS s","sd.sale_id","=","s.id")
             ->when(!empty($starDate),fn($q) => $q->whereDate("s.sale_date",">=",$starDate))
@@ -32,7 +32,7 @@ class HomeController extends Controller
         $linearDataResult = [];
         $rangeDates = CarbonPeriod::create($starDate,$endDate)->toArray();
         foreach ($rangeDates as $rdate) {
-            $linearDataResult["labels"][] = $rdate->format("d/m/Y");
+            $linearDataResult["labels"][] = ucfirst($rdate->dayName).' - '.$rdate->format("d/m/Y");
         }
 
         foreach ($rangeDates as $dateLabel) {
