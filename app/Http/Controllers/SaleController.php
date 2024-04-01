@@ -178,7 +178,7 @@ class SaleController extends Controller
                 $saleData["pay_type"] = "CREDITO";
                 $saleData["serie"] = "001";
                 $saleData["num_document"] = Sale::query()->where("serie","001")->max("num_document") + 1;
-                
+
 
                 $sale = Sale::query()->create($saleData);
                 $sale->saleDetails()->createMany($saleDetailsData);
@@ -262,9 +262,9 @@ class SaleController extends Controller
             //variables
             $comensal = !empty($sale->worker->names) ? mb_strtoupper($sale->worker->names." ".$sale->worker->surnames) : 'PUBLICO GENERAL';
 
-            //$nombreImpresora = env("PRINTER_NAME");
-            //$connector = new WindowsPrintConnector($nombreImpresora);
-            $connector = new FilePrintConnector(storage_path('app/simulated-print.txt'));
+            $nombreImpresora = env("PRINTER_NAME");
+            $connector = new WindowsPrintConnector($nombreImpresora);
+            //$connector = new FilePrintConnector(storage_path('app/simulated-print.txt'));
             $printer = new Printer($connector);
 
             $printer->initialize();
