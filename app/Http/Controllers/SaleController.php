@@ -282,7 +282,7 @@ class SaleController extends Controller
             $printer->setFont(Printer::FONT_B);
             $printer->text("FECHA Y HORA: ".now()->parse($sale->sale_date)->format("d/m/Y h:i:s A"). "\n");
             $printer->setJustification(Printer::JUSTIFY_LEFT);
-            $printer->text("CAJERO: ".mb_strtoupper($user->username)."                  PEDIDOS: 92485988"."\n");
+            $printer->text("CAJERO: ".mb_strtoupper($user->username)."                  PEDIDOS: 924859988"."\n");
             $printer->text("COMENSAL: ".$comensal."\n");
             $printer->text("\n");
 
