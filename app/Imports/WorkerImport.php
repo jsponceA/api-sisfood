@@ -30,7 +30,7 @@ class WorkerImport implements ToCollection, WithStartRow, WithHeadingRow
 
             if (!empty($item->no_pers)){
 
-                $verificarAreaPersonal = Area::query()->where("name", $item->area_de_personal)->exists();
+                /*$verificarAreaPersonal = Area::query()->where("name", $item->area_de_personal)->exists();
                 if (!$verificarAreaPersonal) {
                     Area::query()->create(["name" => $item->area_de_personal]);
                 }
@@ -65,9 +65,9 @@ class WorkerImport implements ToCollection, WithStartRow, WithHeadingRow
                 $verficarComposicion = Composition::query()->where("name", $item->composicion)->exists();
                 if (!$verficarComposicion) {
                     Composition::query()->create(["name" => $item->composicion]);
-                }
+                }*/
 
-                /*Worker::query()->create([
+                Worker::query()->create([
                     "type_form_id" => TypeForm::query()->where("name",$item->relacion_laboral)->first()->id,
                     "area_id" => Area::query()->where("name",$item->area_de_personal)->first()->id,
                     "cost_center_id" => CostCenter::query()->where("name",$item->centro_de_coste)->first()->id,
@@ -96,7 +96,7 @@ class WorkerImport implements ToCollection, WithStartRow, WithHeadingRow
                     "lunch" => 1,
                     "dinner" => 1,
                     "grant" => $item->subvencion == "SI" ? 1 : 0
-                ]);*/
+                ]);
 
             }
         });
