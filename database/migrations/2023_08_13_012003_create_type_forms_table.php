@@ -21,17 +21,17 @@ return new class extends Migration
 
         TypeForm::query()
             ->create([
-                "name" => "EMPLEADOS"
+                "name" => "EMPLEADO"
             ]);
 
         TypeForm::query()
             ->create([
-                "name" => "OBREROS"
+                "name" => "OBRERO"
             ]);
 
         TypeForm::query()
             ->create([
-                "name" => "PRACTICANTES"
+                "name" => "PRACTICANTE"
             ]);
     }
 
