@@ -5,6 +5,7 @@ namespace App\Http\Traits;
 use App\Models\Sale;
 use App\Models\SaleDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 trait ConsumptionTrait
 {
@@ -162,6 +163,26 @@ trait ConsumptionTrait
                 });
             })
             ->orderByDesc("id");
+
+        return $sales;
+    }
+
+    public function queryListWorkerSummany(Request $request)
+    {
+        $search = trim($request->input("search"));
+        $dateStartConsumption = $request->input("dateStartConsumption");
+        $dateEndConsumption = $request->input("dateEndConsumption");
+        $categoryId = $request->input("categoryId");
+        $typeFormId = $request->input("typeFormId");
+        $areaId = $request->input("areaId");
+        $typeDiscount = $request->input("typeDiscount");
+
+
+        $sales = Sale::query()
+            ->with(["worker","saleDetails"])
+            ->select("worker_id",)
+            ->groupBy("worker_id")
+            ->orderBy("id");
 
         return $sales;
     }

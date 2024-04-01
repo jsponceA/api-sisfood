@@ -7,6 +7,7 @@ use App\Http\Controllers\PastSaleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkerController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,9 @@ use Symfony\Component\HttpFoundation\Response;
 */
 
 Route::get("/",fn () => response()->json(["message"=>"PRIVATE SERVICE REST"]));
+
+Route::get("test",[TestController::class,"index"]);
+Route::post("test/importarExcelTrabajador",[TestController::class,"importarExcelTrabajador"]);
 
 //Route::get("products/updateBarCodes",[ProductController::class,"updateBarCodes"]);
 
@@ -70,6 +74,7 @@ Route::middleware("auth:sanctum")->group(function (){
     /* end routes past sales*/
 
     /* start routes consumption*/
+    Route::post("consumptions/generateExcelWorkerSummary",[ConsumptionController::class,"generateExcelWorkerSummary"]);
     Route::post("consumptions/generateExcelConsumption",[ConsumptionController::class,"generateExcelConsumption"]);
     Route::post("consumptions/generateExcelSubvencion",[ConsumptionController::class,"generateExcelSubvencion"]);
     Route::get("consumptions/getAllResources",[ConsumptionController::class,"getAllResources"]);

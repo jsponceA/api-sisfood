@@ -22,11 +22,12 @@ trait WorkerTrait
         $dinner = $request->input("dinner");
 
         $workers = Worker::query()
-            ->with(["area", "typeForm","costCenter"])
+            ->with(["area", "typeForm","costCenter","payrollArea","campus","staffDivision","charge","organizationalUnit","gender","superior","business"])
             ->when(!empty($search), function ($q) use ($search) {
                 $q->where("names", "LIKE", "%{$search}%")
                     ->orWhere("surnames", "LIKE", "%{$search}%")
-                    ->orWhere("numdoc", "LIKE", "%{$search}%");
+                    ->orWhere("numdoc", "LIKE", "%{$search}%")
+                    ->orWhere("personal_code",$search);
             })
             ->when(!empty($dateStartSuspended), function ($q) use ($dateStartSuspended) {
                 $q->whereDate("suspension_date", ">=", $dateStartSuspended);

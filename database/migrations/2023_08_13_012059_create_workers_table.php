@@ -18,11 +18,19 @@ return new class extends Migration
             $table->unsignedBigInteger("area_id")->nullable();
             $table->unsignedBigInteger("cost_center_id")->nullable();
             $table->unsignedBigInteger("campus_id")->nullable();
+            $table->unsignedBigInteger("payroll_area_id")->nullable();
+            $table->unsignedBigInteger("staff_division_id")->nullable();
+            $table->unsignedBigInteger("organizational_unit_id")->nullable();
+            $table->unsignedBigInteger("superior_id")->nullable();
+            $table->unsignedBigInteger("business_id")->nullable();
+            $table->unsignedBigInteger("charge_id")->nullable();
+            $table->unsignedBigInteger("composition_id")->nullable();
+            $table->unsignedBigInteger("gender_id")->nullable();
+            $table->unsignedBigInteger("type_document_id")->nullable();
+            $table->string("personal_code",50);
             $table->string("names",100);
             $table->string("surnames",100);
-            $table->enum("typedoc",["DNI","CARNET_EXTRANJERIA","RUC"]);
             $table->string("numdoc",20);
-            $table->enum("gender",["HOMBRE","MUJER"])->nullable();
             $table->string("phone",20)->nullable();
             $table->string("email",100)->nullable();
             $table->string("address",250)->nullable();
@@ -33,12 +41,9 @@ return new class extends Migration
             $table->boolean("breakfast")->nullable();
             $table->boolean("lunch")->nullable();
             $table->boolean("dinner")->nullable();
+            $table->boolean("grant")->nullable();
             $table->datetimes();
             $table->softDeletesDatetime();
-            $table->foreign("type_form_id")->references("id")->on("type_forms");
-            $table->foreign("area_id")->references("id")->on("areas");
-            $table->foreign("cost_center_id")->references("id")->on("cost_centers");
-            $table->foreign("campus_id")->references("id")->on("campuses");
         });
 
     }

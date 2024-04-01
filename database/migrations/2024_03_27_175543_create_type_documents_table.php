@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Campus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,17 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('campuses', function (Blueprint $table) {
+        Schema::create('type_documents', function (Blueprint $table) {
             $table->id();
             $table->string("name",100);
             $table->datetimes();
             $table->softDeletesDatetime();
         });
 
-        Campus::query()
-            ->create([
-                "name" => "AMAUTA IMP. COMERC."
-            ]);
+        $values = ["DNI","CARNET DE EXTRANJERIA","RUC"];
+
+        foreach ($values as $item) {
+            \App\Models\TypeDocument::query()->create(["name"=>$item]);
+        }
     }
 
     /**
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('campuses');
+        Schema::dropIfExists('type_documents');
     }
 };

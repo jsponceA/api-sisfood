@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\ConsumptionExport;
 use App\Exports\SubvencionExport;
+use App\Exports\WorkerSummaryExport;
 use App\Http\Traits\ConsumptionTrait;
 use App\Models\Area;
 use App\Models\TypeForm;
@@ -41,6 +42,11 @@ class ConsumptionController extends Controller
     public function generateExcelSubvencion(Request $request)
     {
         return Excel::download(new SubvencionExport($request), 'reporte_consumos.xlsx');
+    }
+
+    public function generateExcelWorkerSummary(Request $request)
+    {
+        return Excel::download(new WorkerSummaryExport($request), 'reporte_resumen_consumos.xlsx');
     }
 
 

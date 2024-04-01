@@ -25,7 +25,6 @@ return new class extends Migration
             $table->enum("pay_type",["CREDITO","EFECTIVO"]);
             $table->datetimes();
             $table->softDeletesDatetime();
-            $table->foreign("worker_id")->references("id")->on("workers");
         });
     }
 

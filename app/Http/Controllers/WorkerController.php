@@ -6,8 +6,17 @@ use App\Exports\WorkerExport;
 use App\Http\Requests\WorkerFormRequest;
 use App\Http\Traits\WorkerTrait;
 use App\Models\Area;
+use App\Models\Business;
 use App\Models\Campus;
+use App\Models\Charge;
+use App\Models\Composition;
 use App\Models\CostCenter;
+use App\Models\Gender;
+use App\Models\OrganizationalUnit;
+use App\Models\PayrollArea;
+use App\Models\StaffDivision;
+use App\Models\Superior;
+use App\Models\TypeDocument;
 use App\Models\TypeForm;
 use App\Models\Worker;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -132,10 +141,10 @@ class WorkerController extends Controller
 
         $response = [];
         if (in_array("genders", $resourceTypes)) {
-            $response["genders"] = ["HOMBRE", "MUJER"];
+            $response["genders"] = Gender::query()->orderByDesc("id")->get();
         }
         if (in_array("typedocs", $resourceTypes)) {
-            $response["typedocs"] = ["DNI", "CARNET_EXTRANJERIA", "RUC"];
+            $response["typedocs"] = TypeDocument::query()->orderByDesc("id")->get();
         }
         if (in_array("campuses", $resourceTypes)) {
             $response["campuses"] = Campus::query()->orderByDesc("id")->get();
@@ -148,6 +157,27 @@ class WorkerController extends Controller
         }
         if (in_array("costCenters", $resourceTypes)) {
             $response["costCenters"] = CostCenter::query()->orderByDesc("id")->get();
+        }
+        if (in_array("payrollAreas", $resourceTypes)) {
+            $response["payrollAreas"] = PayrollArea::query()->orderByDesc("id")->get();
+        }
+        if (in_array("staffDivisions", $resourceTypes)) {
+            $response["staffDivisions"] = StaffDivision::query()->orderByDesc("id")->get();
+        }
+        if (in_array("organizationalUnits", $resourceTypes)) {
+            $response["organizationalUnits"] = OrganizationalUnit::query()->orderByDesc("id")->get();
+        }
+        if (in_array("superiors", $resourceTypes)) {
+            $response["superiors"] = Superior::query()->orderByDesc("id")->get();
+        }
+        if (in_array("businesses", $resourceTypes)) {
+            $response["businesses"] = Business::query()->orderByDesc("id")->get();
+        }
+        if (in_array("charges", $resourceTypes)) {
+            $response["charges"] = Charge::query()->orderByDesc("id")->get();
+        }
+        if (in_array("compositions", $resourceTypes)) {
+            $response["compositions"] = Composition::query()->orderByDesc("id")->get();
         }
 
         return response()->json($response, Response::HTTP_OK);

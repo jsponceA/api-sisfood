@@ -22,8 +22,6 @@ return new class extends Migration
             $table->rememberToken();
             $table->datetimes();
             $table->softDeletesDatetime();
-            $table->foreign("rol_id")->references("id")->on("roles");
-            $table->foreign("branch_id")->references("id")->on("branches");
         });
 
         \App\Models\User::query()->create([

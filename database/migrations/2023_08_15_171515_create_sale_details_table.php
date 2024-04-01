@@ -19,8 +19,6 @@ return new class extends Migration
             $table->decimal("quantity",11,2)->nullable();
             $table->decimal("sale_price",11,2)->nullable();
             $table->decimal("total",11,2)->nullable();
-            $table->foreign("sale_id")->references("id")->on("sales");
-            $table->foreign("product_id")->references("id")->on("products");
         });
     }
 

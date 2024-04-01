@@ -36,7 +36,7 @@ return new class extends Migration
             "category" => "COMIDAS",
             "barcode" => "DESAYUNO123",
             "purchase_price" => 2.5,
-            "sale_price" => 4.2,
+            "sale_price" => 4.96,
             "worker_price" => 4.2,
             "igv_price" => 4.96,
             "company_price" => 0.76,
@@ -47,10 +47,10 @@ return new class extends Migration
             "category" => "COMIDAS",
             "barcode" => "ALMUERZO123",
             "purchase_price" => 7.5,
-            "sale_price" => 9.5,
-            "worker_price" => 3,
-            "igv_price" => 11.21,
-            "company_price" => 8.21,
+            "sale_price" => 8.85,
+            "worker_price" => 1.50,
+            "igv_price" => 8.85,
+            "company_price" => 7.50,
         ]);
 
         Product::query()->create([
@@ -58,10 +58,10 @@ return new class extends Migration
             "category" => "COMIDAS",
             "barcode" => "CENA123",
             "purchase_price" => 7.5,
-            "sale_price" => 9.5,
-            "worker_price" => 3,
-            "igv_price" => 11.21,
-            "company_price" => 8.21,
+            "sale_price" => 8.85,
+            "worker_price" => 1.50,
+            "igv_price" => 8.85,
+            "company_price" => 7.50,
         ]);
 
 
