@@ -180,9 +180,49 @@ trait ConsumptionTrait
 
         $sales = Sale::query()
             ->with(["worker","saleDetails"])
-            ->select("worker_id",)
-            ->groupBy("worker_id")
-            ->orderBy("id");
+            ->join("sale_details","sales.id","=","sale_details.sale_id")
+            ->select("worker_id",DB::raw("
+            SUM( CASE WHEN sale_details.product_name='DESAYUNO' THEN sale_details.quantity ELSE 0 END) AS total_desayunos,
+            SUM( CASE WHEN sale_details.product_name='ALMUERZO' THEN sale_details.quantity ELSE 0 END) AS total_almuerzos,
+            SUM( CASE WHEN sale_details.product_name='CENA' THEN sale_details.quantity ELSE 0 END) AS total_cenas,
+            SUM( CASE WHEN sale_details.product_name != 'DESAYUNO' AND sale_details.product_name != 'ALMUERZO' AND sale_details.product_name != 'CENA' THEN sale_details.total ELSE 0 END) AS monto_snacks
+            "))
+            ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
+                $query->where("deal_in_form", $typeDiscount);
+            })
+            ->when(!empty($dateStartConsumption), function ($query) use ($dateStartConsumption) {
+                $query->whereDate("sale_date", ">=", $dateStartConsumption);
+            })
+            ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
+                $query->whereDate("sale_date", "<=", $dateEndConsumption);
+            })
+            ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId) {
+                $query
+                    ->when(!empty($typeFormId), function ($query) use ($typeFormId) {
+                        $query
+                            ->where("type_form_id", $typeFormId);
+                    })
+                    ->when(!empty($areaId), function ($query) use ($areaId) {
+                        $query
+                            ->where("area_id", $areaId);
+                    })
+                    ->when(!empty($search), function ($query) use ($search) {
+                        $query
+                            ->where(function ($query) use ($search){
+                                $query
+                                    ->where("names", "LIKE", "%{$search}%")
+                                    ->orWhere("surnames", "LIKE", "%{$search}%")
+                                    ->orWhere("numdoc", "LIKE", "%{$search}%");
+                            });
+                    });
+            })
+            ->whereHas("saleDetails.product", function ($query) use ($categoryId) {
+                $query->when(!empty($categoryId), function ($query) use ($categoryId) {
+                    $query->where("category", $categoryId);
+                });
+            })
+            ->groupBy("worker_id");
+            //->orderBy("id");
 
         return $sales;
     }

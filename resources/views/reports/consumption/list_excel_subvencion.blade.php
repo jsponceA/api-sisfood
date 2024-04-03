@@ -29,15 +29,29 @@
     @foreach ($consumptions as $c)
         @php
                 $quantity = number_format($c->saleDetails()->sum("quantity"));
-                $totalPayCompany = number_format($c->total_pay_company,2);
-                if ($c->deal_in_form == "SUBVENCION"){
-                    $totalDsctForm = $c->total_dsct_form;
-                }elseif ($c->deal_in_form == "DESCUENTO_PLANILLA"){
-                    $totalDsctForm = $c->total_sale;
+
+                $priceUnit = 0;
+                $subvencion = 0;
+                $workerPrice = 0;
+                $total = 0;
+
+
+                if ($c->worker?->grant && $c->deal_in_form == "SUBVENCION"){
+                    $priceUnit = ($c->total_pay_company + $c->total_dsct_form) / $quantity;
+                    $subvencion = $c->total_pay_company;
+                    $workerPrice = $c->total_dsct_form;
+                    $total = $subvencion + $workerPrice;
+                }elseif ( $c->deal_in_form == "DESCUENTO_PLANILLA"){
+                    $priceUnit = $c->total_sale/ $quantity;
+                     $subvencion = 0;
+                     $workerPrice = $c->total_sale;
+                     $total = $c->total_sale;
                 }else{
-                    $totalDsctForm = 0;
+                    $priceUnit = $c->total_sale/ $quantity;
+                     $subvencion = 0;
+                     $workerPrice = $c->total_sale;
+                     $total = $c->total_sale;
                 }
-                $total = number_format($c->deal_in_form == "SUBVENCION" ? $c->total_igv : $c->total_sale,2);
 
         @endphp
         <tr>
@@ -55,12 +69,18 @@
                     <p style="color: red">NO</p>
                 @endif
             </td>
-            <td style="text-align: center">{{$total}}</td>
+            <td style="text-align: center">{{$priceUnit}}</td>
             <td style="text-align: center">{{$quantity}}</td>
-            <td style="text-align: center">{{$totalPayCompany}}</td>
-            <td style="text-align: center">{{$totalDsctForm}}</td>
+            <td style="text-align: center">{{$subvencion}}</td>
+            <td style="text-align: center">{{$workerPrice}}</td>
             <td style="text-align: center">{{$total}}</td>
-            <td style="text-align: center">{{$c->deal_in_form}}</td>
+            <td style="text-align: center">
+                @if($c->deal_in_form == "SUBVENCION")
+                    {{$c->worker?->grant ? 'SI' : 'NO'}} {{$c->deal_in_form}}
+                @else
+                    {{$c->deal_in_form}}
+                @endif
+            </td>
             <td style="text-align: center">{{$c->worker?->typeForm?->name}}</td>
         </tr>
     @endforeach

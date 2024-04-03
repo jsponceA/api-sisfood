@@ -11,6 +11,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
+    public function __construct()
+    {
+       // $this->middleware("license")->only("login");
+    }
+
     public function login(LoginFormRequest $request): JsonResponse
     {
         $username = $request->input("username");

@@ -21,8 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 Route::get("/",fn () => response()->json(["message"=>"PRIVATE SERVICE REST"]));
 
-Route::get("test",[TestController::class,"index"]);
-Route::post("test/importarExcelTrabajador",[TestController::class,"importarExcelTrabajador"]);
+//Route::get("test",[TestController::class,"index"]);
+//Route::post("test/importarExcelTrabajador",[TestController::class,"importarExcelTrabajador"]);
 
 //Route::get("products/updateBarCodes",[ProductController::class,"updateBarCodes"]);
 
@@ -32,7 +32,7 @@ Route::post("logout",[AuthController::class,"logout"])->middleware(['auth:sanctu
 /* END AUTH ROUTES */
 
 /* START PROTECTED ROUTES */
-Route::middleware("auth:sanctum")->group(function (){
+Route::middleware(["auth:sanctum","license"])->group(function (){
 
     /* start routes profile*/
     Route::apiResource("profile",ProfileController::class)->only(["show","update"]);
