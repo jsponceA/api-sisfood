@@ -32,7 +32,7 @@ Route::post("logout",[AuthController::class,"logout"])->middleware(['auth:sanctu
 /* END AUTH ROUTES */
 
 /* START PROTECTED ROUTES */
-Route::middleware(["auth:sanctum","license"])->group(function (){
+Route::middleware(["auth:sanctum"])->group(function (){
 
     /* start routes profile*/
     Route::apiResource("profile",ProfileController::class)->only(["show","update"]);
