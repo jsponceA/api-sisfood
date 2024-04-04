@@ -16,8 +16,7 @@ class LicenseMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $endDate = now()->createFromFormat("Y-m-d","2024-04-20
-        ");
+        $endDate = now()->createFromFormat("Y-m-d","2024-04-20");
 
         /* $currentDate = now()->format("Y-m-d")
              $queryValidateLicense = License::query()
