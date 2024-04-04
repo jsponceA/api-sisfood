@@ -270,7 +270,7 @@ class SaleController extends Controller
             $printer->initialize();
             # Vamos a alinear al centro lo próximo que imprimamos
             //$printer->setJustification(Printer::JUSTIFY_CENTER);
-            $printer->setTextSize(1,1);
+            $printer->setTextSize(2,1);
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->setEmphasis(true);
             $printer->setFont(Printer::FONT_A);
@@ -280,7 +280,7 @@ class SaleController extends Controller
             $printer->setEmphasis(false);
             $printer->text("TICKET: ".$sale->serie.'-'.Str::padLeft($sale->num_document,7,"0")."\n");
             $printer->setFont(Printer::FONT_B);
-            $printer->text("FECHA Y HORA: ".now()->parse($sale->sale_date)->format("d/m/Y h:i:s A"). "\n");
+            $printer->text("FECHA Y HORA: ".now()->parse($sale->sale_date)->format("d/m/Y h:i A"). "\n");
             $printer->setJustification(Printer::JUSTIFY_LEFT);
             $printer->text("CAJERO: ".mb_strtoupper($user->username)."                  PEDIDOS: 924859988"."\n");
             $printer->text("COMENSAL: ".$comensal."\n");
