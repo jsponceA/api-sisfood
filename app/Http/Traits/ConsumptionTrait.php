@@ -185,6 +185,9 @@ trait ConsumptionTrait
             SUM( CASE WHEN sale_details.product_name='DESAYUNO' THEN sale_details.quantity ELSE 0 END) AS total_desayunos,
             SUM( CASE WHEN sale_details.product_name='ALMUERZO' THEN sale_details.quantity ELSE 0 END) AS total_almuerzos,
             SUM( CASE WHEN sale_details.product_name='CENA' THEN sale_details.quantity ELSE 0 END) AS total_cenas,
+            SUM( CASE WHEN sale_details.product_name='DESAYUNO' THEN sale_details.total ELSE 0 END) AS monto_desayunos,
+            SUM( CASE WHEN sale_details.product_name='ALMUERZO' THEN sale_details.total ELSE 0 END) AS  monto_almuerzos,
+            SUM( CASE WHEN sale_details.product_name='CENA' THEN sale_details.total ELSE 0 END) AS  monto_cenas,
             SUM( CASE WHEN sale_details.product_name != 'DESAYUNO' AND sale_details.product_name != 'ALMUERZO' AND sale_details.product_name != 'CENA' THEN sale_details.total ELSE 0 END) AS monto_snacks
             "))
             ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {

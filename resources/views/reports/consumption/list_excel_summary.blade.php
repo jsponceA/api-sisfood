@@ -31,15 +31,29 @@
     </tr>
     </thead>
     <tbody>
+    @php
+        $granTotalDesayunos = 0;
+        $granTotalAlmuerzos = 0;
+        $granTotalCenas = 0;
+
+        $granTotalSnacks = 0;
+        $granTotalResumen = 0;
+
+    @endphp
     @foreach ($sales as $s)
         @php
             $arraySurnames = explode(" ",$s->worker->surnames);
            $fatherLastName = $arraySurnames[0] ?? "";
            $motherLastName = $arraySurnames[1] ?? "";
-           $totalDesayunos = collect($s->saleDetails)->where("product_name","DESAYUNO")->count();
-           $totalAlmuerzos = collect($s->saleDetails)->where("product_name","ALMUERZO")->count();
-           $totalCenas = collect($s->saleDetails)->where("product_name","CENA")->count();
-        @endphp
+           $totalResumen = $s->monto_desayunos + $s->monto_almuerzos + $s->monto_cenas + $s->monto_snacks;
+
+           $granTotalDesayunos += $s->total_desayunos;
+           $granTotalAlmuerzos += $s->total_almuerzos;
+           $granTotalCenas += $s->total_cenas;
+
+           $granTotalResumen += $totalResumen;
+           $granTotalSnacks += $s->monto_snacks;
+           @endphp
         <tr>
             <td style="border: 1px solid black;text-align: center">{{$s->worker?->payrollArea?->name}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->worker?->numdoc.''}}</td>
@@ -50,9 +64,9 @@
             <td style="border: 1px solid black;text-align: center">{{$s->total_desayunos}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->total_almuerzos}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->total_cenas}}</td>
-            <td style="border: 1px solid black;text-align: center">S/. {{$s->monto_snacks}}</td>
+            <td style="border: 1px solid black;text-align: center">S/ {{number_format($s->monto_snacks,2)}}</td>
             <td></td>
-            <td style="border: 1px solid black;">S/. 123.20</td>
+            <td style="border: 1px solid black;">S/ {{number_format($totalResumen,2)}}</td>
         </tr>
     @endforeach
     <tr>
@@ -62,19 +76,19 @@
         <td></td>
         <td></td>
         <td></td>
-        <td style="border: 2px solid black;" align="center">0</td>
-        <td style="border: 2px solid black;" align="center">0</td>
-        <td style="border: 2px solid black;" align="center">0</td>
-        <td style="border: 2px solid black;" align="center">S/. 0</td>
+        <td style="border: 2px solid black;" align="center">{{$granTotalDesayunos}}</td>
+        <td style="border: 2px solid black;" align="center">{{$granTotalAlmuerzos}}</td>
+        <td style="border: 2px solid black;" align="center">{{$granTotalCenas}}</td>
+        <td style="border: 2px solid black;" align="center">S/ {{number_format($granTotalSnacks,2)}}</td>
         <td></td>
-        <td style="border: 2px solid black;" align="center">S/. 0</td>
+        <td style="border: 2px solid black;" align="center">S/ {{number_format($granTotalResumen,2)}}</td>
     </tr>
     <tr>
         <td></td>
     </tr>
     <tr>
         <td style="font-weight: bold;" colspan="9" align="right">SUMA</td>
-        <td align="center">S/. 0</td>
+        <td align="center">S/ {{number_format($granTotalResumen,2)}}</td>
     </tr>
     <tr>
         <td></td>
@@ -86,7 +100,7 @@
         <td></td>
         <td></td>
         <td></td>
-        <td style="border: 2px solid black;background-color: #60b760" align="center">S/. 0</td>
+        <td style="border: 2px solid black;background-color: #60b760" align="center">S/ {{number_format($granTotalSnacks + $granTotalResumen,2)}}</td>
     </tr>
     </tbody>
 </table>
