@@ -53,6 +53,17 @@
                      $total = $c->total_sale;
                 }
 
+                if (!in_array("ALMUERZO",$c->saleDetails()->pluck("product_name")->toArray())){
+                    $c->deal_in_form = "DESCUENTO_PLANILLA";
+                }
+
+                if (in_array("DESAYUNO",$c->saleDetails()->pluck("product_name")->toArray())){
+                    $priceUnit = $c->total_dsct_form;
+                    $subvencion = 0;
+                    $total = $c->total_dsct_form;
+                }
+
+
         @endphp
         <tr>
             <td style="text-align: center">{{$c->worker?->numdoc.''}}</td>

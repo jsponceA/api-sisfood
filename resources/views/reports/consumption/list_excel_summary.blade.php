@@ -26,7 +26,6 @@
         <th style="border: 1px solid black;font-weight: bold;text-align: center">CANTIDAD TOTAL ALMUERZOS</th>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">CANTIDAD TOTAL CENAS</th>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">MONTO TOTAL DE SNACK</th>
-        <th></th>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">RESUMEN</th>
     </tr>
     </thead>
@@ -65,8 +64,7 @@
             <td style="border: 1px solid black;text-align: center">{{$s->total_almuerzos}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->total_cenas}}</td>
             <td style="border: 1px solid black;text-align: center">S/ {{number_format($s->monto_snacks,2)}}</td>
-            <td></td>
-            <td style="border: 1px solid black;">S/ {{number_format($totalResumen,2)}}</td>
+            <td style="border: 1px solid black;" align="center">S/ {{number_format($totalResumen,2)}}</td>
         </tr>
     @endforeach
     <tr>
@@ -80,15 +78,22 @@
         <td style="border: 2px solid black;" align="center">{{$granTotalAlmuerzos}}</td>
         <td style="border: 2px solid black;" align="center">{{$granTotalCenas}}</td>
         <td style="border: 2px solid black;" align="center">S/ {{number_format($granTotalSnacks,2)}}</td>
-        <td></td>
         <td style="border: 2px solid black;" align="center">S/ {{number_format($granTotalResumen,2)}}</td>
     </tr>
     <tr>
         <td></td>
     </tr>
     <tr>
-        <td style="font-weight: bold;" colspan="9" align="right">SUMA</td>
-        <td align="center">S/ {{number_format($granTotalResumen,2)}}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td style="border: 2px solid black;font-weight: bold;"  align="right">SUMA</td>
+        <td style="border: 2px solid black" align="center">S/ {{number_format($granTotalResumen - $granTotalSnacks,2)}}</td>
     </tr>
     <tr>
         <td></td>
@@ -100,7 +105,7 @@
         <td></td>
         <td></td>
         <td></td>
-        <td style="border: 2px solid black;background-color: #60b760" align="center">S/ {{number_format($granTotalSnacks + $granTotalResumen,2)}}</td>
+        <td style="border: 2px solid black;background-color: #60b760" align="center">S/ {{number_format($granTotalResumen,2)}}</td>
     </tr>
     </tbody>
 </table>
