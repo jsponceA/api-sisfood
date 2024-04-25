@@ -22,6 +22,7 @@
         <th style="border: 1px solid black;font-weight: bold;text-align: center">PATERNO</th>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">MATERNO</th>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">NOMBRE</th>
+        <th style="border: 1px solid black;font-weight: bold;text-align: center">SUBVENCIONADO</th>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">CANTIDAD TOTAL DESAYUNOS</th>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">CANTIDAD TOTAL ALMUERZOS</th>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">CANTIDAD TOTAL CENAS</th>
@@ -60,6 +61,7 @@
             <td style="border: 1px solid black;text-align: center">{{$fatherLastName}}</td>
             <td style="border: 1px solid black;text-align: center">{{$motherLastName}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->worker->names}}</td>
+            <td style="border: 1px solid black;text-align: center">{{$s->worker->grant ? 'SI' : 'NO'}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->total_desayunos}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->total_almuerzos}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->total_cenas}}</td>

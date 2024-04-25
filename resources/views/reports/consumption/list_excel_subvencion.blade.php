@@ -15,7 +15,7 @@
         <th style="font-weight: bold;text-align: center">C.COSTP</th>
         <th style="font-weight: bold;text-align: center">FECHA</th>
         <th style="font-weight: bold;text-align: center">PRODUCTO</th>
-        <th style="font-weight: bold;text-align: center">SUBVENCIONADO</th>
+{{--        <th style="font-weight: bold;text-align: center">SUBVENCIONADO</th>--}}
         <th style="font-weight: bold;text-align: center">PRECIO</th>
         <th style="font-weight: bold;text-align: center">CANTIDAD</th>
         <th style="font-weight: bold;text-align: center">SUBVENCION</th>
@@ -53,9 +53,9 @@
                      $total = $c->total_sale;
                 }
 
-                if (!in_array("ALMUERZO",$c->saleDetails()->pluck("product_name")->toArray())){
+             /*   if (!in_array("ALMUERZO",$c->saleDetails()->pluck("product_name")->toArray())){
                     $c->deal_in_form = "DESCUENTO_PLANILLA";
-                }
+                }*/
 
                 if (in_array("DESAYUNO",$c->saleDetails()->pluck("product_name")->toArray())){
                     $priceUnit = $c->total_dsct_form;
@@ -73,13 +73,13 @@
             <td style="text-align: center">{{$c->worker?->costCenter?->name}}</td>
             <td style="text-align: center">{{ !empty($c->sale_date) ? now()->parse($c->sale_date)->format("d/m/Y") : ""}}</td>
             <td style="text-align: center">{{$c->saleDetails()->get()->map(fn($q)=> number_format($q->quantity).'x '.$q->product->name)->implode("/ ")}}</td>
-            <td style="text-align: center">
+            {{--<td style="text-align: center">
                 @if(!empty($c->worker?->grant))
                     <p style="color: green">SI</p>
                 @else
                     <p style="color: red">NO</p>
                 @endif
-            </td>
+            </td>--}}
             <td style="text-align: center">{{$priceUnit}}</td>
             <td style="text-align: center">{{$quantity}}</td>
             <td style="text-align: center">{{$subvencion}}</td>
