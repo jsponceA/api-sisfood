@@ -36,7 +36,8 @@
                 $total = 0;
 
 
-                if ($c->worker?->grant && $c->deal_in_form == "SUBVENCION"){
+
+                if (($c->worker?->grant && $c->deal_in_form == "SUBVENCION")){
                     $priceUnit = ($c->total_pay_company + $c->total_dsct_form) / $quantity;
                     $subvencion = $c->total_pay_company;
                     $workerPrice = $c->total_dsct_form;
@@ -53,15 +54,14 @@
                      $total = $c->total_sale;
                 }
 
-             /*   if (!in_array("ALMUERZO",$c->saleDetails()->pluck("product_name")->toArray())){
+                 /*if (in_array("DESAYUNO",$c->saleDetails()->pluck("product_name")->toArray())){
+                    $c->deal_in_form = "NO SUBVENCION";
+                }
+                if (!in_array("ALMUERZO",$c->saleDetails()->pluck("product_name")->toArray())){
                     $c->deal_in_form = "DESCUENTO_PLANILLA";
                 }*/
 
-                if (in_array("DESAYUNO",$c->saleDetails()->pluck("product_name")->toArray())){
-                    $priceUnit = $c->total_dsct_form;
-                    $subvencion = 0;
-                    $total = $c->total_dsct_form;
-                }
+
 
 
         @endphp
@@ -87,7 +87,12 @@
             <td style="text-align: center">{{$total}}</td>
             <td style="text-align: center">
                 @if($c->deal_in_form == "SUBVENCION")
-                    {{$c->worker?->grant ? 'SI' : 'NO'}} {{$c->deal_in_form}}
+                    @if(in_array("DESAYUNO",$c->saleDetails()->pluck("product_name")->toArray()))
+                        NO SUBVENCION
+                    @else
+                        {{$c->worker?->grant ? 'SI' : 'NO'}} {{$c->deal_in_form}}
+                    @endif
+
                 @else
                     {{$c->deal_in_form}}
                 @endif

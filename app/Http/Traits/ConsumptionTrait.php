@@ -130,7 +130,7 @@ trait ConsumptionTrait
 
         $sales = Sale::query()
             ->with(["worker","saleDetails"])
-            ->where("deal_in_form","DESCUENTO_PLANILLA")
+            //->where("deal_in_form","DESCUENTO_PLANILLA")
             ->when(!empty($dateStartConsumption), function ($query) use ($dateStartConsumption) {
                 $query->whereDate("sale_date", ">=", $dateStartConsumption);
             })
@@ -188,7 +188,8 @@ trait ConsumptionTrait
             SUM( CASE WHEN sale_details.product_name='DESAYUNO' THEN sale_details.total ELSE 0 END) AS monto_desayunos,
             SUM( CASE WHEN sale_details.product_name='ALMUERZO' THEN sale_details.total ELSE 0 END) AS  monto_almuerzos,
             SUM( CASE WHEN sale_details.product_name='CENA' THEN sale_details.total ELSE 0 END) AS  monto_cenas,
-            SUM( CASE WHEN sale_details.product_name != 'DESAYUNO' AND sale_details.product_name != 'ALMUERZO' AND sale_details.product_name != 'CENA' THEN sale_details.total ELSE 0 END) AS monto_snacks
+            SUM( CASE WHEN sale_details.product_name != 'DESAYUNO' AND sale_details.product_name != 'ALMUERZO' AND sale_details.product_name != 'CENA' THEN sale_details.total ELSE 0 END) AS monto_snacks,
+            SUM(sales.total_pay_company) AS total_subvencion
             "))
             ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
                 $query->where("deal_in_form", $typeDiscount);

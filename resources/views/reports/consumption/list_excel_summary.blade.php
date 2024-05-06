@@ -27,7 +27,8 @@
         <th style="border: 1px solid black;font-weight: bold;text-align: center">CANTIDAD TOTAL ALMUERZOS</th>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">CANTIDAD TOTAL CENAS</th>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">MONTO TOTAL DE SNACK</th>
-        <th style="border: 1px solid black;font-weight: bold;text-align: center">RESUMEN</th>
+        <th style="border: 1px solid black;font-weight: bold;text-align: center">TRABAJADOR DESCUENTO</th>
+        <th style="border: 1px solid black;font-weight: bold;text-align: center">SUBVENCIÓN EMPRESA</th>
     </tr>
     </thead>
     <tbody>
@@ -38,6 +39,7 @@
 
         $granTotalSnacks = 0;
         $granTotalResumen = 0;
+        $granTotalSubvencion = 0;
 
     @endphp
     @foreach ($sales as $s)
@@ -46,6 +48,7 @@
            $fatherLastName = $arraySurnames[0] ?? "";
            $motherLastName = $arraySurnames[1] ?? "";
            $totalResumen = $s->monto_desayunos + $s->monto_almuerzos + $s->monto_cenas + $s->monto_snacks;
+           $totalSubvencion = $s->worker->grant ? $s->total_subvencion  : 0 ;
 
            $granTotalDesayunos += $s->total_desayunos;
            $granTotalAlmuerzos += $s->total_almuerzos;
@@ -53,6 +56,8 @@
 
            $granTotalResumen += $totalResumen;
            $granTotalSnacks += $s->monto_snacks;
+
+           $granTotalSubvencion += $totalSubvencion;
            @endphp
         <tr>
             <td style="border: 1px solid black;text-align: center">{{$s->worker?->payrollArea?->name}}</td>
@@ -67,9 +72,11 @@
             <td style="border: 1px solid black;text-align: center">{{$s->total_cenas}}</td>
             <td style="border: 1px solid black;text-align: center">S/ {{number_format($s->monto_snacks,2)}}</td>
             <td style="border: 1px solid black;" align="center">S/ {{number_format($totalResumen,2)}}</td>
+            <td style="border: 1px solid black;" align="center">S/ {{number_format($totalSubvencion,2)}}</td>
         </tr>
     @endforeach
     <tr>
+        <td></td>
         <td></td>
         <td></td>
         <td></td>
@@ -80,7 +87,8 @@
         <td style="border: 2px solid black;" align="center">{{$granTotalAlmuerzos}}</td>
         <td style="border: 2px solid black;" align="center">{{$granTotalCenas}}</td>
         <td style="border: 2px solid black;" align="center">S/ {{number_format($granTotalSnacks,2)}}</td>
-        <td style="border: 2px solid black;" align="center">S/ {{number_format($granTotalResumen,2)}}</td>
+        <td style="border: 2px solid black;" align="center">S/ {{number_format($granTotalResumen,2)}}
+        <td style="border: 2px solid black;" align="center">S/ {{number_format($granTotalSubvencion,2)}}</td>
     </tr>
     <tr>
         <td></td>

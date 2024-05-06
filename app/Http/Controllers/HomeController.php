@@ -21,8 +21,9 @@ class HomeController extends Controller
 
         $sales = Product::query()
             ->selectRaw("name,category,SUM(sd.quantity) AS quantityProducts,SUM(sd.total) AS totalSale,SUM(s.total_pay_company) AS totalSaleCompany")
-            ->leftJoin("sale_details AS sd","products.id","=","sd.product_id")
-            ->leftJoin("sales AS s","sd.sale_id","=","s.id")
+            ->join("sale_details AS sd","products.id","=","sd.product_id")
+            ->join("sales AS s","sd.sale_id","=","s.id")
+            ->join("workers as w","s.worker_id","=","w.id")
             ->when(!empty($starDate),fn($q) => $q->whereDate("s.sale_date",">=",$starDate))
             ->when(!empty($endDate),fn($q) => $q->whereDate("s.sale_date","<=",$endDate))
             ->when(!empty($category),fn($q) => $q->where("category",$category))
