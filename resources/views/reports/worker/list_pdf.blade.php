@@ -73,8 +73,14 @@
     @foreach ($workers as $w)
         @php
             $arraySurnames = explode(" ",$w->surnames);
-            $fatherLastName = $arraySurnames[0] ?? "";
-            $motherLastName = $arraySurnames[1] ?? "";
+             // Asignar el primer elemento al apellido paterno y el segundo al materno
+        $fatherLastName = $arraySurnames[0] ?? "";
+        $motherLastName = $arraySurnames[1] ?? "";
+
+        // Si hay más de dos partes, se reconstruye el apellido materno
+        if (count($arraySurnames) > 2) {
+            $motherLastName = implode(" ", array_slice($arraySurnames, 1));
+        }
         @endphp
         <tr>
             <td style="text-align: center">{{ $w->persona_code.'' }}</td>

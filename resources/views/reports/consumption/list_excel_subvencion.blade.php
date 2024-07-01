@@ -38,10 +38,12 @@
 
 
                 if (($c->worker?->grant && $c->deal_in_form == "SUBVENCION")){
-                    $priceUnit = ($c->total_pay_company + $c->total_dsct_form) / $quantity;
+                    //$priceUnit = ($c->total_pay_company + $c->total_dsct_form) / $quantity;
+                    $priceUnit = ($c->total_pay_company) / $quantity;
                     $subvencion = $c->total_pay_company;
                     $workerPrice = $c->total_dsct_form;
-                    $total = $subvencion + $workerPrice;
+                    //$total = $subvencion + $workerPrice;
+                    $total = $subvencion;
                 }elseif ( $c->deal_in_form == "DESCUENTO_PLANILLA"){
                     $priceUnit = $c->total_sale/ $quantity;
                      $subvencion = 0;
