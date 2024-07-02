@@ -44,7 +44,7 @@
     @endphp
     @foreach ($sales as $s)
         @php
-        $arraySurnames = explode(" ",$s->surnames);
+        $arraySurnames = explode(" ",$s->worker?->surnames);
             // Asignar el primer elemento al apellido paterno y el segundo al materno
        $fatherLastName = $arraySurnames[0] ?? "";
        $motherLastName = $arraySurnames[1] ?? "";
