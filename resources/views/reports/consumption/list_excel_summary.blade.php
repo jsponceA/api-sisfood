@@ -55,7 +55,9 @@
            $motherLastName = implode(" ", array_slice($arraySurnames, 1));
        }
           $totalResumen = $s->monto_desayunos + $s->monto_almuerzos + $s->monto_cenas + $s->monto_snacks;
-          $totalSubvencion = $s->worker->grant ? $s->total_subvencion  : 0 ;
+
+
+         $totalSubvencion = $s->worker->grant ? $s->total_subvencion  : 0 ;
 
           $granTotalDesayunos += $s->total_desayunos;
           $granTotalAlmuerzos += $s->total_almuerzos;
