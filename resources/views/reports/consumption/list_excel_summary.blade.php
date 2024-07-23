@@ -9,7 +9,7 @@
     <thead>
     <tr>
         @if(!empty($params->dateStartConsumption) && !empty($params->dateEndConsumption))
-            <th colspan="10"
+            <th colspan="13"
                 style="border: 1px solid black;font-weight: bold;text-align: center;background-color: #b7bdc1">REPORTE
                 DE CONSUMOS DESDE {{now()->parse($params->dateStartConsumption)->format("d/m/Y")}}
                 HASTA {{now()->parse($params->dateEndConsumption)->format("d/m/Y")}}</th>
@@ -44,30 +44,29 @@
     @endphp
     @foreach ($sales as $s)
         @php
-        $arraySurnames = explode(" ",$s->worker?->surnames);
-            // Asignar el primer elemento al apellido paterno y el segundo al materno
-       $fatherLastName = $arraySurnames[0] ?? "";
-       $motherLastName = $arraySurnames[1] ?? "";
+            $arraySurnames = explode(" ",$s->worker?->surnames);
+                // Asignar el primer elemento al apellido paterno y el segundo al materno
+           $fatherLastName = $arraySurnames[0] ?? "";
+           $motherLastName = $arraySurnames[1] ?? "";
+
+           // Si hay más de dos partes, se reconstruye el apellido materno
+           if (count($arraySurnames) > 2) {
+               $motherLastName = implode(" ", array_slice($arraySurnames, 1));
+           }
+
+              $granTotalDesayunos += $s->total_desayunos;
+              $granTotalAlmuerzos += $s->total_almuerzos;
+              $granTotalCenas += $s->total_cenas;
+
+             $totalResumen = $s->monto_desayunos + $s->monto_almuerzos + $s->monto_cenas + $s->monto_snacks;
+             $totalSubvencion = $s->total_subvencion;
 
 
-       // Si hay más de dos partes, se reconstruye el apellido materno
-       if (count($arraySurnames) > 2) {
-           $motherLastName = implode(" ", array_slice($arraySurnames, 1));
-       }
-          $totalResumen = $s->monto_desayunos + $s->monto_almuerzos + $s->monto_cenas + $s->monto_snacks;
+              $granTotalResumen += $totalResumen;
+              $granTotalSnacks += $s->monto_snacks;
 
-
-         $totalSubvencion = $s->worker->grant ? $s->total_subvencion  : 0 ;
-
-          $granTotalDesayunos += $s->total_desayunos;
-          $granTotalAlmuerzos += $s->total_almuerzos;
-          $granTotalCenas += $s->total_cenas;
-
-          $granTotalResumen += $totalResumen;
-          $granTotalSnacks += $s->monto_snacks;
-
-          $granTotalSubvencion += $totalSubvencion;
-           @endphp
+              $granTotalSubvencion += $totalSubvencion;
+        @endphp
         <tr>
             <td style="border: 1px solid black;text-align: center">{{$s->worker?->payrollArea?->name}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->worker?->numdoc.''}}</td>
@@ -111,8 +110,9 @@
         <td></td>
         <td></td>
         <td></td>
-        <td style="border: 2px solid black;font-weight: bold;"  align="right">SUMA</td>
-        <td style="border: 2px solid black" align="center">S/ {{number_format($granTotalResumen - $granTotalSnacks,2)}}</td>
+        <td style="border: 2px solid black;font-weight: bold;" align="right">SUMA</td>
+        <td style="border: 2px solid black" align="center">
+            S/ {{number_format($granTotalResumen - $granTotalSnacks,2)}}</td>
     </tr>
     <tr>
         <td></td>
@@ -124,7 +124,8 @@
         <td></td>
         <td></td>
         <td></td>
-        <td style="border: 2px solid black;background-color: #60b760" align="center">S/ {{number_format($granTotalResumen,2)}}</td>
+        <td style="border: 2px solid black;background-color: #60b760" align="center">
+            S/ {{number_format($granTotalResumen,2)}}</td>
     </tr>
     </tbody>
 </table>

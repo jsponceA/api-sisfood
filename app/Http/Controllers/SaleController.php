@@ -179,7 +179,6 @@ class SaleController extends Controller
                 $saleData["serie"] = "001";
                 $saleData["num_document"] = Sale::query()->where("serie","001")->max("num_document") + 1;
 
-
                 $sale = Sale::query()->create($saleData);
                 $sale->saleDetails()->createMany($saleDetailsData);
                 $response["id"] = $sale->id;

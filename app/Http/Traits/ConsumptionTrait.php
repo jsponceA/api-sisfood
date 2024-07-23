@@ -181,15 +181,18 @@ trait ConsumptionTrait
         $sales = Sale::query()
             ->with(["worker","saleDetails"])
             ->join("sale_details","sales.id","=","sale_details.sale_id")
+            ->join("workers","sales.worker_id","=","workers.id")
             ->select("worker_id",DB::raw("
             SUM( CASE WHEN sale_details.product_name='DESAYUNO' THEN sale_details.quantity ELSE 0 END) AS total_desayunos,
             SUM( CASE WHEN sale_details.product_name='ALMUERZO' THEN sale_details.quantity ELSE 0 END) AS total_almuerzos,
             SUM( CASE WHEN sale_details.product_name='CENA' THEN sale_details.quantity ELSE 0 END) AS total_cenas,
+
             SUM( CASE WHEN sale_details.product_name='DESAYUNO' THEN sale_details.total ELSE 0 END) AS monto_desayunos,
             SUM( CASE WHEN sale_details.product_name='ALMUERZO' THEN sale_details.total ELSE 0 END) AS  monto_almuerzos,
             SUM( CASE WHEN sale_details.product_name='CENA' THEN sale_details.total ELSE 0 END) AS  monto_cenas,
+
             SUM( CASE WHEN sale_details.product_name != 'DESAYUNO' AND sale_details.product_name != 'ALMUERZO' AND sale_details.product_name != 'CENA' THEN sale_details.total ELSE 0 END) AS monto_snacks,
-            SUM(CASE WHEN sale_details.product_name != 'DESAYUNO' THEN sales.total_pay_company ELSE 0 END ) AS total_subvencion
+            SUM(CASE WHEN workers.grant = 1 AND sale_details.product_name = 'ALMUERZO' OR sale_details.product_name = 'CENA'  THEN sales.total_pay_company ELSE 0 END ) AS total_subvencion
             "))
             ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
                 $query->where("deal_in_form", $typeDiscount);
