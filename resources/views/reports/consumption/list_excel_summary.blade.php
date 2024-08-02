@@ -58,7 +58,8 @@
               $granTotalAlmuerzos += $s->total_almuerzos;
               $granTotalCenas += $s->total_cenas;
 
-             $totalResumen = $s->monto_desayunos + $s->monto_almuerzos + $s->monto_cenas + $s->monto_snacks;
+            // $totalResumen = $s->monto_desayunos + $s->monto_almuerzos + $s->monto_cenas + $s->monto_snacks;
+             $totalResumen = $s->worker_price;
              $totalSubvencion = $s->total_subvencion;
 
 

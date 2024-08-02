@@ -56,8 +56,10 @@
                 }else{
                     $priceUnit = $c->total_sale / $quantity;
                     $subvencion = 0;
-                    $workerPrice = $priceUnit;
-                    $total = $priceUnit;
+                    //$workerPrice = $priceUnit;
+                    //$total = $priceUnit;
+                    $workerPrice = $c->total_sale;
+                    $total = $c->total_sale;
                 }
             }elseif ( $c->deal_in_form == "DESCUENTO_PLANILLA"){
                  $priceUnit = $c->total_sale / $quantity;
