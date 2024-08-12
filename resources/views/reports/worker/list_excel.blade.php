@@ -17,13 +17,9 @@
 <table>
     <thead>
     <tr>
-        <th style="font-weight: bold;text-align: center">Nº PERS.</th>
-        <th style="font-weight: bold;text-align: center">NOMBRE DEL PERSONAL</th>
-        <th style="font-weight: bold;text-align: center">APELLIDO PATERNO</th>
-        <th style="font-weight: bold;text-align: center">APELLIDO MATERNO</th>
-        <th style="font-weight: bold;text-align: center">NOMBRE DE PILA</th>
-        <th style="font-weight: bold;text-align: center">SEDE</th>
-        <th style="font-weight: bold;text-align: center">ÁREA DE NÓMINA</th>
+        <th style="font-weight: bold;text-align: center">N° DOCUMENTO</th>
+        <th style="font-weight: bold;text-align: center">NOMBRESL</th>
+        <th style="font-weight: bold;text-align: center">ÁREA DE PERSONAL</th>
         <th style="font-weight: bold;text-align: center">RELACIÓN LABORAL</th>
         <th style="font-weight: bold;text-align: center">DIVISIÓN DE PERSONAL</th>
         <th style="font-weight: bold;text-align: center">ÁREA DE PERSONAL</th>
@@ -45,26 +41,7 @@
     </thead>
     <tbody>
     @foreach ($workers as $w)
-        @php
-        $arraySurnames = explode(" ",$w->surnames);
-
-        // Asignar el primer elemento al apellido paterno y el segundo al materno
-        $fatherLastName = $arraySurnames[0] ?? "";
-        $motherLastName = $arraySurnames[1] ?? "";
-
-        // Si hay más de dos partes, se reconstruye el apellido materno
-        if (count($arraySurnames) > 2) {
-            $motherLastName = implode(" ", array_slice($arraySurnames, 1));
-        }
-
-
-
-        @endphp
         <tr>
-            <td style="text-align: center">{{ $w->personal_code.'' }}</td>
-            <td style="text-align: center">{{ $w->fullName }}</td>
-            <td style="text-align: center">{{ $fatherLastName }}</td>
-            <td style="text-align: center">{{ $motherLastName }}</td>
             <td style="text-align: center">{{ $w->names }}</td>
             <td style="text-align: center">{{ $w->campus->name }}</td>
             <td style="text-align: center">{{ $w->payrollArea->name }}</td>

@@ -7,6 +7,7 @@ use App\Exports\SubvencionExport;
 use App\Exports\WorkerSummaryExport;
 use App\Http\Traits\ConsumptionTrait;
 use App\Models\Area;
+use App\Models\Category;
 use App\Models\TypeForm;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -57,7 +58,10 @@ class ConsumptionController extends Controller
 
         $response = [];
         if (in_array("categories", $resourceTypes)) {
-            $response["categories"] = ["BEBIDAS","COMIDAS","SNACK","EXTRAS"];
+            $response["categories"] = Category::query()
+                //->whereIn("name",["DESAYUNO","ALMUERZO","CENA"])
+                ->orderBy("id","ASC")
+                ->get();
         }
         if (in_array("typeForms", $resourceTypes)) {
             $response["typeForms"] = TypeForm::query()->orderByDesc("id")->get();

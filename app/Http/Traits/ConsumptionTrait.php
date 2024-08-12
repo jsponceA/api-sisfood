@@ -56,7 +56,7 @@ trait ConsumptionTrait
             })
             ->whereHas("product", function ($query) use ($categoryId) {
                 $query->when(!empty($categoryId), function ($query) use ($categoryId) {
-                    $query->where("category", $categoryId);
+                    $query->where("category_id", $categoryId);
                 });
             })
             ->orderByDesc("id");

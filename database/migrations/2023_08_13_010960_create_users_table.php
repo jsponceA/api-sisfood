@@ -24,13 +24,6 @@ return new class extends Migration
             $table->softDeletesDatetime();
         });
 
-        \App\Models\User::query()->create([
-            'rol_id' => 1,
-            'branch_id' => 1,
-            'username' => "admin",
-            'password' => 123456,
-            'email' => "adming@gmail.com",
-        ]);
     }
 
     /**

@@ -18,9 +18,6 @@ return new class extends Migration
             $table->softDeletesDatetime();
         });
 
-        \App\Models\StaffDivision::query()->create([
-            "name" => "Lima - Amauta Impresiones C."
-        ]);
     }
 
     /**

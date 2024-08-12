@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
+use App\Models\Sale;
 use App\Models\SaleDetail;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -17,18 +19,26 @@ class HomeController extends Controller
     {
         $starDate = $request->input("startDate");
         $endDate = $request->input("endDate");
-        $category = $request->input("category");
+        $categoryId = $request->input("category_id");
 
         $sales = Product::query()
-            ->selectRaw("name,category,SUM(sd.quantity) AS quantityProducts,SUM(sd.total) AS totalSale,SUM(s.total_pay_company) AS totalSaleCompany")
+            ->selectRaw("SUM(sd.quantity) AS quantityProducts,
+            SUM(s.total_sale) AS totalSale,
+            SUM(s.total_pay_company) AS totalSaleCompany,
+            products.name AS product_name,
+            categories.name AS category_name
+            ")
+            ->join("categories","products.category_id","=","categories.id")
             ->join("sale_details AS sd","products.id","=","sd.product_id")
             ->join("sales AS s","sd.sale_id","=","s.id")
-            ->join("workers as w","s.worker_id","=","w.id")
+            ->leftJoin("workers as w","s.worker_id","=","w.id")
+            ->whereNull("s.deleted_at")
             ->when(!empty($starDate),fn($q) => $q->whereDate("s.sale_date",">=",$starDate))
             ->when(!empty($endDate),fn($q) => $q->whereDate("s.sale_date","<=",$endDate))
-            ->when(!empty($category),fn($q) => $q->where("category",$category))
-            ->groupBy("name","category")
+            ->when(!empty($categoryId),fn($q) => $q->where("category_id",$categoryId))
+            ->groupBy("products.name","category_name")
             ->get();
+
 
         $linearDataResult = [];
         $rangeDates = CarbonPeriod::create($starDate,$endDate)->toArray();
@@ -40,25 +50,28 @@ class HomeController extends Controller
             $linearDataResult["data_desayuno"][] = Product::query()
                 ->leftJoin("sale_details AS sd","products.id","=","sd.product_id")
                 ->leftJoin("sales AS s","sd.sale_id","=","s.id")
+                ->leftJoin("categories","products.category_id","=","categories.id")
+                ->whereNull("s.deleted_at")
                 ->whereDate("s.sale_date",$dateLabel)
-                ->where("category","COMIDAS")
-                ->where("name","DESAYUNO")
+                ->where("categories.name","DESAYUNO")
                 ->sum("sd.quantity");
 
             $linearDataResult["data_almuerzo"][] = Product::query()
                 ->leftJoin("sale_details AS sd","products.id","=","sd.product_id")
                 ->leftJoin("sales AS s","sd.sale_id","=","s.id")
+                ->leftJoin("categories","products.category_id","=","categories.id")
+                ->whereNull("s.deleted_at")
                 ->whereDate("s.sale_date",$dateLabel)
-                ->where("category","COMIDAS")
-                ->where("name","ALMUERZO")
+                ->where("categories.name","ALMUERZO")
                 ->sum("sd.quantity");
 
             $linearDataResult["data_cena"][] = Product::query()
                 ->leftJoin("sale_details AS sd","products.id","=","sd.product_id")
                 ->leftJoin("sales AS s","sd.sale_id","=","s.id")
+                ->leftJoin("categories","products.category_id","=","categories.id")
+                ->whereNull("s.deleted_at")
                 ->whereDate("s.sale_date",$dateLabel)
-                ->where("category","COMIDAS")
-                ->where("name","CENA")
+                ->where("categories.name","CENA")
                 ->sum("sd.quantity");
         }
 
@@ -68,9 +81,11 @@ class HomeController extends Controller
             $pieDataResult[] = Product::query()
                 ->leftJoin("sale_details AS sd","products.id","=","sd.product_id")
                 ->leftJoin("sales AS s","sd.sale_id","=","s.id")
+                ->leftJoin("categories","products.category_id","=","categories.id")
+                ->whereNull("s.deleted_at")
                 ->when(!empty($starDate),fn($q) => $q->whereDate("s.sale_date",">=",$starDate))
                 ->when(!empty($endDate),fn($q) => $q->whereDate("s.sale_date","<=",$endDate))
-                ->where("category",$cat)
+                ->where("categories.name",$cat)
                 ->sum("sd.quantity");
         }
 
@@ -86,37 +101,41 @@ class HomeController extends Controller
             $barDataResult["data_desayuno"][] = Product::query()
                 ->leftJoin("sale_details AS sd","products.id","=","sd.product_id")
                 ->leftJoin("sales AS s","sd.sale_id","=","s.id")
+                ->leftJoin("categories","products.category_id","=","categories.id")
+                ->whereNull("s.deleted_at")
                 ->whereMonth("s.sale_date",$dateLabel)
                 ->whereYear("s.sale_date",$dateLabel)
-                ->where("category","COMIDAS")
-                ->where("name","DESAYUNO")
+                ->where("categories.name","ALMUERZO")
                 ->sum("sd.quantity");
 
             $barDataResult["data_almuerzo"][] = Product::query()
                 ->leftJoin("sale_details AS sd","products.id","=","sd.product_id")
                 ->leftJoin("sales AS s","sd.sale_id","=","s.id")
+                ->leftJoin("categories","products.category_id","=","categories.id")
+                ->whereNull("s.deleted_at")
                 ->whereMonth("s.sale_date",$dateLabel)
                 ->whereYear("s.sale_date",$dateLabel)
-                ->where("category","COMIDAS")
-                ->where("name","ALMUERZO")
+                ->where("categories.name","ALMUERZO")
                 ->sum("sd.quantity");
 
             $barDataResult["data_cena"][] = Product::query()
                 ->leftJoin("sale_details AS sd","products.id","=","sd.product_id")
                 ->leftJoin("sales AS s","sd.sale_id","=","s.id")
+                ->leftJoin("categories","products.category_id","=","categories.id")
+                ->whereNull("s.deleted_at")
                 ->whereMonth("s.sale_date",$dateLabel)
                 ->whereYear("s.sale_date",$dateLabel)
-                ->where("category","COMIDAS")
-                ->where("name","CENA")
+                ->where("categories.name","ALMUERZO")
                 ->sum("sd.quantity");
         }
+
 
 
 
         return response()->json([
             "sales" => $sales,
             "linearDataResult" => $linearDataResult,
-             "pieDataResul" => $pieDataResult,
+            "pieDataResul" => $pieDataResult,
             "barDataResult" => $barDataResult
         ],Response::HTTP_OK);
     }
@@ -128,7 +147,10 @@ class HomeController extends Controller
 
         $response = [];
         if (in_array("categories", $resourceTypes)) {
-            $response["categories"] = ["BEBIDAS","COMIDAS","SNACK","EXTRAS"];
+            $response["categories"] = Category::query()
+                //->whereIn("name",["DESAYUNO","ALMUERZO","CENA"])
+                ->orderBy("id","ASC")
+                ->get();
         }
 
         return response()->json($response, Response::HTTP_OK);

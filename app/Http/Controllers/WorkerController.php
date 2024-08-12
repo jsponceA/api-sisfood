@@ -8,6 +8,7 @@ use App\Http\Traits\WorkerTrait;
 use App\Models\Area;
 use App\Models\Business;
 use App\Models\Campus;
+use App\Models\Category;
 use App\Models\Charge;
 use App\Models\Composition;
 use App\Models\CostCenter;
@@ -178,6 +179,12 @@ class WorkerController extends Controller
         }
         if (in_array("compositions", $resourceTypes)) {
             $response["compositions"] = Composition::query()->orderByDesc("id")->get();
+        }
+        if (in_array("categories", $resourceTypes)) {
+            $response["categories"] = Category::query()
+                ->whereIn("name",["DESAYUNO","ALMUERZO","CENA"])
+                ->orderBy("id","ASC")
+                ->get();
         }
 
         return response()->json($response, Response::HTTP_OK);

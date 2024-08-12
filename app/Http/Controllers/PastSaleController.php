@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 
 use App\Http\Traits\SaleTrait;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\Worker;
@@ -94,6 +95,7 @@ class PastSaleController extends Controller
         DB::beginTransaction();
         try {
             $searchWorker = $request->input("searchWorker");
+            $selectedFoodType = $request->input("selectedFoodType");
             $saleData = $request->except("sale_details");
             $saleDetailsData = $request->input("sale_details");
             $currentDay = $saleData["sale_date"];
@@ -102,8 +104,7 @@ class PastSaleController extends Controller
             $response = [];
 
             //validate worker
-            $workerId = !empty($saleData["worker_id"]) ? $saleData["worker_id"] : null;
-            $worker = Worker::query()->find($workerId);
+            $worker = Worker::query()->find($saleData["worker_id"] ?? null);
 
             if (!empty($worker)){
 
@@ -112,10 +113,11 @@ class PastSaleController extends Controller
                     ->where("serie","001")
                     ->where("deal_in_form","SUBVENCION")
                     ->where("worker_id",$worker->id)
-                    ->whereDate("sale_date",now()->parse($currentDay)->format("Y-m-d"))
+                    ->whereDate("sale_date",$currentDay)
                     ->get();
 
-                $product = Product::query()->findOrFail($saleData["product_id"]);
+                $product = Product::query()->findOrFail($saleDetailsData[0]["product_id"]);
+                $category = Category::query()->where("name",$selectedFoodType)->first();
 
 
                 $foodConsumed = null;
@@ -137,22 +139,12 @@ class PastSaleController extends Controller
                     $response["alertType"] = 4;
                     $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, ya fue cesado en la fecha {$suspendDateFormat} ";
                     $response["messageContent"] = "";
-                }else if(empty($worker->breakfast) && mb_strtoupper($product->name) == "DESAYUNO"){
+                }else if(!in_array($category->id,$worker->allowed_meals)){
                     $response["error"] = true;
                     $response["alertType"] = 4;
                     $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, no tienen acceso a {$product->name} ";
                     $response["messageContent"] = "";
-                }elseif(empty($worker->lunch) && mb_strtoupper($product->name) == "ALMUERZO") {
-                    $response["error"] = true;
-                    $response["alertType"] = 4;
-                    $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, no tienen acceso a {$product->name} ";
-                    $response["messageContent"] = "";
-                }elseif(empty($worker->dinner) && mb_strtoupper($product->name) == "CENA") {
-                    $response["error"] = true;
-                    $response["alertType"] = 4;
-                    $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, no tienen acceso a {$product->name} ";
-                    $response["messageContent"] = "";
-                }elseif ($existsFoodType){
+                }elseif ($existsFoodType ){
                     $response["error"] = true;
                     $response["alertType"] = 2;
                     $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, ya consumio su {$product->name} el ".now()->parse($foodConsumed->sale_date)->format("d/m/Y h:i:s A");
@@ -178,6 +170,7 @@ class PastSaleController extends Controller
                 $saleData["pay_type"] = "CREDITO";
                 $saleData["serie"] = "001";
                 $saleData["num_document"] = Sale::query()->where("serie","001")->max("num_document") + 1;
+
                 $sale = Sale::query()->create($saleData);
                 $sale->saleDetails()->createMany($saleDetailsData);
                 $response["id"] = $sale->id;
@@ -217,7 +210,7 @@ class PastSaleController extends Controller
             //variables
             $comensal = !empty($sale->worker->names) ? mb_strtoupper($sale->worker->names." ".$sale->worker->surnames) : 'PUBLICO GENERAL';
 
-            $nombreImpresora = env("PRINTER_NAME");
+            $nombreImpresora = config("printerticket.name");
             $connector = new WindowsPrintConnector($nombreImpresora);
             //$connector = new FilePrintConnector(storage_path('app/simulated-print.txt'));
             $printer = new Printer($connector);
@@ -225,19 +218,19 @@ class PastSaleController extends Controller
             $printer->initialize();
             # Vamos a alinear al centro lo próximo que imprimamos
             //$printer->setJustification(Printer::JUSTIFY_CENTER);
-
+            $printer->setTextSize(2,1);
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->setEmphasis(true);
             $printer->setFont(Printer::FONT_A);
-            $printer->text("CONCESIONARIO DE ALIMENTOS LUCEMIR\n");
+            $printer->text("TUMI RAISE BORING\n");
             $printer->text("\n");
             $printer->setFont(Printer::FONT_B);
             $printer->setEmphasis(false);
             $printer->text("TICKET: ".$sale->serie.'-'.Str::padLeft($sale->num_document,7,"0")."\n");
             $printer->setFont(Printer::FONT_B);
-            $printer->text("FECHA Y HORA: ".now()->parse($sale->sale_date)->format("d/m/Y h:i:s A"). "\n");
+            $printer->text("FECHA Y HORA: ".now()->parse($sale->sale_date)->format("d/m/Y h:i A"). "\n");
             $printer->setJustification(Printer::JUSTIFY_LEFT);
-            $printer->text("CAJERO: ".mb_strtoupper($user->username)."                  PEDIDOS: 92485988"."\n");
+            $printer->text("CAJERO: ".mb_strtoupper($user->username)."                  PEDIDOS: 924859988"."\n");
             $printer->text("COMENSAL: ".$comensal."\n");
             $printer->text("\n");
 
@@ -287,7 +280,10 @@ class PastSaleController extends Controller
             $response["payTypes"] = ["CREDITO","EFECTIVO"];
         }
         if (in_array("foodTypes", $resourceTypes)) {
-            $response["foodTypes"] = ["DESAYUNO","ALMUERZO","CENA"];
+            $response["foodTypes"] = Category::query()
+                ->whereIn("name",["DESAYUNO","ALMUERZO","CENA"])
+                ->orderBy("id","ASC")
+                ->get();
         }
 
 

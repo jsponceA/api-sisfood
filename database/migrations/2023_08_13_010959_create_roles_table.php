@@ -19,15 +19,6 @@ return new class extends Migration
             $table->softDeletesDatetime();
         });
 
-        Role::query()->create([
-            "name" => "ADMIN"
-        ]);
-        Role::query()->create([
-            "name" => "RRHH"
-        ]);
-        Role::query()->create([
-            "name" => "VENTAS"
-        ]);
     }
 
     /**

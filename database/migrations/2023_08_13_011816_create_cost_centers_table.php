@@ -19,19 +19,6 @@ return new class extends Migration
             $table->datetimes();
             $table->softDeletesDatetime();
         });
-
-        /*CostCenter::query()
-            ->create([
-            "name" => "TAPAS CONVENCIONALES"
-        ]);
-        CostCenter::query()
-            ->create([
-                "name" => "ALMACEN PROD TERMINADO PLANTA CENTRAL"
-            ]);
-        CostCenter::query()
-            ->create([
-                "name" => "BARNIZADO"
-            ]);*/
     }
 
     /**

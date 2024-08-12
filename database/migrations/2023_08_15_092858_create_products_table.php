@@ -15,9 +15,11 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string("name",255);
-            $table->enum("category",["BEBIDAS","COMIDAS","SNACK","EXTRAS"]);
+            $table->unsignedBigInteger("category_id")->nullable();
+            $table->string("name",255)->unique();
+            $table->string("internal_code",50)->nullable();
             $table->string("barcode",100)->nullable();
+            $table->string("image")->nullable();
             $table->decimal("purchase_price",11,2)->nullable();
             $table->decimal("sale_price",11,2)->nullable();
             $table->decimal("worker_price",11,2)->nullable();
@@ -29,64 +31,6 @@ return new class extends Migration
             $table->datetimes();
             $table->softDeletesDatetime();
         });
-
-
-        Product::query()->create([
-            "name" => "DESAYUNO",
-            "category" => "COMIDAS",
-            "barcode" => "DESAYUNO123",
-            "purchase_price" => 2.5,
-            "sale_price" => 4.96,
-            "worker_price" => 4.2,
-            "igv_price" => 4.96,
-            "company_price" => 0.76,
-        ]);
-
-        Product::query()->create([
-            "name" => "ALMUERZO",
-            "category" => "COMIDAS",
-            "barcode" => "ALMUERZO123",
-            "purchase_price" => 7.5,
-            "sale_price" => 8.85,
-            "worker_price" => 1.50,
-            "igv_price" => 8.85,
-            "company_price" => 7.50,
-        ]);
-
-        Product::query()->create([
-            "name" => "CENA",
-            "category" => "COMIDAS",
-            "barcode" => "CENA123",
-            "purchase_price" => 7.5,
-            "sale_price" => 8.85,
-            "worker_price" => 1.50,
-            "igv_price" => 8.85,
-            "company_price" => 7.50,
-        ]);
-
-
-        Product::query()->create([
-            "name" => "LOMO SALTADO",
-            "category" => "EXTRAS",
-            "barcode" => "LS123",
-            "purchase_price" => 0,
-            "sale_price" => 15,
-            "worker_price" => 0,
-            "igv_price" => 0,
-            "company_price" => 8.0,
-        ]);
-
-        Product::query()->create([
-            "name" => "POLLO SALTADO",
-            "category" => "EXTRAS",
-            "barcode" => "PL123",
-            "purchase_price" => 0,
-            "sale_price" => 15,
-            "worker_price" => 0,
-            "igv_price" => 0,
-            "company_price" => 8.0,
-        ]);
-
 
     }
 

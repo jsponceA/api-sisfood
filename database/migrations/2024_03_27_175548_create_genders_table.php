@@ -17,12 +17,6 @@ return new class extends Migration
             $table->datetimes();
             $table->softDeletesDatetime();
         });
-
-        $values = ["Masculino","Femenino"];
-
-        foreach ($values as $item) {
-            \App\Models\Gender::query()->create(["name"=>$item]);
-        }
     }
 
     /**

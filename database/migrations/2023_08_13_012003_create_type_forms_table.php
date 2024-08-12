@@ -19,20 +19,6 @@ return new class extends Migration
             $table->softDeletesDatetime();
         });
 
-        TypeForm::query()
-            ->create([
-                "name" => "EMPLEADO"
-            ]);
-
-        TypeForm::query()
-            ->create([
-                "name" => "OBRERO"
-            ]);
-
-        TypeForm::query()
-            ->create([
-                "name" => "PRACTICANTE"
-            ]);
     }
 
     /**

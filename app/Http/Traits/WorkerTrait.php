@@ -20,14 +20,13 @@ trait WorkerTrait
         $breakfast = $request->input("breakfast");
         $lunch = $request->input("lunch");
         $dinner = $request->input("dinner");
+        $allowedMeals = $request->input("allowed_meals");
 
         $workers = Worker::query()
             ->with(["area", "typeForm","costCenter","payrollArea","campus","staffDivision","charge","organizationalUnit","gender","superior","business"])
             ->when(!empty($search), function ($q) use ($search) {
                 $q->where("names", "LIKE", "%{$search}%")
-                    ->orWhere("surnames", "LIKE", "%{$search}%")
-                    ->orWhere("numdoc", "LIKE", "%{$search}%")
-                    ->orWhere("personal_code",$search);
+                    ->orWhere("numdoc", "LIKE", "%{$search}%");
             })
             ->when(!empty($dateStartSuspended), function ($q) use ($dateStartSuspended) {
                 $q->whereDate("suspension_date", ">=", $dateStartSuspended);
@@ -55,6 +54,9 @@ trait WorkerTrait
             })
             ->when(!empty($dinner), function ($q) use ($dinner) {
                 $q->where("dinner", $dinner);
+            })
+            ->when(!empty($allowedMeals), function ($q) use ($allowedMeals) {
+                $q->whereJsonContains("allowed_meals",$allowedMeals);
             })
             ->orderByDesc("id");
 

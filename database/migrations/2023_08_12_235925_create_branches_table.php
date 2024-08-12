@@ -18,10 +18,6 @@ return new class extends Migration
             $table->datetimes();
             $table->softDeletesDatetime();
         });
-
-        Branch::query()->create([
-            "name" => "SUCURSAL PRINCIPAL"
-        ]);
     }
 
     /**

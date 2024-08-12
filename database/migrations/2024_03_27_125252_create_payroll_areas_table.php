@@ -17,10 +17,6 @@ return new class extends Migration
             $table->datetimes();
             $table->softDeletesDatetime();
         });
-
-        \App\Models\PayrollArea::query()->create([
-            "name" => "AMAUTA IMP. COMERC."
-        ]);
     }
 
     /**

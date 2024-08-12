@@ -27,15 +27,17 @@ class ProductFormRequest extends FormRequest
                 return [
                     //'name' => ['required', "max:255",Rule::unique("products","name")->whereNull("deleted_at")],
                     'name' => ['required','max:255'],
-                    'category' => ['required'],
+                    'category_id' => ['required'],
                     'barcode' => ['nullable', "max:100"],
+                    'image'=> ['nullable', "image"],
                 ];
             case "PUT":
                 return [
                     //'name' => ['required', "max:255",Rule::unique("products","name")->ignore($this->route("product"))->whereNull("deleted_at")],
                     'name' => ['required','max:255'],
-                    'category' => ['required'],
+                    'category_id' => ['required'],
                     'barcode' => ['nullable', "max:100"],
+                    'image'=> ['nullable', "image"],
                 ];
             default:
                 return [];

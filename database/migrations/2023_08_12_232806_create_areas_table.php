@@ -19,15 +19,6 @@ return new class extends Migration
             $table->softDeletesDatetime();
         });
 
-        /*Area::query()->create([
-            "name" => "01.1 Corte Barnizado y Litografía "
-        ]);
-        Area::query()->create([
-            "name" => "01.2 Tapas Convencionales"
-        ]);
-        Area::query()->create([
-            "name" => "01.6 Embutidos"
-        ]);*/
     }
 
     /**

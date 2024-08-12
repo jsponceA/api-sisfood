@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductFormRequest;
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends Controller
@@ -18,8 +20,10 @@ class ProductController extends Controller
         $page = $request->input("page");
         $perPage = $request->input("perPage");
         $search = trim($request->input("search"));
+        $paginated = $request->input("paginated",true);
 
         $products = Product::query()
+            ->with(["category"])
             ->when(!empty($search), function ($q) use ($search) {
                 $q->where("name", "LIKE", "%{$search}%")
                     ->orWhere("barcode", "LIKE", "%{$search}%");
@@ -39,6 +43,9 @@ class ProductController extends Controller
     {
         $data = $request->all();
 
+        if ($request->hasFile("image")){
+            $data["image"] = basename(Storage::putFile("products",$request->file("image")));
+        }
         $product = Product::query()->create($data);
 
         Product::query()->where("id",$product->id)
@@ -67,8 +74,13 @@ class ProductController extends Controller
     public function update(ProductFormRequest $request, int $id): JsonResponse
     {
         $data = $request->all();
-
         $product = Product::query()->findOrFail($id);
+        if ($request->hasFile("image")){
+            Storage::delete("products/{$product->image}");
+            $data["image"] = basename(Storage::putFile("products",$request->file("image")));
+        }else{
+            unset($data["image"]);
+        }
         $data["barcode"] = $this->generateBarCode($product->id,$product->created_at);
         $product->update($data);
 
@@ -84,6 +96,8 @@ class ProductController extends Controller
     {
         $product = Product::query()->findOrFail($id);
         $product->delete();
+
+        Storage::delete("products/{$product->image}");
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
@@ -121,6 +135,23 @@ class ProductController extends Controller
         ], Response::HTTP_OK);
     }
 
+    public function productsFilters(Request $request){
+
+        $search = trim($request->input("search"));
+        $selectedFoodType = $request->input("selectedFoodType");
+
+        $products = Product::query()
+            ->with(["category"])
+            ->whereHas("category",function ($q) use ($selectedFoodType){
+                $q->where("name",$selectedFoodType);
+            })
+            ->orderBy("id")
+            ->get();
+
+        return response()->json([
+            "products" => $products
+        ], Response::HTTP_OK);
+    }
     public function generateBarCode(int $id, $created_at)
     {
         return $id.now()->parse($created_at)->format("dmy");
@@ -143,7 +174,9 @@ class ProductController extends Controller
 
         $response = [];
         if (in_array("categories", $resourceTypes)) {
-            $response["categories"] = ["BEBIDAS","COMIDAS","SNACK","EXTRAS"];
+            $response["categories"] = Category::query()
+                ->orderBy("id","ASC")
+                ->get();
         }
 
         return response()->json($response, Response::HTTP_OK);

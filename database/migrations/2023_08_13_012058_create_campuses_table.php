@@ -19,10 +19,6 @@ return new class extends Migration
             $table->softDeletesDatetime();
         });
 
-        Campus::query()
-            ->create([
-                "name" => "AMAUTA IMP. COMERC."
-            ]);
     }
 
     /**

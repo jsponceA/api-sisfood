@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('type_documents', function (Blueprint $table) {
+        Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->string("name",100);
+            $table->string("name");
+            $table->string("code",50)->nullable();
             $table->datetimes();
             $table->softDeletesDatetime();
         });
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('type_documents');
+        Schema::dropIfExists('categories');
     }
 };

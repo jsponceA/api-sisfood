@@ -38,17 +38,25 @@ class Worker extends Model
         "breakfast",
         "lunch",
         "dinner",
-        "grant"
+        "grant",
+        "grant_complete",
+        "allowed_meals",
+        "condition"
     ];
 
     protected $appends = [
         "full_name"
     ];
 
+    protected $casts = [
+        "allowed_meals" => "array",
+    ];
+
     protected function fullName(): Attribute
     {
         return Attribute::get(fn() => "{$this->surnames} {$this->names}");
     }
+
     public function area(): BelongsTo
     {
         return $this->belongsTo(Area::class)->withDefault();

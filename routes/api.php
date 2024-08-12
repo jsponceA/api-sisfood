@@ -21,8 +21,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 Route::get("/",fn () => response()->json(["message"=>"PRIVATE SERVICE REST"]));
 
-Route::get("setearTodosDesayunos",[TestController::class,"setearTodosDesayunos"]);
-//Route::post("test/importarExcelTrabajador",[TestController::class,"importarExcelTrabajador"]);
+//Route::get("setearTodosDesayunos",[TestController::class,"setearTodosDesayunos"]);
+
+Route::get("test",[TestController::class,"index"]);
+Route::post("test/importarExcelTrabajador",[TestController::class,"importarExcelTrabajador"]);
+Route::get("test/setearCategoriasProductos",[TestController::class,"setearCategoriasProductos"]);
 
 //Route::get("products/updateBarCodes",[ProductController::class,"updateBarCodes"]);
 
@@ -51,7 +54,8 @@ Route::middleware(["auth:sanctum"])->group(function (){
     Route::apiResource("workers",WorkerController::class);
     /* end routes workers*/
 
-    /* start routes products*/
+    /* start routes products */
+    Route::get("products/productsFilters",[ProductController::class,"productsFilters"]);
     Route::get("products/searchOneProduct",[ProductController::class,"searchOneProduct"]);
     Route::get("products/searchSensitive",[ProductController::class,"searchSensitive"]);
     Route::get("products/getAllResources",[ProductController::class,"getAllResources"]);
