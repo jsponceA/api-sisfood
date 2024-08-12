@@ -266,7 +266,7 @@ class SaleController extends Controller
             $printer->setEmphasis(true);
             $printer->setFont(Printer::FONT_A);
             $printer->text("CONCESIONARIO DE\n");
-            $printer->text("CONCESIONARIO DE ALIMENTOS LUCEMIR\n");
+            $printer->text("ALIMENTOS LUCEMIR\n");
             $printer->text("\n");
             $printer->setFont(Printer::FONT_B);
             $printer->setEmphasis(false);
@@ -301,6 +301,7 @@ class SaleController extends Controller
             $printer->setJustification(Printer::JUSTIFY_RIGHT);
             $printer->text("------------"."\n");
             $printer->text("TOTAL: S/ ".number_format($total,2)."\n");
+            $printer->text(" \n");
             $printer->text("FORMA DE PAGO: ".($sale->pay_type == "EFECTIVO" ? 'EFECTIVO' : 'Descuento por planilla') ."\n");
 
             $printer->feed(2);
