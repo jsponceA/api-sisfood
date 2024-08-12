@@ -267,10 +267,10 @@ class SaleController extends Controller
             $printer->setFont(Printer::FONT_A);
             $printer->text("CONCESIONARIO DE ALIMENTOS LUCEMIR\n");
             $printer->text("\n");
-            $printer->setFont(Printer::FONT_A);
+            $printer->setFont(Printer::FONT_B);
             $printer->setEmphasis(false);
             $printer->text("TICKET: ".$sale->serie.'-'.Str::padLeft($sale->num_document,7,"0")."\n");
-            $printer->setFont(Printer::FONT_A);
+            $printer->setFont(Printer::FONT_B);
             $printer->text("FECHA Y HORA: ".now()->parse($sale->sale_date)->format("d/m/Y h:i A"). "\n");
             $printer->setJustification(Printer::JUSTIFY_LEFT);
             $printer->text("CAJERO: ".mb_strtoupper($user->username)."                  PEDIDOS: 924859988"."\n");
