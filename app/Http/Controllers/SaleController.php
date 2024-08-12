@@ -261,7 +261,8 @@ class SaleController extends Controller
             $printer->initialize();
             # Vamos a alinear al centro lo próximo que imprimamos
             //$printer->setJustification(Printer::JUSTIFY_CENTER);
-            $printer->setTextSize(2,1);
+            //$printer->selectPrintMode(Printer::MODE_FONT_B);
+            //$printer->setTextSize(2,1);
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->setEmphasis(true);
             $printer->setFont(Printer::FONT_A);
