@@ -184,25 +184,26 @@ trait ConsumptionTrait
             ->with(["worker","saleDetails"])
             ->join("sale_details","sales.id","=","sale_details.sale_id")
             ->join("workers","sales.worker_id","=","workers.id")
+            ->join("products","sale_details.product_id","=","products.id")
+            ->join("categories","products.category_id","=","categories.id")
             ->select("worker_id",DB::raw("
-            SUM( CASE WHEN sale_details.product_name='DESAYUNO' THEN sale_details.quantity ELSE 0 END) AS total_desayunos,
-            SUM( CASE WHEN sale_details.product_name='ALMUERZO' THEN sale_details.quantity ELSE 0 END) AS total_almuerzos,
-            SUM( CASE WHEN sale_details.product_name='CENA' THEN sale_details.quantity ELSE 0 END) AS total_cenas,
+            SUM( CASE WHEN categories.name='DESAYUNO' THEN sale_details.quantity ELSE 0 END) AS total_desayunos,
+            SUM( CASE WHEN categories.name='ALMUERZO' THEN sale_details.quantity ELSE 0 END) AS total_almuerzos,
+            SUM( CASE WHEN categories.name='CENA' THEN sale_details.quantity ELSE 0 END) AS total_cenas,
 
-            SUM( CASE WHEN sale_details.product_name='DESAYUNO' THEN sale_details.total ELSE 0 END) AS monto_desayunos,
-            SUM( CASE WHEN sale_details.product_name='ALMUERZO' THEN sale_details.total ELSE 0 END) AS  monto_almuerzos,
-            SUM( CASE WHEN sale_details.product_name='CENA' THEN sale_details.total ELSE 0 END) AS  monto_cenas,
-            SUM( CASE WHEN sale_details.product_name != 'DESAYUNO' AND sale_details.product_name != 'ALMUERZO' AND sale_details.product_name != 'CENA' THEN sale_details.total ELSE 0 END) AS monto_snacks,
+            SUM( CASE WHEN categories.name='DESAYUNO' THEN sale_details.total ELSE 0 END) AS monto_desayunos,
+            SUM( CASE WHEN categories.name='ALMUERZO' THEN sale_details.total ELSE 0 END) AS  monto_almuerzos,
+            SUM( CASE WHEN categories.name='CENA' THEN sale_details.total ELSE 0 END) AS  monto_cenas,
+            SUM( CASE WHEN categories.name != 'DESAYUNO' AND categories.name != 'ALMUERZO' AND categories.name != 'CENA' THEN sale_details.total ELSE 0 END) AS monto_snacks,
 
              SUM(CASE
-                WHEN workers.grant = 1 AND (sale_details.product_name = 'ALMUERZO' OR sale_details.product_name = 'CENA') THEN 7.5 * sale_details.quantity
+                WHEN (workers.grant = 1 OR workers.grant_complete = 1) AND (categories.name = 'ALMUERZO' OR categories.name = 'CENA') THEN sales.total_pay_company
                 ELSE 0
             END) AS total_subvencion,
 
             SUM(CASE
-                WHEN workers.grant = 1 AND (sale_details.product_name = 'ALMUERZO' OR sale_details.product_name = 'CENA') THEN 1.5
-
-                ELSE sales.total_sale
+                WHEN (workers.grant = 1 OR workers.grant_complete = 1) AND (categories.name = 'ALMUERZO' OR categories.name = 'CENA') THEN sales.total_dsct_form
+                ELSE 0
             END) AS worker_price
             "))
             ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {

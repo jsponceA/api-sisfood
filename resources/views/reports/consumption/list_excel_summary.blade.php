@@ -9,7 +9,7 @@
     <thead>
     <tr>
         @if(!empty($params->dateStartConsumption) && !empty($params->dateEndConsumption))
-            <th colspan="13"
+            <th colspan="10"
                 style="border: 1px solid black;font-weight: bold;text-align: center;background-color: #b7bdc1">REPORTE
                 DE CONSUMOS DESDE {{now()->parse($params->dateStartConsumption)->format("d/m/Y")}}
                 HASTA {{now()->parse($params->dateEndConsumption)->format("d/m/Y")}}</th>
@@ -18,9 +18,6 @@
     <tr>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">AREA</th>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">DNI</th>
-        <th style="border: 1px solid black;font-weight: bold;text-align: center">INTERNO</th>
-        <th style="border: 1px solid black;font-weight: bold;text-align: center">PATERNO</th>
-        <th style="border: 1px solid black;font-weight: bold;text-align: center">MATERNO</th>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">NOMBRE</th>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">SUBVENCIONADO</th>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">CANTIDAD TOTAL DESAYUNOS</th>
@@ -44,15 +41,6 @@
     @endphp
     @foreach ($sales as $s)
         @php
-            $arraySurnames = explode(" ",$s->worker?->surnames);
-                // Asignar el primer elemento al apellido paterno y el segundo al materno
-           $fatherLastName = $arraySurnames[0] ?? "";
-           $motherLastName = $arraySurnames[1] ?? "";
-
-           // Si hay más de dos partes, se reconstruye el apellido materno
-           if (count($arraySurnames) > 2) {
-               $motherLastName = implode(" ", array_slice($arraySurnames, 1));
-           }
 
               $granTotalDesayunos += $s->total_desayunos;
               $granTotalAlmuerzos += $s->total_almuerzos;
@@ -71,11 +59,16 @@
         <tr>
             <td style="border: 1px solid black;text-align: center">{{$s->worker?->payrollArea?->name}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->worker?->numdoc.''}}</td>
-            <td style="border: 1px solid black;text-align: center">{{$s->worker?->personal_code.''}}</td>
-            <td style="border: 1px solid black;text-align: center">{{$fatherLastName}}</td>
-            <td style="border: 1px solid black;text-align: center">{{$motherLastName}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->worker->names}}</td>
-            <td style="border: 1px solid black;text-align: center">{{$s->worker->grant ? 'SI' : 'NO'}}</td>
+            <td style="border: 1px solid black;text-align: center">
+                @if($s->worker->grant )
+                    SI SUBVENCIÓN
+                @elseif($s->worker->grant_complete)
+                    SI SUBVENCIÓN COMPLETA
+                @else
+                    NO SUBVENCIÓN
+                @endif
+            </td>
             <td style="border: 1px solid black;text-align: center">{{$s->total_desayunos}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->total_almuerzos}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->total_cenas}}</td>
@@ -85,9 +78,6 @@
         </tr>
     @endforeach
     <tr>
-        <td></td>
-        <td></td>
-        <td></td>
         <td></td>
         <td></td>
         <td></td>
@@ -109,15 +99,11 @@
         <td></td>
         <td></td>
         <td></td>
-        <td></td>
-        <td></td>
         <td style="border: 2px solid black;font-weight: bold;" align="right">SUMA</td>
         <td style="border: 2px solid black" align="center">
             S/ {{number_format($granTotalResumen - $granTotalSnacks,2)}}</td>
     </tr>
     <tr>
-        <td></td>
-        <td></td>
         <td></td>
         <td></td>
         <td></td>
