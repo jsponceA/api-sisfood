@@ -63,6 +63,7 @@ Route::middleware(["auth:sanctum"])->group(function (){
     /* end routes products*/
 
     /* start routes sales*/
+    Route::post("sales/totalsSaleProductsAlmuerzo",[SaleController::class,"totalsSaleProductsAlmuerzo"]);
     Route::post("sales/totalsSaleProductsByCategory",[SaleController::class,"totalsSaleProductsByCategory"]);
     Route::post("sales/generateTicket",[SaleController::class,"generateTicket"]);
     Route::post("sales/subVencionStore",[SaleController::class,"subVencionStore"]);

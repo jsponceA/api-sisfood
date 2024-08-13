@@ -9,75 +9,30 @@
     <thead>
     <tr>
         <th style="font-weight: bold;text-align: center">DNI</th>
-        <th style="font-weight: bold;text-align: center">CODIGO</th>
         <th style="font-weight: bold;text-align: center">CLIENTE</th>
         <th style="font-weight: bold;text-align: center">AREA DE PERSONAL</th>
         <th style="font-weight: bold;text-align: center">C.COSTP</th>
         <th style="font-weight: bold;text-align: center">FECHA</th>
         <th style="font-weight: bold;text-align: center">PRODUCTO</th>
-{{--        <th style="font-weight: bold;text-align: center">SUBVENCIONADO</th>--}}
         <th style="font-weight: bold;text-align: center">PRECIO</th>
         <th style="font-weight: bold;text-align: center">CANTIDAD</th>
         <th style="font-weight: bold;text-align: center">SUBVENCION</th>
         <th style="font-weight: bold;text-align: center">TRABAJADOR</th>
         <th style="font-weight: bold;text-align: center">SUBTOTAL</th>
         <th style="font-weight: bold;text-align: center">TIPO DE DESCUENTO</th>
-        <th style="font-weight: bold;text-align: center">RELACIÓN LABORAL</th>
     </tr>
     </thead>
     <tbody>
     @foreach ($consumptions as $c)
         @php
             $quantity = $c->saleDetails()->sum("quantity");
-
-            $priceUnit = 0;
-            $subvencion = 0;
-            $workerPrice = 0;
-            $total = 0;
-            if ($c->worker?->grant){
-
-                /*if (in_array("DESAYUNO",$c->saleDetails()->pluck("product_name")->toArray())){
-                    $priceUnit = $c->sale_price;
-                    $subvencion = 0;
-                    $workerPrice = $c->total_dsct_form;
-                    $total = $subvencion;
-
-                }*/
-                if (in_array("ALMUERZO",$c->saleDetails()->pluck("product_name")->toArray())){
-                    $priceUnit = 9;
-                    $subvencion = 7.5;
-                    $workerPrice = 1.5;
-                    $total = 9 * $quantity;
-                }elseif (in_array("CENA",$c->saleDetails()->pluck("product_name")->toArray())){
-                     $priceUnit = 9;
-                    $subvencion = 7.5;
-                    $workerPrice = 1.5;
-                    $total = 9 * $quantity;
-                }else{
-                    $priceUnit = $c->total_sale / $quantity;
-                    $subvencion = 0;
-                    //$workerPrice = $priceUnit;
-                    //$total = $priceUnit;
-                    $workerPrice = $c->total_sale;
-                    $total = $c->total_sale;
-                }
-            }elseif ( $c->deal_in_form == "DESCUENTO_PLANILLA"){
-                 $priceUnit = $c->total_sale / $quantity;
-                 $subvencion = 0;
-                 $workerPrice = $c->total_sale;
-                 $total = $c->total_sale;
-            }else{
-                 $priceUnit = $c->total_sale / $quantity;
-                 $subvencion = 0;
-                 $workerPrice = $c->total_sale;
-                 $total = $c->total_sale;
-            }
-
-
+            $priceUnit = $c->total_sale / $quantity;
+            $subvencion = $c->total_pay_company;
+            $workerPrice = $c->total_dsct_form;
+            $total = $c->total_sale;
         @endphp
         <tr>
             <td style="text-align: center">{{$c->worker?->numdoc.''}}</td>
-            <td style="text-align: center">{{$c->worker?->personal_code.''}}</td>
             <td style="text-align: center">{{$c->worker?->fullName}}</td>
             <td style="text-align: center">{{$c->worker?->area?->name}}</td>
             <td style="text-align: center">{{$c->worker?->costCenter?->name}}</td>
@@ -90,26 +45,13 @@
             <td style="text-align: center">{{$total}}</td>
             <td style="text-align: center">
                 @if($c->worker?->grant)
-                    @if(in_array("ALMUERZO",$c->saleDetails()->pluck("product_name")->toArray()))
-                        SI SUBVENCIÓN
-                    @elseif(in_array("CENA",$c->saleDetails()->pluck("product_name")->toArray()))
-                        SI SUBVENCIÓN
-                    @else
-                        @if($c->deal_in_form == 'SUBVENCION')
-                            NO SUBVENCIÓN
-                        @else
-                            {{$c->deal_in_form}}
-                        @endif
-                    @endif
-                @else
-                   @if($c->deal_in_form == 'SUBVENCION')
-                        NO SUBVENCIÓN
-                   @else
-                        {{$c->deal_in_form}}
-                   @endif
+                    SI SUBVENCIÓN
+                @elseif($c->worker?->grant_complete)
+                    SI SUBVENCIÓN COMPLETA
+                 @else
+                    {{$c->deal_in_form}}
                 @endif
             </td>
-            <td style="text-align: center">{{$c->worker?->typeForm?->name}}</td>
         </tr>
     @endforeach
     </tbody>

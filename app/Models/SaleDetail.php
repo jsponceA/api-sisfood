@@ -23,6 +23,6 @@ class SaleDetail extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class)->withDefault();
+        return $this->belongsTo(Product::class)->with(["category"])->withDefault();
     }
 }

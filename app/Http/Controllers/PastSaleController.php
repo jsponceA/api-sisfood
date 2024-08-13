@@ -56,9 +56,12 @@ class PastSaleController extends Controller
         try {
             $saleData = $request->except("sale_details");
             $saleDetailsData = $request->input("sale_details");
+
+            /*ESTO ES IMPORTANTE*/
             $currentDay = $saleData["sale_date"];
             $saleData["created_at"] = $currentDay;
             $saleData["updated_at"] = $currentDay;
+            /*ESTO ES IMPORTANTE*/
 
 
             if ($saleData["deal_in_form"] == "DESCUENTO_PLANILLA"){
@@ -98,9 +101,12 @@ class PastSaleController extends Controller
             $selectedFoodType = $request->input("selectedFoodType");
             $saleData = $request->except("sale_details");
             $saleDetailsData = $request->input("sale_details");
+
+            /*ESTO ES IMPORTANTE*/
             $currentDay = $saleData["sale_date"];
             $saleData["created_at"] = $currentDay;
             $saleData["updated_at"] = $currentDay;
+            /*ESTO ES IMPORTANTE*/
             $response = [];
 
             //validate worker
@@ -113,7 +119,7 @@ class PastSaleController extends Controller
                     ->where("serie","001")
                     ->where("deal_in_form","SUBVENCION")
                     ->where("worker_id",$worker->id)
-                    ->whereDate("sale_date",$currentDay)
+                    ->whereDate("sale_date",now()->parse($currentDay)->format("Y-m-d"))
                     ->get();
 
                 $product = Product::query()->findOrFail($saleDetailsData[0]["product_id"]);
@@ -124,7 +130,11 @@ class PastSaleController extends Controller
                 $existsFoodType = false;
                 foreach ($searchSale as $srSale) {
                     foreach ($srSale->saleDetails as $saleDetail) {
-                        if ($saleDetail->product_id == $product->id){
+                        /*if ($saleDetail->product_id == $product->id){
+                           $existsFoodType = true;
+                           $foodConsumed = Sale::query()->find($saleDetail->sale_id);
+                       }*/
+                        if ($saleDetail->product->category_id == $category->id){
                             $existsFoodType = true;
                             $foodConsumed = Sale::query()->find($saleDetail->sale_id);
                         }
@@ -218,11 +228,12 @@ class PastSaleController extends Controller
             $printer->initialize();
             # Vamos a alinear al centro lo próximo que imprimamos
             //$printer->setJustification(Printer::JUSTIFY_CENTER);
-            $printer->setTextSize(2,1);
+            //$printer->selectPrintMode(Printer::MODE_FONT_B);
+            //$printer->setTextSize(2,1);
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->setEmphasis(true);
             $printer->setFont(Printer::FONT_A);
-            $printer->text("TUMI RAISE BORING\n");
+            $printer->text("CONCESIONARIO DE ALIMENTOS LUCEMIR");
             $printer->text("\n");
             $printer->setFont(Printer::FONT_B);
             $printer->setEmphasis(false);
@@ -230,7 +241,8 @@ class PastSaleController extends Controller
             $printer->setFont(Printer::FONT_B);
             $printer->text("FECHA Y HORA: ".now()->parse($sale->sale_date)->format("d/m/Y h:i A"). "\n");
             $printer->setJustification(Printer::JUSTIFY_LEFT);
-            $printer->text("CAJERO: ".mb_strtoupper($user->username)."                  PEDIDOS: 924859988"."\n");
+            $printer->text("CAJERO: ".mb_strtoupper($user->username)."\n");
+            $printer->text("PEDIDOS: 924859988\n");
             $printer->text("COMENSAL: ".$comensal."\n");
             $printer->text("\n");
 
@@ -243,11 +255,14 @@ class PastSaleController extends Controller
 
 
 
+            $printer->setEmphasis(true);
+            $printer->setTextSize(2,1);
             foreach ($sale->saleDetails as $detail) {
                 //$productName = wordwrap($detail->product_name, 20, "\n", true); // Dividir en líneas de 20 caracteres
                 $printer->text(number_format($detail->quantity)."x ".mb_strtoupper($detail->product_name)." "."S/ ".number_format($detail->sale_price,2)."      "."S/ ".number_format($detail->total,2)."\n");
             }
-
+            $printer->setTextSize(1,1);
+            $printer->setEmphasis(false);
             //$printer->text("------------------------------------------------"."\n");
 
             # Para mostrar el total
@@ -256,6 +271,7 @@ class PastSaleController extends Controller
             $printer->setJustification(Printer::JUSTIFY_RIGHT);
             $printer->text("------------"."\n");
             $printer->text("TOTAL: S/ ".number_format($total,2)."\n");
+            $printer->text(" \n");
             $printer->text("FORMA DE PAGO: ".($sale->pay_type == "EFECTIVO" ? 'EFECTIVO' : 'Descuento por planilla') ."\n");
 
             $printer->feed(2);

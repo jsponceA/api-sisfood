@@ -123,7 +123,11 @@ class SaleController extends Controller
                 $existsFoodType = false;
                 foreach ($searchSale as $srSale) {
                     foreach ($srSale->saleDetails as $saleDetail) {
-                        if ($saleDetail->product_id == $product->id){
+                        /*if ($saleDetail->product_id == $product->id){
+                            $existsFoodType = true;
+                            $foodConsumed = Sale::query()->find($saleDetail->sale_id);
+                        }*/
+                        if ($saleDetail->product->category_id == $category->id){
                             $existsFoodType = true;
                             $foodConsumed = Sale::query()->find($saleDetail->sale_id);
                         }
@@ -288,11 +292,14 @@ class SaleController extends Controller
 
 
 
+            $printer->setEmphasis(true);
+            $printer->setTextSize(2,1);
             foreach ($sale->saleDetails as $detail) {
                 //$productName = wordwrap($detail->product_name, 20, "\n", true); // Dividir en líneas de 20 caracteres
                 $printer->text(number_format($detail->quantity)."x ".mb_strtoupper($detail->product_name)." "."S/ ".number_format($detail->sale_price,2)."      "."S/ ".number_format($detail->total,2)."\n");
             }
-
+            $printer->setTextSize(1,1);
+            $printer->setEmphasis(false);
             //$printer->text("------------------------------------------------"."\n");
 
             # Para mostrar el total
@@ -329,8 +336,31 @@ class SaleController extends Controller
             ->join("products","sale_details.product_id","=","products.id")
             ->join("categories","products.category_id","=","categories.id")
             ->whereDate("sale_date",$now)
+            ->where("categories.name","!=","ALMUERZO")
             ->groupBy("category_name","category_color")
             ->orderBy("categories.id","ASC")
+            ->get();
+
+        return response()->json($salesQty,Response::HTTP_OK);
+    }
+
+    public function totalsSaleProductsAlmuerzo(): JsonResponse
+    {
+        $now = now()->format("Y-m-d");
+
+        $salesQty = Sale::query()
+            ->selectRaw("
+             COALESCE(SUM(sale_details.quantity), 0) AS quantity_products,
+             products.name AS product_name,
+             categories.color AS category_color
+            ")
+            ->join("sale_details","sales.id","=","sale_details.sale_id")
+            ->join("products","sale_details.product_id","=","products.id")
+            ->join("categories","products.category_id","=","categories.id")
+            ->whereDate("sale_date",$now)
+            ->where("categories.name","ALMUERZO")
+            ->groupBy("product_name","category_color")
+            ->orderBy("products.id","ASC")
             ->get();
 
         return response()->json($salesQty,Response::HTTP_OK);

@@ -7,6 +7,7 @@
     <style>
         body{
             text-transform: uppercase;
+            font-size: 10px !important;
         }
         table {
             width: 100%;
@@ -43,66 +44,32 @@
 <table>
     <thead>
     <tr>
-        <th style="font-weight: bold;text-align: center">Nº PERS.</th>
-        <th style="font-weight: bold;text-align: center">NOMBRE DEL PERSONAL</th>
-        <th style="font-weight: bold;text-align: center">APELLIDO PATERNO</th>
-        <th style="font-weight: bold;text-align: center">APELLIDO MATERNO</th>
-        <th style="font-weight: bold;text-align: center">NOMBRE DE PILA</th>
-        <th style="font-weight: bold;text-align: center">SEDE</th>
-        <th style="font-weight: bold;text-align: center">ÁREA DE NÓMINA</th>
-        <th style="font-weight: bold;text-align: center">RELACIÓN LABORAL</th>
-        <th style="font-weight: bold;text-align: center">DIVISIÓN DE PERSONAL</th>
-        <th style="font-weight: bold;text-align: center">ÁREA DE PERSONAL</th>
-        <th style="font-weight: bold;text-align: center">POSICIÓN / CARGO</th>
-        <th style="font-weight: bold;text-align: center">CE. COSTE</th>
-        <th style="font-weight: bold;text-align: center">CENTRO DE COSTE</th>
-        <th style="font-weight: bold;text-align: center">UNIDAD ORGANIZATIVA</th>
-        <th style="font-weight: bold;text-align: center">DESDE</th>
-        <th style="font-weight: bold;text-align: center">CLAVE DE SEXO</th>
-        <th style="font-weight: bold;text-align: center">FECHA NAC.</th>
-        <th style="font-weight: bold;text-align: center">NÚMERO ID</th>
-        <th style="font-weight: bold;text-align: center">NOMBRE DEL SUPERVISOR (GO)</th>
-        <th style="font-weight: bold;text-align: center">NEGOCIO</th>
-        <th style="font-weight: bold;text-align: center">SUBVENCIÓN</th>
-        <th style="font-weight: bold;text-align: center">DESAYUNO</th>
-        <th style="font-weight: bold;text-align: center">ALMUERZO</th>
-        <th style="font-weight: bold;text-align: center">CENA</th>
+        <th style="font-weight: bold;text-align: center;background-color: #002060;color: white">DNI</th>
+        <th style="font-weight: bold;text-align: center;background-color: #002060;color: white">APELLIDOS Y NOMBRES</th>
+        <th style="font-weight: bold;text-align: center;background-color: #002060;color: white">DEPARTAMENTO</th>
+        <th style="font-weight: bold;text-align: center;background-color: #002060;color: white">ÁREA</th>
+        <th style="font-weight: bold;text-align: center;background-color: #002060;color: white">SECCIÓN</th>
+        <th style="font-weight: bold;text-align: center;background-color: #002060;color: white">PUESTO_TRABAJO</th>
+        <th style="font-weight: bold;text-align: center;background-color: #002060;color: white">CONDICIÓN</th>
+        <th style="font-weight: bold;text-align: center;background-color: #002060;color: white">FECHA DE INGRESO</th>
+        <th style="font-weight: bold;text-align: center;background-color: #002060;color: white">SUBVENCIÓN</th>
+        <th style="font-weight: bold;text-align: center;background-color: #002060;color: white">SUBVENCIÓN COMPLETA</th>
+        <th style="font-weight: bold;text-align: center;background-color: #002060;color: white">DESAYUNO</th>
+        <th style="font-weight: bold;text-align: center;background-color: #002060;color: white">ALMUERZO</th>
+        <th style="font-weight: bold;text-align: center;background-color: #002060;color: white">CENA</th>
     </tr>
     </thead>
     <tbody>
     @foreach ($workers as $w)
-        @php
-            $arraySurnames = explode(" ",$w->surnames);
-             // Asignar el primer elemento al apellido paterno y el segundo al materno
-        $fatherLastName = $arraySurnames[0] ?? "";
-        $motherLastName = $arraySurnames[1] ?? "";
-
-        // Si hay más de dos partes, se reconstruye el apellido materno
-        if (count($arraySurnames) > 2) {
-            $motherLastName = implode(" ", array_slice($arraySurnames, 1));
-        }
-        @endphp
         <tr>
-            <td style="text-align: center">{{ $w->persona_code.'' }}</td>
-            <td style="text-align: center">{{ $w->fullName }}</td>
-            <td style="text-align: center">{{ $fatherLastName }}</td>
-            <td style="text-align: center">{{ $motherLastName }}</td>
+            <td style="text-align: center">{{ $w->numdoc.' ' }}</td>
             <td style="text-align: center">{{ $w->names }}</td>
-            <td style="text-align: center">{{ $w->campus->name }}</td>
-            <td style="text-align: center">{{ $w->payrollArea->name }}</td>
-            <td style="text-align: center">{{ $w->typeForm->name }}</td>
-            <td style="text-align: center">{{ $w->staffDivision->name }}</td>
+            <td style="text-align: center">{{ $w->organizationalUnit->name }}</td>
             <td style="text-align: center">{{ $w->area->name }}</td>
-            <td style="text-align: center">{{ $w->charge->name }}</td>
-            <td style="text-align: center">{{ $w->costCenter->code }}</td>
             <td style="text-align: center">{{ $w->costCenter->name }}</td>
-            <td style="text-align: center">{{ $w->organizationUnit->name }}</td>
+            <td style="text-align: center">{{ $w->charge->name }}</td>
+            <td style="text-align: center">{{ $w->condition }}</td>
             <td style="text-align: center">{{ !empty($w->admission_date) ? now()->parse($w->admission_date)->format("d/m/Y") : ""}}</td>
-            <td style="text-align: center">{{ $w->gender->name }}</td>
-            <td style="text-align: center">{{ !empty($w->birth_date) ? now()->parse($w->birth_date)->format("d/m/Y") : ""}}</td>
-            <td style="text-align: center">{{ $w->numdoc.'' }}</td>
-            <td style="text-align: center">{{ $w->superior->name }}</td>
-            <td style="text-align: center">{{ $w->business->name }}</td>
             <td style="text-align: center">
                 @if(!empty($w->grant))
                     <p style="color: green">SI</p>
@@ -111,21 +78,28 @@
                 @endif
             </td>
             <td style="text-align: center">
-                @if(!empty($w->breakfast))
+                @if(!empty($w->grant_complete))
                     <p style="color: green">SI</p>
                 @else
                     <p style="color: red">NO</p>
                 @endif
             </td>
             <td style="text-align: center">
-                @if(!empty($w->lunch))
+                @if(in_array(1,$w->allowed_meals))
                     <p style="color: green">SI</p>
                 @else
                     <p style="color: red">NO</p>
                 @endif
             </td>
             <td style="text-align: center">
-                @if(!empty($w->dinner))
+                @if(in_array(2,$w->allowed_meals))
+                    <p style="color: green">SI</p>
+                @else
+                    <p style="color: red">NO</p>
+                @endif
+            </td>
+            <td style="text-align: center">
+                @if(in_array(3,$w->allowed_meals))
                     <p style="color: green">SI</p>
                 @else
                     <p style="color: red">NO</p>
@@ -135,6 +109,7 @@
     @endforeach
     </tbody>
 </table>
+
 
 </body>
 </html>

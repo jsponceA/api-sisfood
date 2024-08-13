@@ -58,7 +58,7 @@ trait WorkerTrait
             ->when(!empty($allowedMeals), function ($q) use ($allowedMeals) {
                 $q->whereJsonContains("allowed_meals",$allowedMeals);
             })
-            ->orderByDesc("id");
+            ->orderBy("names","ASC");
 
         return $workers;
     }

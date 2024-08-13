@@ -31,6 +31,6 @@ class Sale extends Model
     }
     public function saleDetails(): HasMany
     {
-        return $this->hasMany(SaleDetail::class);
+        return $this->hasMany(SaleDetail::class)->with(["product"]);
     }
 }
