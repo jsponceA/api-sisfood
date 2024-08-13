@@ -296,7 +296,11 @@ class SaleController extends Controller
             $printer->setTextSize(2,1);
             foreach ($sale->saleDetails as $detail) {
                 //$productName = wordwrap($detail->product_name, 20, "\n", true); // Dividir en líneas de 20 caracteres
-                $printer->text(number_format($detail->quantity)."x ".mb_strtoupper($detail->product_name)." "."S/ ".number_format($detail->sale_price,2)."      "."S/ ".number_format($detail->total,2)."\n");
+               if ($sale->serie == "001"){
+                   $printer->text(number_format($detail->quantity)."x ".mb_strtoupper($detail->product_name)." "."S/ ".number_format($detail->sale_price,2)."\n");
+               }else{
+                   $printer->text(number_format($detail->quantity)."x ".mb_strtoupper($detail->product_name)." "."S/ ".number_format($detail->sale_price,2)."      "."S/ ".number_format($detail->total,2)."\n");
+               }
             }
             $printer->setTextSize(1,1);
             $printer->setEmphasis(false);
