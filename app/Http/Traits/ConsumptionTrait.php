@@ -187,22 +187,54 @@ trait ConsumptionTrait
             ->join("products","sale_details.product_id","=","products.id")
             ->join("categories","products.category_id","=","categories.id")
             ->select("worker_id",DB::raw("
+
             SUM( CASE WHEN categories.name='DESAYUNO' THEN sale_details.quantity ELSE 0 END) AS total_desayunos,
-            SUM( CASE WHEN categories.name='ALMUERZO' THEN sale_details.quantity ELSE 0 END) AS total_almuerzos,
             SUM( CASE WHEN categories.name='CENA' THEN sale_details.quantity ELSE 0 END) AS total_cenas,
+            SUM( CASE WHEN categories.name='ALMUERZO' THEN sale_details.quantity ELSE 0 END) AS total_almuerzos,
+
+            SUM( CASE WHEN products.internal_code='MENU A' THEN sale_details.quantity ELSE 0 END) AS total_menu_a,
+            SUM( CASE WHEN products.internal_code='MENU B' THEN sale_details.quantity ELSE 0 END) AS total_menu_b,
+            SUM( CASE WHEN products.internal_code='MENU C' THEN sale_details.quantity ELSE 0 END) AS total_menu_c,
 
             SUM( CASE WHEN categories.name='DESAYUNO' THEN sale_details.total ELSE 0 END) AS monto_desayunos,
             SUM( CASE WHEN categories.name='ALMUERZO' THEN sale_details.total ELSE 0 END) AS  monto_almuerzos,
             SUM( CASE WHEN categories.name='CENA' THEN sale_details.total ELSE 0 END) AS  monto_cenas,
             SUM( CASE WHEN categories.name != 'DESAYUNO' AND categories.name != 'ALMUERZO' AND categories.name != 'CENA' THEN sale_details.total ELSE 0 END) AS monto_snacks,
 
-             SUM(CASE
-                WHEN (workers.grant = 1 OR workers.grant_complete = 1) AND (categories.name = 'ALMUERZO' OR categories.name = 'CENA') THEN sales.total_pay_company
+            SUM(CASE
+                WHEN (workers.grant = 1 OR workers.grant_complete = 1) AND (products.internal_code='MENU A') THEN sales.total_pay_company
                 ELSE 0
-            END) AS total_subvencion,
+            END) AS total_subvencion_menu_a,
+            SUM(CASE
+                WHEN (workers.grant = 1 OR workers.grant_complete = 1) AND (products.internal_code='MENU A') THEN sales.total_dsct_form
+                ELSE 0
+            END) AS worker_price_menu_a,
 
             SUM(CASE
-                WHEN (workers.grant = 1 OR workers.grant_complete = 1) AND (categories.name = 'ALMUERZO' OR categories.name = 'CENA') THEN sales.total_dsct_form
+                WHEN (workers.grant = 1 OR workers.grant_complete = 1) AND (products.internal_code='MENU B') THEN sales.total_pay_company
+                ELSE 0
+            END) AS total_subvencion_menu_b,
+            SUM(CASE
+                WHEN (workers.grant = 1 OR workers.grant_complete = 1) AND (products.internal_code='MENU B') THEN sales.total_dsct_form
+                ELSE 0
+            END) AS worker_price_menu_b,
+
+            SUM(CASE
+                WHEN (workers.grant = 1 OR workers.grant_complete = 1) AND (products.internal_code='MENU C') THEN sales.total_pay_company
+                ELSE 0
+            END) AS total_subvencion_menu_c,
+            SUM(CASE
+                WHEN (workers.grant = 1 OR workers.grant_complete = 1) AND (products.internal_code='MENU C') THEN sales.total_dsct_form
+                ELSE 0
+            END) AS worker_price_menu_c,
+
+
+             SUM(CASE
+                WHEN (workers.grant = 1 OR workers.grant_complete = 1) AND (categories.name = 'ALMUERZO') THEN sales.total_pay_company
+                ELSE 0
+            END) AS total_subvencion,
+            SUM(CASE
+                WHEN (workers.grant = 1 OR workers.grant_complete = 1) AND (categories.name = 'ALMUERZO') THEN sales.total_dsct_form
                 ELSE 0
             END) AS worker_price
             "))
