@@ -9,7 +9,7 @@
     <thead>
     <tr>
         @if(!empty($params->dateStartConsumption) && !empty($params->dateEndConsumption))
-            <th colspan="18"
+            <th colspan="19"
                 style="border: 1px solid black;font-weight: bold;text-align: center;background-color: #b7bdc1">REPORTE
                 DE CONSUMOS DESDE {{now()->parse($params->dateStartConsumption)->format("d/m/Y")}}
                 HASTA {{now()->parse($params->dateEndConsumption)->format("d/m/Y")}}</th>
@@ -22,6 +22,7 @@
         <th style="border: 1px solid black;font-weight: bold;text-align: center">SUBVENCIONADO</th>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">CANTIDAD TOTAL DESAYUNOS</th>
         <th style="border: 1px solid black;font-weight: bold;text-align: center">CANTIDAD TOTAL CENAS</th>
+        <th style="border: 1px solid black;font-weight: bold;text-align: center">CANTIDAD TOTAL ALMUERZOS</th>
         <th style="background-color: yellow;border: 1px solid black;font-weight: bold;text-align: center">CANTIDAD TOTAL MENUS A</th>
         <th style="background-color: yellow;border: 1px solid black;font-weight: bold;text-align: center">IMPORTE TRABAJADOR MENU A</th>
         <th style="background-color: yellow;border: 1px solid black;font-weight: bold;text-align: center">IMPORTE SUBVENCIÓN MENU A</th>
@@ -98,15 +99,16 @@
             </td>
             <td style="border: 1px solid black;text-align: center">{{$s->total_desayunos}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->total_cenas}}</td>
+            <td style="border: 1px solid black;text-align: center">{{$s->total_almuerzos}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->total_menu_a}}</td>
-            <td style="border: 1px solid black;text-align: center">{{$s->total_subvencion_menu_a}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->worker_price_menu_a}}</td>
+            <td style="border: 1px solid black;text-align: center">{{$s->total_subvencion_menu_a}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->total_menu_b}}</td>
-            <td style="border: 1px solid black;text-align: center">{{$s->total_subvencion_menu_b}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->worker_price_menu_b}}</td>
+            <td style="border: 1px solid black;text-align: center">{{$s->total_subvencion_menu_b}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->total_menu_c}}</td>
-            <td style="border: 1px solid black;text-align: center">{{$s->total_subvencion_menu_c}}</td>
             <td style="border: 1px solid black;text-align: center">{{$s->worker_price_menu_c}}</td>
+            <td style="border: 1px solid black;text-align: center">{{$s->total_subvencion_menu_c}}</td>
             <td style="border: 1px solid black;text-align: center">S/ {{number_format($s->monto_snacks,2)}}</td>
             <td style="border: 1px solid black;" align="center">S/ {{number_format($s->worker_price,2)}}</td>
             <td style="border: 1px solid black;" align="center">S/ {{number_format($s->total_subvencion,2)}}</td>
@@ -116,6 +118,7 @@
         <td colspan="4"></td>
         <td style="background-color: #6292fa;border: 2px solid black;" align="center">{{$granTotalDesayunos}}</td>
         <td style="background-color: #6292fa;border: 2px solid black;" align="center">{{$granTotalCenas}}</td>
+        <td style="background-color: #6292fa;border: 2px solid black;" align="center">{{$granTotalAlmuerzos}}</td>
         <td style="background-color: #6292fa;border: 2px solid black;" align="center">{{$granTotalMenuA}}</td>
         <td style="background-color: #6292fa;border: 2px solid black;" align="center">{{$granTotalTrabajadorMenuA}}</td>
         <td style="background-color: #6292fa;border: 2px solid black;" align="center">{{$granTotalSubvencionMenuA}}</td>
