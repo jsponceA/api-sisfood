@@ -202,7 +202,7 @@ trait ConsumptionTrait
             SUM(CASE
                 WHEN workers.grant = 1 AND (sale_details.product_name = 'ALMUERZO' OR sale_details.product_name = 'CENA') THEN 1.5
 
-                ELSE sales.total_sale
+                ELSE sale_details.total
             END) AS worker_price
             "))
             ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
