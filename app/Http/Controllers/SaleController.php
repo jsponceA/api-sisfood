@@ -260,7 +260,7 @@ class SaleController extends Controller
             //variables
             $comensal = !empty($sale->worker->names) ? mb_strtoupper($sale->worker->names." ".$sale->worker->surnames) : 'PUBLICO GENERAL';
 
-            $nombreImpresora = env("PRINTER_NAME");
+            $nombreImpresora = config("print.printer_name");
             $connector = new WindowsPrintConnector($nombreImpresora);
             //$connector = new FilePrintConnector(storage_path('app/simulated-print.txt'));
             $printer = new Printer($connector);
