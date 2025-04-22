@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Sale;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Maatwebsite\Excel\Facades\Excel;
 
 class TestController extends Controller
@@ -51,5 +52,17 @@ class TestController extends Controller
             $producto->category_id = 5;
             $producto->update();
         }
+    }
+
+    public function optimize()
+    {
+        Artisan::call("optimize");
+        return "ok optimize";
+    }
+
+    public function optimizeClear()
+    {
+        Artisan::call("optimize:clear");
+        return "ok optimize clear";
     }
 }

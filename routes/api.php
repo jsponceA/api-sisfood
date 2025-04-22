@@ -21,13 +21,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 Route::get("/",fn () => response()->json(["message"=>"PRIVATE SERVICE REST"]));
 
-//Route::get("setearTodosDesayunos",[TestController::class,"setearTodosDesayunos"]);
-
-Route::get("test",[TestController::class,"index"]);
-Route::post("test/importarExcelTrabajador",[TestController::class,"importarExcelTrabajador"]);
-Route::get("test/setearCategoriasProductos",[TestController::class,"setearCategoriasProductos"]);
-
-//Route::get("products/updateBarCodes",[ProductController::class,"updateBarCodes"]);
 
 /* START AUTH ROUTES */
 Route::post("login",[AuthController::class,"login"]);
