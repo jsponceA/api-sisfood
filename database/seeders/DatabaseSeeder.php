@@ -17,10 +17,14 @@ class DatabaseSeeder extends Seeder
         //User::factory(1000)->create();
         // \App\Models\User::factory(10)->create();
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        \App\Models\User::factory()->create([
+            'rol_id' => 1,
+            'branch_id' => 1,
+            'username' => 'admin',
+            'password' => bcrypt(123456),
+            'email' => 'admin@gmail.com',
+            'photo' => null
+         ]);
 
         //crear categorias
 
@@ -48,6 +52,14 @@ class DatabaseSeeder extends Seeder
             [
                 "name" => "BEBIDAS",
                 "code" => "BEB"
+            ],
+            [
+                "name" => "GASEOSAS",
+                "code" => "GAS"
+            ],
+            [
+                "name" => "TORTAS",
+                "code" => "TOR"
             ]
         ];
 
