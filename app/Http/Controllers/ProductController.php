@@ -22,6 +22,7 @@ class ProductController extends Controller
         $products = Product::query()
             ->when(!empty($search), function ($q) use ($search) {
                 $q->where("name", "LIKE", "%{$search}%")
+                    ->orWhere("category", "LIKE", "%{$search}%")
                     ->orWhere("barcode", "LIKE", "%{$search}%");
             })
             ->orderByDesc("id")
