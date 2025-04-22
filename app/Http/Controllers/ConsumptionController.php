@@ -51,7 +51,7 @@ class ConsumptionController extends Controller
 
         $response = [];
         if (in_array("categories", $resourceTypes)) {
-            $response["categories"] = ["BEBIDAS","COMIDAS","SNACK","EXTRAS"];
+            $response["categories"] = ["BEBIDAS","COMIDAS","SNACK","EXTRAS","GASEOSAS","HELADOS","TORTAS"];
         }
         if (in_array("typeForms", $resourceTypes)) {
             $response["typeForms"] = TypeForm::query()->orderByDesc("id")->get();

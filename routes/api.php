@@ -48,6 +48,7 @@ Route::middleware("auth:sanctum")->group(function (){
     /* end routes workers*/
 
     /* start routes products*/
+    Route::post("products/update-category/{id}",[ProductController::class,"updateCategory"]);
     Route::get("products/searchOneProduct",[ProductController::class,"searchOneProduct"]);
     Route::get("products/searchSensitive",[ProductController::class,"searchSensitive"]);
     Route::get("products/getAllResources",[ProductController::class,"getAllResources"]);

@@ -121,6 +121,17 @@ class ProductController extends Controller
         ], Response::HTTP_OK);
     }
 
+    public function updateCategory(Request $request, int $id): JsonResponse
+    {
+        $product = Product::query()->findOrFail($id);
+        $product->category = $request->input("category");
+        $product->update();
+
+        return response()->json([
+            "message" => "Categoria modificada satisfactoriamente",
+        ], Response::HTTP_OK);
+    }
+
     public function generateBarCode(int $id, $created_at)
     {
         return $id.now()->parse($created_at)->format("dmy");
@@ -143,7 +154,7 @@ class ProductController extends Controller
 
         $response = [];
         if (in_array("categories", $resourceTypes)) {
-            $response["categories"] = ["BEBIDAS","COMIDAS","SNACK","EXTRAS"];
+            $response["categories"] = ["BEBIDAS","COMIDAS","SNACK","EXTRAS","GASEOSAS","HELADOS","TORTAS"];
         }
 
         return response()->json($response, Response::HTTP_OK);
