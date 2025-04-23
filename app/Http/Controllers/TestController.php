@@ -65,4 +65,10 @@ class TestController extends Controller
         Artisan::call("optimize:clear");
         return "ok optimize clear";
     }
+
+    public function generaLinkStorage()
+    {
+        Artisan::call("storage:link");
+        return "ok storage link";
+    }
 }

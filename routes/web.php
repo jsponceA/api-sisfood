@@ -17,4 +17,5 @@ use Symfony\Component\HttpFoundation\Response;
 Route::get("/",fn () => response()->json(["message"=>"PRIVATE SERVICE REST"]));
 Route::get("optimize",[\App\Http\Controllers\TestController::class,"optimize"]);
 Route::get("optimize-clear",[\App\Http\Controllers\TestController::class,"optimizeClear"]);
+Route::get("genera-link-storage",[\App\Http\Controllers\TestController::class,"generaLinkStorage"]);
 Route::fallback(fn () => response()->json(["message"=>"RESOURCE NOT FOUND"],Response::HTTP_NOT_FOUND));
