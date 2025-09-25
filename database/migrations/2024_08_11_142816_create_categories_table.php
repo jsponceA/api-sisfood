@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string("name");
+            $table->string("color",50)->default("#3498db")->nullable();
             $table->string("code",50)->nullable();
             $table->datetimes();
             $table->softDeletesDatetime();

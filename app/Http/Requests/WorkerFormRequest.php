@@ -14,11 +14,6 @@ class WorkerFormRequest extends FormRequest
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
-     */
     public function rules(): array
     {
         switch ($this->getMethod()){
@@ -28,7 +23,7 @@ class WorkerFormRequest extends FormRequest
                     'area_id' => ['nullable'],
                     'cost_center_id' => ['nullable'],
                     'campus_id' => ['nullable'],
-                    'type_document_id' => ['nullable'],
+                    'type_document_id' => ['required'],
                     'gender_id' => ['nullable'],
                     'names' => ['required', "max:100"],
                     'surnames' => ['nullable', "max:100"],
@@ -36,9 +31,10 @@ class WorkerFormRequest extends FormRequest
                     'phone' => ['nullable',"max:20"],
                     'address' => ['nullable',"max:250"],
                     'birth_date' => ['nullable',"date"],
-                    'admission_date' => ['nullable',"date"],
+                    'admission_date' => ['required',"date"],
                     'suspension_date' => ['nullable',"date"],
                     'terminated_worker' => ['nullable',"boolean"],
+                    'photo'=> ['nullable', "image"],
                 ];
             case "PUT":
                 return [
@@ -54,9 +50,10 @@ class WorkerFormRequest extends FormRequest
                     'phone' => ['nullable',"max:20"],
                     'address' => ['nullable',"max:250"],
                     'birth_date' => ['nullable',"date"],
-                    'admission_date' => ['nullable',"date"],
+                    'admission_date' => ['required',"date"],
                     'suspension_date' => ['nullable',"date"],
                     'terminated_worker' => ['nullable',"boolean"],
+                    'photo'=> ['nullable', "image"],
                 ];
             default:
                 return [];
@@ -82,6 +79,7 @@ class WorkerFormRequest extends FormRequest
             'admission_date' => "Fecha ingreso",
             'suspension_date' => "Fecha suspensión",
             'terminated_worker' => "Cesado",
+            'photo'=> "foto",
         ];
     }
 }

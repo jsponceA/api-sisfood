@@ -25,16 +25,14 @@ class ProductFormRequest extends FormRequest
         switch ($this->getMethod()){
             case "POST":
                 return [
-                    //'name' => ['required', "max:255",Rule::unique("products","name")->whereNull("deleted_at")],
-                    'name' => ['required','max:255'],
+                    'name' => ['required', "max:255",Rule::unique("products","name")->whereNull("deleted_at")],
                     'category_id' => ['required'],
                     'barcode' => ['nullable', "max:100"],
                     'image'=> ['nullable', "image"],
                 ];
             case "PUT":
                 return [
-                    //'name' => ['required', "max:255",Rule::unique("products","name")->ignore($this->route("product"))->whereNull("deleted_at")],
-                    'name' => ['required','max:255'],
+                    'name' => ['required', "max:255",Rule::unique("products","name")->ignore($this->route("product"))->whereNull("deleted_at")],
                     'category_id' => ['required'],
                     'barcode' => ['nullable', "max:100"],
                     'image'=> ['nullable', "image"],

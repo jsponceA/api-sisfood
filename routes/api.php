@@ -21,6 +21,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 Route::get("/",fn () => response()->json(["message"=>"PRIVATE SERVICE REST"]));
 
+Route::get("/health-check",fn () => response()->json(["status"=>"OK"],Response::HTTP_OK));
+
+
 
 /* START AUTH ROUTES */
 Route::post("login",[AuthController::class,"login"]);

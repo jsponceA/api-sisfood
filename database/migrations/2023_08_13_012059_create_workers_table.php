@@ -35,7 +35,7 @@ return new class extends Migration
             $table->string("email",100)->nullable();
             $table->string("address",250)->nullable();
             $table->string("condition",100)->nullable();
-            $table->json("allowed_meals")->nullable();
+            $table->json("allowed_meals")->default("[]")->nullable();
             $table->date("birth_date")->nullable();
             $table->date("admission_date")->nullable();
             $table->date("suspension_date")->nullable();
@@ -45,6 +45,7 @@ return new class extends Migration
             $table->boolean("dinner")->nullable();
             $table->boolean("grant")->nullable();
             $table->boolean("grant_complete")->nullable();
+            $table->string("photo")->nullable();
             $table->datetimes();
             $table->softDeletesDatetime();
         });

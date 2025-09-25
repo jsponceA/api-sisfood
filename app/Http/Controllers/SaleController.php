@@ -142,20 +142,24 @@ class SaleController extends Controller
                     $response["alertType"] = 4;
                     $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, ya fue cesado en la fecha {$suspendDateFormat} ";
                     $response["messageContent"] = "";
+                    $response["worker"] = $worker;
                 }else if(!in_array($category->id,$worker->allowed_meals)){
                     $response["error"] = true;
                     $response["alertType"] = 4;
                     $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, no tienen acceso a {$product->name} ";
                     $response["messageContent"] = "";
+                    $response["worker"] = $worker;
                 }elseif ($existsFoodType ){
                     $response["error"] = true;
                     $response["alertType"] = 2;
-                    $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, ya consumio su {$product->name} el ".now()->parse($foodConsumed->sale_date)->format("d/m/Y h:i:s A");
+                    $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, ya consumio su {$product->name} el ".now()->parse($foodConsumed->sale_date)->format("d/m/Y h:i A");
                     $response["messageContent"] = "";
+                    $response["worker"] = $worker;
                 }else{
                     $response["error"] = false;
                     $response["alertType"] = 1;
                     $response["messageTile"] = "!Hola {$worker->names} {$worker->surnames}, se registro su {$product->name} con éxito¡";
+                    $response["worker"] = $worker;
                     $response["messageContent"] = "Retire los tickets y pase a comedor, Gracias !";
                 }
 
@@ -270,7 +274,7 @@ class SaleController extends Controller
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->setEmphasis(true);
             $printer->setFont(Printer::FONT_A);
-            $printer->text("CONCESIONARIO DE ALIMENTOS LUCEMIR");
+            $printer->text("CONCESIONARIO DE ALIMENTOS ".config("printerticket.company"));
             $printer->text("\n");
             $printer->setFont(Printer::FONT_B);
             $printer->setEmphasis(false);
@@ -279,7 +283,7 @@ class SaleController extends Controller
             $printer->text("FECHA Y HORA: ".now()->parse($sale->sale_date)->format("d/m/Y h:i A"). "\n");
             $printer->setJustification(Printer::JUSTIFY_LEFT);
             $printer->text("CAJERO: ".mb_strtoupper($user->username)."\n");
-             $printer->text("PEDIDOS: 924859988\n");
+             $printer->text("PEDIDOS: ".config("printerticket.company_phone")."\n");
             $printer->text("COMENSAL: ".$comensal."\n");
             $printer->text("\n");
 

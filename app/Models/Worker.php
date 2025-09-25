@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Worker extends Model
 {
@@ -41,11 +42,13 @@ class Worker extends Model
         "grant",
         "grant_complete",
         "allowed_meals",
-        "condition"
+        "condition",
+        "photo"
     ];
 
     protected $appends = [
-        "full_name"
+        "full_name",
+        "photo_url"
     ];
 
     protected $casts = [
@@ -55,6 +58,11 @@ class Worker extends Model
     protected function fullName(): Attribute
     {
         return Attribute::get(fn() => "{$this->surnames} {$this->names}");
+    }
+
+    protected function photoUrl(): Attribute
+    {
+        return Attribute::get(fn() =>!empty($this->photo) ? Storage::url("workers/{$this->photo}") : null);
     }
 
     public function area(): BelongsTo

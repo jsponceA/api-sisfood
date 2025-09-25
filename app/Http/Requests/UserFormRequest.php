@@ -26,7 +26,7 @@ class UserFormRequest extends FormRequest
             case "POST":
                 return [
                     'rol_id' => ['required', Rule::exists("roles", "id")],
-                    'branch_id' => ['required', Rule::exists("branches", "id")],
+                    'branch_id' => ['nullable', Rule::exists("branches", "id")],
                     'username' => ['required', "max:50",Rule::unique("users","username")->whereNull("deleted_at")],
                     'password' => ['required', "max:255"],
                     'email' => ['nullable','email', "max:100"],
@@ -35,7 +35,7 @@ class UserFormRequest extends FormRequest
              case "PUT":
                  return [
                      'rol_id' => ['required', Rule::exists("roles", "id")],
-                     'branch_id' => ['required', Rule::exists("branches", "id")],
+                     'branch_id' => ['nullable', Rule::exists("branches", "id")],
                      'username' => ['required', "max:50",Rule::unique("users","username")->ignore($this->route("user"))->whereNull("deleted_at")],
                      'password' => ['nullable', "max:255"],
                      'email' => ['nullable','email', "max:100"],

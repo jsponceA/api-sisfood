@@ -23,7 +23,7 @@ use App\Models\Worker;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -54,6 +54,9 @@ class WorkerController extends Controller
     {
         $data = $request->all();
 
+        if ($request->hasFile("photo")){
+            $data["photo"] = basename($request->file("photo")->store("workers"));
+        }
         $worker = Worker::query()->create($data);
 
         return response()->json([
@@ -82,6 +85,10 @@ class WorkerController extends Controller
         $data = $request->all();
 
         $worker = Worker::query()->findOrFail($id);
+        if ($request->hasFile("photo")){
+            Storage::delete("workers/{$worker->photo}");
+            $data["photo"] = basename($request->file("photo")->store("workers"));
+        }
         $worker->update($data);
 
         return response()->json([
