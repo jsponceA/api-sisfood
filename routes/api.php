@@ -75,6 +75,7 @@ Route::middleware(["auth:sanctum"])->group(function (){
     /* end routes past sales*/
 
     /* start routes consumption*/
+    Route::post("consumptions/generateExcelSubvencionPerDay",[ConsumptionController::class,"generateExcelSubvencionPerDay"]);
     Route::post("consumptions/generateExcelWorkerSummary",[ConsumptionController::class,"generateExcelWorkerSummary"]);
     Route::post("consumptions/generateExcelConsumption",[ConsumptionController::class,"generateExcelConsumption"]);
     Route::post("consumptions/generateExcelSubvencion",[ConsumptionController::class,"generateExcelSubvencion"]);

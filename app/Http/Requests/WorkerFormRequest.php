@@ -34,6 +34,8 @@ class WorkerFormRequest extends FormRequest
                     'admission_date' => ['required',"date"],
                     'suspension_date' => ['nullable',"date"],
                     'terminated_worker' => ['nullable',"boolean"],
+                    //'grant' => ['exclude_if:grant_complete,1,true','required','in:1,true'],
+                    //'grant_complete' => ['exclude_if:grant,1,true','required','in:1,true'],
                     'photo'=> ['nullable', "image"],
                 ];
             case "PUT":
@@ -53,6 +55,8 @@ class WorkerFormRequest extends FormRequest
                     'admission_date' => ['required',"date"],
                     'suspension_date' => ['nullable',"date"],
                     'terminated_worker' => ['nullable',"boolean"],
+                    //'grant' => ['exclude_if:grant_complete,1,true','required','in:1,true'],
+                    //'grant_complete' => ['exclude_if:grant,1,true','required','in:1,true'],
                     'photo'=> ['nullable', "image"],
                 ];
             default:
@@ -80,6 +84,8 @@ class WorkerFormRequest extends FormRequest
             'suspension_date' => "Fecha suspensión",
             'terminated_worker' => "Cesado",
             'photo'=> "foto",
+            'grant' => 'subvención',
+            'grant_complete' => 'subvención completa',
         ];
     }
 }

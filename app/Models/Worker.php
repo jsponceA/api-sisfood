@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
@@ -25,6 +27,8 @@ class Worker extends Model
         "composition_id",
         "gender_id",
         "type_document_id",
+        "worker_type_id",
+        "managent_id",
         "personal_code",
         "names",
         "surnames",
@@ -43,6 +47,7 @@ class Worker extends Model
         "grant_complete",
         "allowed_meals",
         "condition",
+        "cod_reg_lab",
         "photo"
     ];
 
@@ -118,5 +123,10 @@ class Worker extends Model
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class)->withDefault();
+    }
+
+    public function sales(): HasMany
+    {
+        return $this->hasMany(Sale::class);
     }
 }

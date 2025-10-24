@@ -24,9 +24,8 @@ class DatabaseSeeder extends Seeder
         //crear roles
         $roles = [
             ['name' => 'ADMIN'],
-            ['name' => 'CAJERO'],
-            ['name' => 'COCINERO'],
-            ['name' => 'MESA'],
+            ['name' => 'RRHH'],
+            ['name' => 'VENTAS'],
         ];
 
         Role::query()->insert($roles);
@@ -314,7 +313,8 @@ class DatabaseSeeder extends Seeder
                 'names' => $w['nombres'],
                 'area_id' => Area::query()->where('name', $w['area'])->first()->id ?? null,
                 'admission_date' => now()->format('Y-m-d'),
-                'allowed_meals' => [1,2,3]
+                'allowed_meals' => ['2'],
+                'grant_complete' => 1,
             ]);
         }
 

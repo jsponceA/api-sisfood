@@ -13,6 +13,7 @@ use App\Models\Charge;
 use App\Models\Composition;
 use App\Models\CostCenter;
 use App\Models\Gender;
+use App\Models\Managent;
 use App\Models\OrganizationalUnit;
 use App\Models\PayrollArea;
 use App\Models\StaffDivision;
@@ -20,6 +21,7 @@ use App\Models\Superior;
 use App\Models\TypeDocument;
 use App\Models\TypeForm;
 use App\Models\Worker;
+use App\Models\WorkerType;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -191,6 +193,17 @@ class WorkerController extends Controller
             $response["categories"] = Category::query()
                 ->whereIn("name",["DESAYUNO","ALMUERZO","CENA"])
                 ->orderBy("id","ASC")
+                ->get();
+        }
+        if (in_array("workerTypes", $resourceTypes)) {
+            $response["workerTypes"] = WorkerType::query()
+                ->orderByDesc("id","ASC")
+                ->get();
+        }
+
+        if (in_array("managents", $resourceTypes)) {
+            $response["managents"] = Managent::query()
+                ->orderByDesc("id","ASC")
                 ->get();
         }
 

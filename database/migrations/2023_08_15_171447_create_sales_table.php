@@ -22,6 +22,7 @@ return new class extends Migration
             $table->decimal("total_dsct_form",11,2)->nullable();
             $table->decimal("total_pay_company",11,2)->nullable();
             $table->string("deal_in_form",100)->nullable();
+            $table->boolean("is_cash_payment_form")->default(0)->nullable();
             $table->enum("pay_type",["CREDITO","EFECTIVO"]);
             $table->datetimes();
             $table->softDeletesDatetime();

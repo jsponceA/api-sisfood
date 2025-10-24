@@ -21,6 +21,7 @@ class Sale extends Model
         "total_pay_company",
         "deal_in_form",
         "pay_type",
+        "is_cash_payment_form",
         "created_at",
         "updated_at"
     ];

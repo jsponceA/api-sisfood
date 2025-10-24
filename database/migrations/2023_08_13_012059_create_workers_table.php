@@ -27,6 +27,8 @@ return new class extends Migration
             $table->unsignedBigInteger("composition_id")->nullable();
             $table->unsignedBigInteger("gender_id")->nullable();
             $table->unsignedBigInteger("type_document_id")->nullable();
+            $table->unsignedBigInteger("worker_type_id")->nullable();
+            $table->unsignedBigInteger("managent_id")->nullable();
             $table->string("personal_code",50)->nullable();
             $table->string("names",100);
             $table->string("surnames",100)->nullable();
@@ -35,6 +37,7 @@ return new class extends Migration
             $table->string("email",100)->nullable();
             $table->string("address",250)->nullable();
             $table->string("condition",100)->nullable();
+            $table->string("cod_reg_lab",100)->nullable();
             $table->json("allowed_meals")->default("[]")->nullable();
             $table->date("birth_date")->nullable();
             $table->date("admission_date")->nullable();

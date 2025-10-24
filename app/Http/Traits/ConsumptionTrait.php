@@ -4,6 +4,7 @@ namespace App\Http\Traits;
 
 use App\Models\Sale;
 use App\Models\SaleDetail;
+use App\Models\Worker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -74,6 +75,7 @@ trait ConsumptionTrait
         $areaId = $request->input("areaId");
         $typeDiscount = $request->input("typeDiscount");
 
+
         $sales = Sale::query()
             ->with(["worker","saleDetails"])
             ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
@@ -114,6 +116,61 @@ trait ConsumptionTrait
             ->orderByDesc("id");
 
         return $sales;
+    }
+
+    public function queryListSubvencionPerDay(Request $request)
+    {
+        $search = trim($request->input("search"));
+        $dateStartConsumption = $request->input("dateStartConsumption");
+        $dateEndConsumption = $request->input("dateEndConsumption");
+        $categoryId = $request->input("categoryId");
+        $typeFormId = $request->input("typeFormId");
+        $areaId = $request->input("areaId");
+        $typeDiscount = $request->input("typeDiscount");
+
+        $workers = Worker::query()
+            ->with([
+                'sales' => function ($query) use ($dateStartConsumption, $dateEndConsumption, $typeDiscount, $categoryId) {
+                    $query
+                        ->with(['saleDetails.product'])
+                        ->where('serie', '001')
+                        ->where('deal_in_form', 'SUBVENCION')
+                        ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
+                            $query->where("deal_in_form", $typeDiscount);
+                        })
+                        ->when(!empty($dateStartConsumption), function ($query) use ($dateStartConsumption) {
+                            $query->whereDate("sale_date", ">=", $dateStartConsumption);
+                        })
+                        ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
+                            $query->whereDate("sale_date", "<=", $dateEndConsumption);
+                        })
+                        ->when(!empty($categoryId), function ($query) use ($categoryId) {
+                            $query->whereHas("saleDetails.product", function ($query) use ($categoryId) {
+                                $query->where("category_id", $categoryId);
+                            });
+                        })
+                        ->orderByDesc("sale_date")
+                        ->orderByDesc("id");
+                }
+            ])
+            ->when(!empty($typeFormId), function ($query) use ($typeFormId) {
+                $query->where("type_form_id", $typeFormId);
+            })
+            ->when(!empty($areaId), function ($query) use ($areaId) {
+                $query->where("area_id", $areaId);
+            })
+            ->when(!empty($search), function ($query) use ($search) {
+                $query->where(function ($query) use ($search){
+                    $query
+                        ->where("names", "LIKE", "%{$search}%")
+                        ->orWhere("surnames", "LIKE", "%{$search}%")
+                        ->orWhere("numdoc", "LIKE", "%{$search}%");
+                });
+            })
+            ->orderBy("surnames","ASC")
+            ->orderBy("names","ASC");
+
+        return $workers;
     }
 
 
