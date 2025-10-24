@@ -38,7 +38,7 @@ return new class extends Migration
             $table->string("address",250)->nullable();
             $table->string("condition",100)->nullable();
             $table->string("cod_reg_lab",100)->nullable();
-            $table->json("allowed_meals")->default("[]")->nullable();
+            $table->json("allowed_meals")->nullable();
             $table->date("birth_date")->nullable();
             $table->date("admission_date")->nullable();
             $table->date("suspension_date")->nullable();
