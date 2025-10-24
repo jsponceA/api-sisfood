@@ -306,7 +306,7 @@ class DatabaseSeeder extends Seeder
             ["dni" => "43909199", "nombres" => "SUAREZ UNTIVEROS ESTHER MARIA", "area" => "LIMPIEZA"]
         ];
 
-        foreach ($workes as $w) {
+        /*foreach ($workes as $w) {
             Worker::query()->create([
                 'type_document_id' => 1,//DNI
                 'numdoc' => $w['dni'],
@@ -316,7 +316,7 @@ class DatabaseSeeder extends Seeder
                 'allowed_meals' => ['2'],
                 'grant_complete' => 1,
             ]);
-        }
+        }*/
 
     }
 
