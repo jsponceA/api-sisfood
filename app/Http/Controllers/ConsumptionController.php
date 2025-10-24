@@ -65,7 +65,7 @@ class ConsumptionController extends Controller
         $response = [];
         if (in_array("categories", $resourceTypes)) {
             $response["categories"] = Category::query()
-                //->whereIn("name",["DESAYUNO","ALMUERZO","CENA"])
+                //->whereIn("name",["DESAYUNO","ALMUERZO","CENA","LONCHE"])
                 ->orderBy("id","ASC")
                 ->get();
         }
