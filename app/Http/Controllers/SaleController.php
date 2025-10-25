@@ -132,7 +132,7 @@ class SaleController extends Controller
                             $foodConsumed = Sale::query()->find($saleDetail->sale_id);
 
                             /* CASO ESPECIAL PARA QUE LONCHES */
-                            if ($selectedFoodType == "CENA" && $foodConsumed->count() <= 2 ){
+                            if ($selectedFoodType == "CENA" && $foodConsumed->count() <= 1 ){
                                 $existsFoodType = false;
                             }
 
