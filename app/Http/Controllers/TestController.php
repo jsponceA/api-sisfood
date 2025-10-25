@@ -6,6 +6,7 @@ use App\Imports\WorkerImport;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Models\Worker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Maatwebsite\Excel\Facades\Excel;
@@ -70,5 +71,15 @@ class TestController extends Controller
     {
         Artisan::call("storage:link");
         return "ok storage link";
+    }
+
+    public function setearDnisCero()
+    {
+        $workers = Worker::query()->get();
+        foreach ($workers as $worker) {
+            $worker->update([
+                "numdoc" => str_pad($worker->numdoc,8,"0",STR_PAD_LEFT)
+            ]);
+        }
     }
 }

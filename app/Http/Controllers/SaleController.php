@@ -317,7 +317,12 @@ class SaleController extends Controller
             $printer->text("------------"."\n");
             $printer->text("TOTAL: S/ ".number_format($total,2)."\n");
             $printer->text(" \n");
-            $printer->text("FORMA DE PAGO: ".($sale->pay_type == "EFECTIVO" ? 'EFECTIVO' : 'Descuento por planilla') ."\n");
+            if (empty($sale->is_cash_payment_form)){
+                $printer->text("FORMA DE PAGO: ".($sale->pay_type == "EFECTIVO" ? 'EFECTIVO' : 'Descuento por planilla') ."\n");
+            }else{
+                $printer->text("FORMA DE PAGO: EFECTIVO / YAPE" ."\n");
+            }
+
 
             $printer->feed(2);
             $printer->cut();
