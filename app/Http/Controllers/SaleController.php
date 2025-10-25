@@ -136,7 +136,7 @@ class SaleController extends Controller
                                 ->whereIn('product_id', [2, 3]) // IDs de productos para CENA y LONCHE
                                 ->count();
 
-                            if ($selectedFoodType == "CENA" && $buscarCenasyLonches <= 2){
+                            if ($selectedFoodType == "CENA" && $buscarCenasyLonches <= 1){
                                 $existsFoodType = false;
                             }
 
