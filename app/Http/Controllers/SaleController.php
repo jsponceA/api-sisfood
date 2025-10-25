@@ -130,16 +130,6 @@ class SaleController extends Controller
                         if ($saleDetail->product->category_id == $category->id){
                             $existsFoodType = true;
                             $foodConsumed = Sale::query()->find($saleDetail->sale_id);
-
-                            /* CASO ESPECIAL PARA QUE LONCHES */
-                            $buscarCenasyLonches = $searchSale->flatMap->saleDetails
-                                ->whereIn('product_id', [2, 3]) // IDs de productos para CENA y LONCHE
-                                ->count();
-
-                            if ($selectedFoodType == "CENA" && $buscarCenasyLonches <= 1){
-                                $existsFoodType = false;
-                            }
-
                         }
                     }
                 }
@@ -189,8 +179,10 @@ class SaleController extends Controller
                 $saleData["serie"] = "001";
                 $saleData["num_document"] = Sale::query()->where("serie","001")->max("num_document") + 1;
 
+
                 $sale = Sale::query()->create($saleData);
                 $sale->saleDetails()->createMany($saleDetailsData);
+
                 $response["id"] = $sale->id;
             }
 
