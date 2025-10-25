@@ -130,6 +130,12 @@ class SaleController extends Controller
                         if ($saleDetail->product->category_id == $category->id){
                             $existsFoodType = true;
                             $foodConsumed = Sale::query()->find($saleDetail->sale_id);
+
+                            /* CASO ESPECIAL PARA QUE LONCHES */
+                            if ($selectedFoodType == "CENA" && $foodConsumed->count() <= 2 ){
+                                $existsFoodType = false;
+                            }
+
                         }
                     }
                 }
