@@ -78,7 +78,8 @@ class TestController extends Controller
         $workers = Worker::query()->get();
         foreach ($workers as $worker) {
             $worker->update([
-                "numdoc" => str_pad($worker->numdoc,8,"0",STR_PAD_LEFT)
+                "numdoc" => str_pad($worker->numdoc,8,"0",STR_PAD_LEFT),
+                'allowed_meals' => ['2','3','9'],
             ]);
         }
     }
