@@ -23,7 +23,8 @@ Route::get("/",fn () => response()->json(["message"=>"PRIVATE SERVICE REST"]));
 
 Route::get("/health-check",fn () => response()->json(["status"=>"OK"],Response::HTTP_OK));
 
-Route::get("/setearDnisCero",[TestController::class,"setearDnisCero"]);
+Route::get("/pasarProductoAntiguos",[TestController::class,"pasarProductoAntiguos"]);
+
 
 
 
