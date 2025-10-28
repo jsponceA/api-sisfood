@@ -3236,8 +3236,8 @@ class TestController extends Controller
                     'deleted_at' => null,
                 ],
             ]);
-            $categories = $productsRaw->whereNotIn("name", ["DESAYUNO", "ALMUERZO", "CENA"])->pluck("category")->unique()->values()->toArray();
-            $productos = $productsRaw->whereNotIn("name", ["DESAYUNO", "ALMUERZO", "CENA"])->unique("name")->values()->toArray();
+            $categories = $productsRaw->whereNotIn("name", ["ALMUERZO", "CENA"])->pluck("category")->unique()->values()->toArray();
+            $productos = $productsRaw->whereNotIn("name", ["ALMUERZO", "CENA"])->unique("name")->values()->toArray();
 
             //primero insertamos las cagegorias y verificamos antes que no existe una con el mismo nombre
             foreach ($categories as $categoryName) {
