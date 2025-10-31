@@ -448,7 +448,7 @@ class DatabaseSeeder extends Seeder
 ];
 
         foreach ($workes as $w) {
-            if (!Worker::query()->where("numdoc",$w['dni'])->exist()) {
+            if (Worker::query()->where("numdoc",$w['dni'])->count() == 0) {
                 Worker::query()->create([
                 'type_document_id' => 1,//DNI
                 'numdoc' => $w['dni'],
