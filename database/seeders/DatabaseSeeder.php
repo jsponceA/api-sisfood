@@ -28,15 +28,15 @@ class DatabaseSeeder extends Seeder
             ['name' => 'VENTAS'],
         ];
 
-        Role::query()->insert($roles);
+       // Role::query()->insert($roles);
 
         //crear usuario admin
-        User::query()->create([
+       /* User::query()->create([
             'rol_id' => 1,
             'username' => 'admin',
             'password' => bcrypt(123456),
             'email' => 'admin@gmail.com',
-         ]);
+         ]);*/
 
         //crear categorias
         $categories = [
@@ -81,7 +81,7 @@ class DatabaseSeeder extends Seeder
                 "code" => "TOR"
             ]
         ];
-        Category::query()->insert($categories);
+        //Category::query()->insert($categories);
 
         //crear tipos de document
         $typesDocuments = [
@@ -90,7 +90,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'PASAPORTE'],
             ['name' => 'RUC'],
         ];
-        TypeDocument::query()->insert($typesDocuments);
+        //TypeDocument::query()->insert($typesDocuments);
 
         //crear areas
         $areas = [
@@ -100,7 +100,7 @@ class DatabaseSeeder extends Seeder
             ["name" => "ACABADOS"],
         ];
 
-        Area::query()->insert($areas);
+        //Area::query()->insert($areas);
 
         //trabajadores
         $workes = [
@@ -448,7 +448,8 @@ class DatabaseSeeder extends Seeder
 ];
 
         foreach ($workes as $w) {
-            Worker::query()->create([
+            if (!Worker::query()->where("numdoc",$w['dni'])->exist()) {
+                Worker::query()->create([
                 'type_document_id' => 1,//DNI
                 'numdoc' => $w['dni'],
                 'names' => $w['nombres'],
@@ -456,7 +457,7 @@ class DatabaseSeeder extends Seeder
                 'admission_date' => now()->format('Y-m-d'),
                 'allowed_meals' => ['1','2','3'],
                 'grant_complete' => 1,
-            ]);
+            ]);            }
         }
 
     }
