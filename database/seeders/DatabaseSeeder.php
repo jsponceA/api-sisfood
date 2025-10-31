@@ -97,6 +97,7 @@ class DatabaseSeeder extends Seeder
             ["name" => "ALMACEN"],
             ["name" => "PRODUCCION"],
             ["name" => "LIMPIEZA"],
+            ["name" => "ACABADOS"],
         ];
 
         Area::query()->insert($areas);
@@ -308,7 +309,142 @@ class DatabaseSeeder extends Seeder
     ['dni' => '43982757', 'nombres' => 'YUPANQUI LLACTAHUAMAN RAFAEL', 'area' => 'PRODUCCION'],
     ['dni' => '44529970', 'nombres' => 'ZAMORA CHAVEZ ALFREDO', 'area' => 'PRODUCCION'],
     ['dni' => '74255610', 'nombres' => 'ZARATE GOMEZ GABRIEL', 'area' => 'PRODUCCION'],
-    ['dni' => '46588783', 'nombres' => 'ZAVALETA VARGAS JOSE LUIS', 'area' => 'PRODUCCION']
+    ['dni' => '46588783', 'nombres' => 'ZAVALETA VARGAS JOSE LUIS', 'area' => 'PRODUCCION'],
+     [
+        'dni' => '60748883',
+        'nombres' => 'ABAD LOARDO BRYAN SHAHRUKH',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '46122389',
+        'nombres' => 'ANCALLE MONTES EDELIA',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '70537912',
+        'nombres' => 'APAZA CASTELLANO JESICA MARIA',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '44270613',
+        'nombres' => 'BARRIENTOS HUARILLOCLLA CARMEN PATRICIA',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '60929790',
+        'nombres' => 'CAHUACHI DIAZ MARITZA',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '03364268',
+        'nombres' => 'ENCALADA CONDOLO ERTEMISA',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '41226383',
+        'nombres' => 'ESTRADA VEGA ESTHER',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '48177278',
+        'nombres' => 'GUTIERREZ MAMANI ELIZABETH',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '70633820',
+        'nombres' => 'HUARANGA NARCISO YADIRA YESENIA',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '74810510',
+        'nombres' => 'LUIS SILVA MAYRA ANGELICA',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '79419075',
+        'nombres' => 'MENDOZA CARDENAS MIGUEL ANGEL',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '75932636',
+        'nombres' => 'MEZA ÑAHUINRIPA KELLY',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '60825914',
+        'nombres' => 'MONTALVO CARHUACUSMA NICOL MILAGROS',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '47250418',
+        'nombres' => 'MONTES DE LA CRUZ CRISTIAN R.',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '41847704',
+        'nombres' => 'OSCANOA CASTRO DE PACHECO EDITH BEATRIZ',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '41035064',
+        'nombres' => 'PALOMARES JACAY MARTIN ENRIQUE',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '90463761',
+        'nombres' => 'PALOMINO CHOÑOJA ANY',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '44319940',
+        'nombres' => 'PEREZ BARRANTES MARIA',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '78580026',
+        'nombres' => 'QUIROZ QUILCA LIZBETH MILAGROS',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '48004932',
+        'nombres' => 'QUISPE AMARO GABRIELA KELLY',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '74608714',
+        'nombres' => 'RAMIREZ PINEDO CARLOS EDUARDO',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '32408478',
+        'nombres' => 'RIOS LOPEZ LIDIANA ROSA',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '60085154',
+        'nombres' => 'ROJAS PAUCARCAJA YOSELY JANETH',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '41073794',
+        'nombres' => 'TRIVEÑO ZEÑA ROSA ELBA',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '44992653',
+        'nombres' => 'YAYICO SANCHEZ ESTEFANIA',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '47880272',
+        'nombres' => 'VASQUEZ CHUQUIMANGO RITA JANET',
+        'area' => 'ACABADOS'
+    ],
+    [
+        'dni' => '08155893',
+        'nombres' => 'VERAMENDI MORENO MARCOS ANTONIO',
+        'area' => 'ACABADOS'
+    ]
 ];
 
         foreach ($workes as $w) {
