@@ -299,7 +299,8 @@ class SaleController extends Controller
 
 
             $printer->setEmphasis(true);
-            $printer->setTextSize(2,1);
+            /*EN ALGUNAS IMPRESORAS SALE MAL*/
+            //$printer->setTextSize(2,1);
             foreach ($sale->saleDetails as $detail) {
                 //$productName = wordwrap($detail->product_name, 20, "\n", true); // Dividir en líneas de 20 caracteres
                if ($sale->serie == "001"){
