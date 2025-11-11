@@ -21,9 +21,12 @@ class SubvencionPerDay implements FromView, ShouldAutoSize
     public function view(): View
 {
     $workers = $this->queryListSubvencionPerDay($this->params)->get();
+
+
     $dateStartConsumption = $this->params->dateStartConsumption;
     $dateEndConsumption = $this->params->dateEndConsumption;
     $periodo = CarbonPeriod::create($dateStartConsumption, $dateEndConsumption);
+
 
     return view("reports.consumption.list_excel_subvencion_per_day")->with(compact("workers","periodo"));
 }
