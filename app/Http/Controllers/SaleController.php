@@ -396,7 +396,7 @@ class SaleController extends Controller
         }
         if (in_array("foodTypes", $resourceTypes)) {
             $response["foodTypes"] = Category::query()
-                ->whereIn("name",["DESAYUNO","ALMUERZO","CENA","LONCHE"])
+                ->whereIn("name",["DESAYUNO","ALMUERZO","CENA"])
                 ->orderBy("id","ASC")
                 ->get();
         }

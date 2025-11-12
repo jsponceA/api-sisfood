@@ -7,6 +7,7 @@ use App\Models\SaleDetail;
 use App\Models\Worker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Spatie\Holidays\Holidays;
 
 trait ConsumptionTrait
 {
@@ -75,9 +76,18 @@ trait ConsumptionTrait
         $areaId = $request->input("areaId");
         $typeDiscount = $request->input("typeDiscount");
 
+        // Array de días feriados (formato: 'Y-m-d')
+        $holidays = array_keys(Holidays::for(country: 'pe')->get(year: now()->format('Y')));
+
 
         $sales = Sale::query()
             ->with(["worker","saleDetails"])
+            // Excluir domingos (DAYOFWEEK: 1=Domingo, 7=Sábado en MySQL)
+            ->whereRaw('DAYOFWEEK(sale_date) != 1')
+            // Excluir días feriados si hay alguno definido
+            ->when(!empty($holidays), function ($query) use ($holidays) {
+                $query->whereNotIn(DB::raw('DATE(sale_date)'), $holidays);
+            })
             ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
                 $query->where("deal_in_form", $typeDiscount);
             })
@@ -128,13 +138,23 @@ trait ConsumptionTrait
         $areaId = $request->input("areaId");
         $typeDiscount = $request->input("typeDiscount");
 
+        // Array de días feriados (formato: 'Y-m-d')
+        $holidays = array_keys(Holidays::for(country: 'pe')->get(year: now()->format('Y')));
+
         $workers = Worker::query()
             ->with([
-                'sales' => function ($query) use ($dateStartConsumption, $dateEndConsumption, $typeDiscount, $categoryId) {
+                'workerType',
+                'sales' => function ($query) use ($dateStartConsumption, $dateEndConsumption, $typeDiscount, $categoryId, $holidays) {
                     $query
                         ->with(['saleDetails.product'])
                         ->where('serie', '001')
-                        ->where('deal_in_form', 'SUBVENCION')
+                        //->where('deal_in_form', 'SUBVENCION')
+                        // Excluir domingos (DAYOFWEEK: 1=Domingo, 7=Sábado en MySQL)
+                        ->whereRaw('DAYOFWEEK(sale_date) != 1')
+                        // Excluir días feriados si hay alguno definido
+                        ->when(!empty($holidays), function ($query) use ($holidays) {
+                            $query->whereNotIn(DB::raw('DATE(sale_date)'), $holidays);
+                        })
                         ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
                             $query->where("deal_in_form", $typeDiscount);
                         })

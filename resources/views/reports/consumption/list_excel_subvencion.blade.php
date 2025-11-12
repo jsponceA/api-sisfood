@@ -44,13 +44,7 @@
             <td style="text-align: center">{{$workerPrice}}</td>
             <td style="text-align: center">{{$total}}</td>
             <td style="text-align: center">
-                @if($c->worker?->grant)
-                    SI SUBVENCIÓN
-                @elseif($c->worker?->grant_complete)
-                    SI SUBVENCIÓN COMPLETA
-                 @else
-                    {{$c->deal_in_form}}
-                @endif
+                {{$c->deal_in_form}}
             </td>
         </tr>
     @endforeach

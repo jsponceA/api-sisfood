@@ -125,6 +125,11 @@ class Worker extends Model
         return $this->belongsTo(Business::class)->withDefault();
     }
 
+    public function workerType(): BelongsTo
+    {
+        return $this->belongsTo(WorkerType::class)->withDefault();
+    }
+
     public function sales(): HasMany
     {
         return $this->hasMany(Sale::class);
