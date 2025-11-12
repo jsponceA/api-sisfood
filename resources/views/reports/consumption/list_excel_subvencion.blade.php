@@ -10,6 +10,7 @@
     <tr>
         <th style="font-weight: bold;text-align: center">DNI</th>
         <th style="font-weight: bold;text-align: center">CLIENTE</th>
+        <th style="font-weight: bold;text-align: center">TIPO TRABAJADOR</th>
         <th style="font-weight: bold;text-align: center">AREA DE PERSONAL</th>
         <th style="font-weight: bold;text-align: center">C.COSTP</th>
         <th style="font-weight: bold;text-align: center">FECHA</th>
@@ -34,6 +35,7 @@
         <tr>
             <td style="text-align: center">{{$c->worker?->numdoc.''}}</td>
             <td style="text-align: center">{{$c->worker?->fullName}}</td>
+            <td style="text-align: center">{{$c->worker?->workerType?->name}}</td>
             <td style="text-align: center">{{$c->worker?->area?->name}}</td>
             <td style="text-align: center">{{$c->worker?->costCenter?->name}}</td>
             <td style="text-align: center">{{ !empty($c->sale_date) ? now()->parse($c->sale_date)->format("d/m/Y") : ""}}</td>

@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+
 use App\Http\Traits\ConsumptionTrait;
 use Carbon\CarbonPeriod;
 use Illuminate\Contracts\View\View;
@@ -9,10 +10,10 @@ use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class SubvencionPerDay implements FromView, ShouldAutoSize, WithEvents
+class SubvencionPerDaySpecial implements FromView, ShouldAutoSize, WithEvents
 {
+
     use ConsumptionTrait;
     public $params;
 
@@ -23,7 +24,7 @@ class SubvencionPerDay implements FromView, ShouldAutoSize, WithEvents
 
     public function view(): View
     {
-        $workers = $this->queryListSubvencionPerDay($this->params)->get();
+        $workers = $this->queryListSubvencionPerDaySpecial($this->params)->get();
         $dateStartConsumption = $this->params->dateStartConsumption;
         $dateEndConsumption = $this->params->dateEndConsumption;
 
@@ -44,15 +45,15 @@ class SubvencionPerDay implements FromView, ShouldAutoSize, WithEvents
             $holidays = array_merge($holidays, $yearHolidaysDates);
         }
 
-        // Filtrar EXCLUYENDO domingos y días feriados
+        // Filtrar solo domingos Y días feriados (ambos)
         $periodo = collect($periodoCompleto)->filter(function($date) use ($holidays) {
             $isDomingo = $date->dayOfWeek === 0; // 0 = Domingo en Carbon
             $isFeriado = in_array($date->format('Y-m-d'), $holidays);
-            // Retornar true solo si NO es domingo Y NO es feriado
-            return !$isDomingo && !$isFeriado;
+            // Retornar true si es domingo O es feriado (incluye ambos casos)
+            return $isDomingo || $isFeriado;
         });
 
-        return view("reports.consumption.list_excel_subvencion_per_day")->with(compact("workers","periodo","dateStartConsumption","dateEndConsumption"));
+        return view("reports.consumption.list_excel_subvencion_per_day_special")->with(compact("workers","periodo","dateStartConsumption","dateEndConsumption"));
     }
 
     public function registerEvents(): array
@@ -79,21 +80,21 @@ class SubvencionPerDay implements FromView, ShouldAutoSize, WithEvents
                     $holidays = array_merge($holidays, $yearHolidaysDates);
                 }
 
-                // Filtrar EXCLUYENDO domingos y días feriados
+                // Filtrar solo domingos Y días feriados (ambos)
                 $periodo = collect($periodoCompleto)->filter(function($date) use ($holidays) {
                     $isDomingo = $date->dayOfWeek === 0; // 0 = Domingo en Carbon
                     $isFeriado = in_array($date->format('Y-m-d'), $holidays);
-                    // Retornar true solo si NO es domingo Y NO es feriado
-                    return !$isDomingo && !$isFeriado;
+                    // Retornar true si es domingo O es feriado (incluye ambos casos)
+                    return $isDomingo || $isFeriado;
                 });
 
-                // Calcular el número de días en el período (excluyendo domingos y feriados)
+                // Calcular el número de días en el período (solo domingos y feriados)
                 $numDays = $periodo->count();
 
                 // Columnas fijas al inicio: N°, DNI, APELLIDOS Y NOMBRES, TIPO TRABAJADOR, AREA = 5 columnas
-                // Columnas por día: ALMUERZO (SUB, DESC), CENA (SUB, DESC), LONCHE (SUB, DESC) = 6 columnas por día
+                // Columnas por día: ALMUERZO (SUB, DESC), CENA (SUB, DESC) = 4 columnas por día (sin LONCHE)
                 $fixedColumns = 5;
-                $columnsPerDay = 6;
+                $columnsPerDay = 4;
                 $dynamicColumns = $numDays * $columnsPerDay;
 
                 // Calcular la posición de inicio de los totales
@@ -101,16 +102,13 @@ class SubvencionPerDay implements FromView, ShouldAutoSize, WithEvents
 
                 // TOT. ALMUERZO: TOT.SUBVENCION (col1), TOT.DESCUENTO (col2), FACTURA (col3), PLANILLA (col4)
                 // TOT. CENA: TOT.SUBVENCION (col5), TOT.DESCUENTO (col6), FACTURA (col7), PLANILLA (col8)
-                // TOT. LONCHE: TOT.SUBVENCION (col9), TOT.DESCUENTO (col10), FACTURA (col11), PLANILLA (col12)
-                // TOT. SNACKS: (col13)
+                // TOT. SNACKS: (col9)
 
                 $almuerzoFacturaCol = $startTotalsColumn + 2; // Columna FACTURA de ALMUERZO
                 $almuerzoPlanillaCol = $startTotalsColumn + 3; // Columna PLANILLA de ALMUERZO
                 $cenaFacturaCol = $startTotalsColumn + 6; // Columna FACTURA de CENA
                 $cenaPlanillaCol = $startTotalsColumn + 7; // Columna PLANILLA de CENA
-                $loncheFacturaCol = $startTotalsColumn + 10; // Columna FACTURA de LONCHE
-                $lonchePlanillaCol = $startTotalsColumn + 11; // Columna PLANILLA de LONCHE
-                $snacksCol = $startTotalsColumn + 12; // Columna TOT. SNACKS
+                $snacksCol = $startTotalsColumn + 8; // Columna TOT. SNACKS
 
                 // Obtener la hoja activa
                 $sheet = $event->sheet->getDelegate();
@@ -121,8 +119,6 @@ class SubvencionPerDay implements FromView, ShouldAutoSize, WithEvents
                     \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($almuerzoPlanillaCol),
                     \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($cenaFacturaCol),
                     \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($cenaPlanillaCol),
-                    \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($loncheFacturaCol),
-                    \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($lonchePlanillaCol),
                     \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($snacksCol),
                 ];
 

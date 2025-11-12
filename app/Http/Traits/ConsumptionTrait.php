@@ -20,11 +20,12 @@ trait ConsumptionTrait
         $typeFormId = $request->input("typeFormId");
         $areaId = $request->input("areaId");
         $typeDiscount = $request->input("typeDiscount");
+        $workerTypeId = $request->input("worker_type_id");
 
 
         $sales = SaleDetail::query()
             ->with(["sale", "product"])
-            ->whereHas("sale.worker", function ($query) use ($search, $typeFormId, $areaId) {
+            ->whereHas("sale.worker", function ($query) use ($search, $typeFormId, $areaId,$workerTypeId) {
                 $query
                     ->when(!empty($typeFormId), function ($query) use ($typeFormId) {
                         $query
@@ -33,6 +34,10 @@ trait ConsumptionTrait
                     ->when(!empty($areaId), function ($query) use ($areaId) {
                         $query
                             ->where("area_id", $areaId);
+                    })
+                    ->when(!empty($workerTypeId), function ($query) use ($workerTypeId) {
+                        $query
+                            ->where("worker_type_id", $workerTypeId);
                     })
                     ->when(!empty($search), function ($query) use ($search) {
                         $query
@@ -75,13 +80,18 @@ trait ConsumptionTrait
         $typeFormId = $request->input("typeFormId");
         $areaId = $request->input("areaId");
         $typeDiscount = $request->input("typeDiscount");
+        $workerTypeId = $request->input("worker_type_id");
 
         // Array de días feriados (formato: 'Y-m-d')
-        $holidays = array_keys(Holidays::for(country: 'pe')->get(year: now()->format('Y')));
+        $holidaysData = Holidays::for(country: 'pe')->get(year: now()->format('Y'));
+        $holidays = array_map(function($holiday) {
+            return \Carbon\Carbon::parse($holiday['date'])->format('Y-m-d');
+        }, $holidaysData);
 
 
         $sales = Sale::query()
             ->with(["worker","saleDetails"])
+            ->whereNot('deal_in_form', 'NO_DESCONTAR')
             // Excluir domingos (DAYOFWEEK: 1=Domingo, 7=Sábado en MySQL)
             ->whereRaw('DAYOFWEEK(sale_date) != 1')
             // Excluir días feriados si hay alguno definido
@@ -97,7 +107,7 @@ trait ConsumptionTrait
             ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
                 $query->whereDate("sale_date", "<=", $dateEndConsumption);
             })
-            ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId) {
+            ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId,$workerTypeId) {
                 $query
                     ->when(!empty($typeFormId), function ($query) use ($typeFormId) {
                         $query
@@ -106,6 +116,10 @@ trait ConsumptionTrait
                     ->when(!empty($areaId), function ($query) use ($areaId) {
                         $query
                             ->where("area_id", $areaId);
+                    })
+                    ->when(!empty($workerTypeId), function ($query) use ($workerTypeId) {
+                        $query
+                            ->where("worker_type_id", $workerTypeId);
                     })
                     ->when(!empty($search), function ($query) use ($search) {
                         $query
@@ -137,9 +151,13 @@ trait ConsumptionTrait
         $typeFormId = $request->input("typeFormId");
         $areaId = $request->input("areaId");
         $typeDiscount = $request->input("typeDiscount");
+        $workerTypeId = $request->input("worker_type_id");
 
         // Array de días feriados (formato: 'Y-m-d')
-        $holidays = array_keys(Holidays::for(country: 'pe')->get(year: now()->format('Y')));
+        $holidaysData = Holidays::for(country: 'pe')->get(year: now()->format('Y'));
+        $holidays = array_map(function($holiday) {
+            return \Carbon\Carbon::parse($holiday['date'])->format('Y-m-d');
+        }, $holidaysData);
 
         $workers = Worker::query()
             ->with([
@@ -179,6 +197,9 @@ trait ConsumptionTrait
             ->when(!empty($areaId), function ($query) use ($areaId) {
                 $query->where("area_id", $areaId);
             })
+            ->when(!empty($workerTypeId), function ($query) use ($workerTypeId) {
+                $query->where("worker_type_id", $workerTypeId);
+            })
             ->when(!empty($search), function ($query) use ($search) {
                 $query->where(function ($query) use ($search){
                     $query
@@ -192,6 +213,80 @@ trait ConsumptionTrait
 
         return $workers;
     }
+
+    public function queryListSubvencionPerDaySpecial(Request $request)
+    {
+        $search = trim($request->input("search"));
+        $dateStartConsumption = $request->input("dateStartConsumption");
+        $dateEndConsumption = $request->input("dateEndConsumption");
+        $categoryId = $request->input("categoryId");
+        $typeFormId = $request->input("typeFormId");
+        $areaId = $request->input("areaId");
+        $typeDiscount = $request->input("typeDiscount");
+        $workerTypeId = $request->input("worker_type_id");
+
+        // Array de días feriados (formato: 'Y-m-d')
+        $holidaysData = Holidays::for(country: 'pe')->get(year: now()->format('Y'));
+        $holidays = array_map(function($holiday) {
+            return \Carbon\Carbon::parse($holiday['date'])->format('Y-m-d');
+        }, $holidaysData);
+
+        $workers = Worker::query()
+            ->with([
+                'workerType',
+                'sales' => function ($query) use ($dateStartConsumption, $dateEndConsumption, $typeDiscount, $categoryId, $holidays) {
+                    $query
+                        ->with(['saleDetails.product'])
+                        ->where('serie', '001')
+                        //->where('deal_in_form', 'SUBVENCION')
+                        // Incluir SOLO domingos O días feriados (DAYOFWEEK: 1=Domingo en MySQL)
+                        ->where(function ($query) use ($holidays) {
+                            $query->whereRaw('DAYOFWEEK(sale_date) = 1'); // Domingos
+                            if (!empty($holidays)) {
+                                $query->orWhereIn(DB::raw('DATE(sale_date)'), $holidays); // Días feriados
+                            }
+                        })
+                        ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
+                            $query->where("deal_in_form", $typeDiscount);
+                        })
+                        ->when(!empty($dateStartConsumption), function ($query) use ($dateStartConsumption) {
+                            $query->whereDate("sale_date", ">=", $dateStartConsumption);
+                        })
+                        ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
+                            $query->whereDate("sale_date", "<=", $dateEndConsumption);
+                        })
+                        ->when(!empty($categoryId), function ($query) use ($categoryId) {
+                            $query->whereHas("saleDetails.product", function ($query) use ($categoryId) {
+                                $query->where("category_id", $categoryId);
+                            });
+                        })
+                        ->orderByDesc("sale_date")
+                        ->orderByDesc("id");
+                }
+            ])
+            ->when(!empty($typeFormId), function ($query) use ($typeFormId) {
+                $query->where("type_form_id", $typeFormId);
+            })
+            ->when(!empty($areaId), function ($query) use ($areaId) {
+                $query->where("area_id", $areaId);
+            })
+            ->when(!empty($workerTypeId), function ($query) use ($workerTypeId) {
+                $query->where("worker_type_id", $workerTypeId);
+            })
+            ->when(!empty($search), function ($query) use ($search) {
+                $query->where(function ($query) use ($search){
+                    $query
+                        ->where("names", "LIKE", "%{$search}%")
+                        ->orWhere("surnames", "LIKE", "%{$search}%")
+                        ->orWhere("numdoc", "LIKE", "%{$search}%");
+                });
+            })
+            ->orderBy("surnames","ASC")
+            ->orderBy("names","ASC");
+
+        return $workers;
+    }
+
 
 
     public function queryListConsumption(Request $request)

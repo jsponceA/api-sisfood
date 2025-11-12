@@ -28,6 +28,7 @@ Route::get("/pasarProductoAntiguos",[TestController::class,"pasarProductoAntiguo
 
 
 
+
 /* START AUTH ROUTES */
 Route::post("login",[AuthController::class,"login"]);
 Route::post("logout",[AuthController::class,"logout"])->middleware(['auth:sanctum']);
@@ -78,6 +79,7 @@ Route::middleware(["auth:sanctum"])->group(function (){
     /* end routes past sales*/
 
     /* start routes consumption*/
+    Route::post("consumptions/generateExcelSubvencionPerDaySpecial",[ConsumptionController::class,"generateExcelSubvencionPerDaySpecial"]);
     Route::post("consumptions/generateExcelSubvencionPerDay",[ConsumptionController::class,"generateExcelSubvencionPerDay"]);
     Route::post("consumptions/generateExcelWorkerSummary",[ConsumptionController::class,"generateExcelWorkerSummary"]);
     Route::post("consumptions/generateExcelConsumption",[ConsumptionController::class,"generateExcelConsumption"]);

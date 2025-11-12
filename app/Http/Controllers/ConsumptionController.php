@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Exports\ConsumptionExport;
 use App\Exports\SubvencionExport;
 use App\Exports\SubvencionPerDay;
+use App\Exports\SubvencionPerDaySpecial;
 use App\Exports\WorkerSummaryExport;
 use App\Http\Traits\ConsumptionTrait;
 use App\Models\Area;
 use App\Models\Category;
 use App\Models\TypeForm;
+use App\Models\WorkerType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -56,6 +58,11 @@ class ConsumptionController extends Controller
         return Excel::download(new SubvencionPerDay($request), 'reporte_planilla.xlsx');
     }
 
+    public function generateExcelSubvencionPerDaySpecial(Request $request)
+    {
+        return Excel::download(new SubvencionPerDaySpecial($request), 'reporte_planilla.xlsx');
+    }
+
 
     public function getAllResources(Request $request): JsonResponse
     {
@@ -77,6 +84,10 @@ class ConsumptionController extends Controller
         }
         if (in_array("typeDiscounts", $resourceTypes)) {
             $response["typeDiscounts"] = ["SUBVENCION","DESCUENTO_PLANILLA","NO_DESCONTAR"];
+        }
+
+        if (in_array("workerTypes", $resourceTypes)) {
+            $response["workerTypes"] = WorkerType::query()->get();
         }
 
 
