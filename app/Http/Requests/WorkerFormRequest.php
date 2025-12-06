@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class WorkerFormRequest extends FormRequest
 {
@@ -27,7 +28,7 @@ class WorkerFormRequest extends FormRequest
                     'gender_id' => ['nullable'],
                     'names' => ['required', "max:100"],
                     'surnames' => ['nullable', "max:100"],
-                    'numdoc' => ['required', "max:20"],
+                    'numdoc' => ['required', "max:20",Rule::unique("workers","numdoc")->whereNull('deleted_at')],
                     'phone' => ['nullable',"max:20"],
                     'address' => ['nullable',"max:250"],
                     'birth_date' => ['nullable',"date"],
@@ -48,7 +49,7 @@ class WorkerFormRequest extends FormRequest
                     'gender_id' => ['nullable'],
                     'names' => ['required', "max:100"],
                     'surnames' => ['nullable', "max:100"],
-                    'numdoc' => ['required', "max:20"],
+                    'numdoc' => ['required', "max:20",Rule::unique("workers","numdoc")->ignore($this->route()->parameter("worker"))->whereNull('deleted_at')],
                     'phone' => ['nullable',"max:20"],
                     'address' => ['nullable',"max:250"],
                     'birth_date' => ['nullable',"date"],

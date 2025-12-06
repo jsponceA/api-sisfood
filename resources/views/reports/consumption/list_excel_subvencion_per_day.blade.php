@@ -84,10 +84,15 @@
 
                 // Recorrer las ventas del trabajador para el día específico
                 foreach($w->sales as $sale) {
-                    // Verificar si la venta corresponde a la fecha del período actual
-                    if(now()->parse($sale->date_sale)->format('Y-m-d') != $p->format('Y-m-d')) {
-                        continue; // Saltar a la siguiente venta si la fecha no coincide
-                    }
+                      // Verificar si la venta corresponde a la fecha del período actual
+                        if(!empty($sale->sale_date)) {
+                            $saleDate = \Carbon\Carbon::parse($sale->sale_date);
+                            if(!$saleDate->isSameDay($p)) {
+                                continue; // Saltar a la siguiente venta si la fecha no coincide
+                            }
+                        } else {
+                            continue; // Saltar si no hay fecha de venta
+                        }
 
 
                     // Verificar si esta venta tiene productos de almuerzo o cena
