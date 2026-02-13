@@ -8,6 +8,7 @@
 <table>
     <thead>
     <tr>
+        <th  style="font-weight: bold;text-align: center">AREA</th>
         <th style="font-weight: bold;text-align: center">DNI</th>
         <th style="font-weight: bold;text-align: center">CODIGO</th>
         <th style="font-weight: bold;text-align: center">CLIENTE</th>
@@ -76,6 +77,7 @@
 
         @endphp
         <tr>
+            <td style="text-align: center">{{$c->worker?->payrollArea?->name}}</td>
             <td style="text-align: center">{{$c->worker?->numdoc.''}}</td>
             <td style="text-align: center">{{$c->worker?->personal_code.''}}</td>
             <td style="text-align: center">{{$c->worker?->fullName}}</td>
