@@ -21,10 +21,14 @@ use App\Models\Superior;
 use App\Models\TypeDocument;
 use App\Models\TypeForm;
 use App\Models\Worker;
+use App\Models\WorkerFingerprint;
 use App\Models\WorkerType;
+use App\Services\BiometricTemplateService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
@@ -54,16 +58,23 @@ class WorkerController extends Controller
      */
     public function store(WorkerFormRequest $request): JsonResponse
     {
-        $data = $request->all();
+        $data = $request->validated();
+        $fingerprints = $data["fingerprints"] ?? [];
+        unset($data["fingerprints"]);
 
-        if ($request->hasFile("photo")){
-            $data["photo"] = basename($request->file("photo")->store("workers"));
-        }
-        $worker = Worker::query()->create($data);
+        return DB::transaction(function () use ($request, $data, $fingerprints) {
+            if ($request->hasFile("photo")) {
+                $data["photo"] = basename($request->file("photo")->store("workers"));
+            }
 
-        return response()->json([
-            "message" => "Trabajador creado satisfactoriamente"
-        ], Response::HTTP_CREATED);
+            $worker = Worker::query()->create($data);
+            $this->syncFingerprints($worker, $fingerprints);
+            $this->scheduleFingerprintTemplateWarmup($worker->id);
+
+            return response()->json([
+                "message" => "Trabajador creado satisfactoriamente"
+            ], Response::HTTP_CREATED);
+        });
     }
 
     /**
@@ -71,7 +82,10 @@ class WorkerController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        $worker = Worker::query()->findOrFail($id);
+        $worker = Worker::query()
+            ->with("fingerprints")
+            ->withCount("fingerprints")
+            ->findOrFail($id);
 
         return response()->json([
             "worker" => $worker
@@ -83,19 +97,26 @@ class WorkerController extends Controller
      */
     public function update(WorkerFormRequest $request, int $id): JsonResponse
     {
+        $data = $request->validated();
+        $fingerprints = $data["fingerprints"] ?? [];
+        unset($data["fingerprints"]);
 
-        $data = $request->all();
+        return DB::transaction(function () use ($request, $id, $data, $fingerprints) {
+            $worker = Worker::query()->findOrFail($id);
 
-        $worker = Worker::query()->findOrFail($id);
-        if ($request->hasFile("photo")){
-            Storage::delete("workers/{$worker->photo}");
-            $data["photo"] = basename($request->file("photo")->store("workers"));
-        }
-        $worker->update($data);
+            if ($request->hasFile("photo")) {
+                Storage::delete("workers/{$worker->photo}");
+                $data["photo"] = basename($request->file("photo")->store("workers"));
+            }
 
-        return response()->json([
-            "message" => "Trabajador modificado satisfactoriamente"
-        ], Response::HTTP_OK);
+            $worker->update($data);
+            $this->syncFingerprints($worker, $fingerprints);
+            $this->scheduleFingerprintTemplateWarmup($worker->id);
+
+            return response()->json([
+                "message" => "Trabajador modificado satisfactoriamente"
+            ], Response::HTTP_OK);
+        });
     }
 
     /**
@@ -141,6 +162,110 @@ class WorkerController extends Controller
 
         return response()->json([
             "workers" => $workers
+        ], Response::HTTP_OK);
+    }
+
+    public function identifyFingerprint(Request $request): JsonResponse
+    {
+        if (function_exists('set_time_limit')) {
+            @set_time_limit(max((int) config("services.biometric.timeout", 120) + 15, 180));
+        }
+
+        $data = $request->validate([
+            "sample_data" => ["nullable", "string"],
+            "image_data" => ["nullable", "string"],
+        ]);
+
+        if (blank($data["sample_data"] ?? null) && blank($data["image_data"] ?? null)) {
+            return response()->json([
+                "matched" => false,
+                "message" => "No se recibió una huella válida para comparar."
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $fingerprints = WorkerFingerprint::query()
+            ->with(["worker.area"])
+            ->select([
+                "id",
+                "worker_id",
+                "finger_label",
+                "image_data",
+                "sample_data",
+                "capture_metadata",
+            ])
+            ->whereNotNull("image_data")
+            ->get();
+
+        if ($fingerprints->isEmpty()) {
+            return response()->json([
+                "matched" => false,
+                "message" => "No hay huellas registradas para comparar."
+            ], Response::HTTP_OK);
+        }
+
+        $serviceUrl = rtrim((string) config("services.biometric.url"), "/");
+        $biometricTemplateService = app(BiometricTemplateService::class);
+        $biometricTemplateService->hydrateTemplates($fingerprints, $serviceUrl);
+
+        try {
+            $response = Http::connectTimeout(5)
+                ->timeout((int) config("services.biometric.timeout", 120))
+                ->acceptJson()
+                ->post("{$serviceUrl}/identify", [
+                    "image_data" => $data["image_data"] ?? null,
+                    "score_threshold" => (float) config("services.biometric.score_threshold", 30),
+                    "candidates" => $fingerprints->map(fn(WorkerFingerprint $fingerprint) => $biometricTemplateService->buildCandidatePayload($fingerprint))->values()->all(),
+                ]);
+        } catch (\Throwable $exception) {
+            return response()->json([
+                "matched" => false,
+                "message" => "No se pudo conectar con el servicio biométrico local. Inícialo y vuelve a intentar.",
+                "error" => $exception->getMessage(),
+            ], Response::HTTP_SERVICE_UNAVAILABLE);
+        }
+
+        if ($response->failed()) {
+            return response()->json([
+                "matched" => false,
+                "message" => "El servicio biométrico respondió con error.",
+                "error" => $response->json("detail") ?: $response->body(),
+            ], Response::HTTP_SERVICE_UNAVAILABLE);
+        }
+
+        $result = $response->json();
+        $bestMatch = $result["best_match"] ?? null;
+
+        if (!($result["matched"] ?? false) || empty($bestMatch["worker_id"])) {
+            return response()->json([
+                "matched" => false,
+                "message" => ($result["ambiguous"] ?? false)
+                    ? ($result["message"] ?? "La huella coincide con más de un trabajador y no se pudo decidir con suficiente seguridad.")
+                    : ($result["message"] ?? "No se encontró un trabajador con una coincidencia suficiente."),
+                "biometric" => $result["best_attempt"] ?? null,
+                "best_worker_attempt" => $result["best_worker_attempt"] ?? null,
+                "second_best_worker_attempt" => $result["second_best_worker_attempt"] ?? null,
+                "ambiguous" => (bool) ($result["ambiguous"] ?? false),
+                "candidate_count" => $result["candidate_count"] ?? $fingerprints->count(),
+            ], Response::HTTP_OK);
+        }
+
+        $workerFingerprint = $fingerprints->first(function (WorkerFingerprint $fingerprint) use ($bestMatch) {
+            return (int) $fingerprint->worker_id === (int) $bestMatch["worker_id"];
+        });
+
+        if (!$workerFingerprint || !$workerFingerprint->worker) {
+            return response()->json([
+                "matched" => false,
+                "message" => "La huella coincidió, pero no se pudo cargar el trabajador relacionado.",
+                "biometric" => $bestMatch,
+            ], Response::HTTP_OK);
+        }
+
+        return response()->json([
+            "matched" => true,
+            "worker" => $workerFingerprint->worker,
+            "biometric" => $bestMatch,
+            "candidate_count" => $result["candidate_count"] ?? $fingerprints->count(),
         ], Response::HTTP_OK);
     }
 
@@ -191,22 +316,70 @@ class WorkerController extends Controller
         }
         if (in_array("categories", $resourceTypes)) {
             $response["categories"] = Category::query()
-                ->whereIn("name",["DESAYUNO","ALMUERZO","CENA","LONCHE"])
-                ->orderBy("id","ASC")
+                ->whereIn("name", ["DESAYUNO", "ALMUERZO", "CENA", "LONCHE"])
+                ->orderBy("id", "ASC")
                 ->get();
         }
         if (in_array("workerTypes", $resourceTypes)) {
             $response["workerTypes"] = WorkerType::query()
-                ->orderByDesc("id","ASC")
+                ->orderByDesc("id")
                 ->get();
         }
 
         if (in_array("managents", $resourceTypes)) {
             $response["managents"] = Managent::query()
-                ->orderByDesc("id","ASC")
+                ->orderByDesc("id")
                 ->get();
         }
 
         return response()->json($response, Response::HTTP_OK);
+    }
+
+    private function syncFingerprints(Worker $worker, array $fingerprints): void
+    {
+        $worker->fingerprints()->forceDelete();
+
+        if (empty($fingerprints)) {
+            return;
+        }
+
+        $worker->fingerprints()->createMany(array_map(function ($fingerprint) {
+            return [
+                "finger_label" => $fingerprint["finger_label"] ?? null,
+                "sample_format" => $fingerprint["sample_format"],
+                "sample_data" => $fingerprint["sample_data"],
+                "image_data" => $fingerprint["image_data"] ?? null,
+                "device_uid" => $fingerprint["device_uid"] ?? null,
+                "quality" => $fingerprint["quality"] ?? null,
+                "capture_metadata" => $fingerprint["capture_metadata"] ?? null,
+            ];
+        }, $fingerprints));
+    }
+
+    private function scheduleFingerprintTemplateWarmup(int $workerId): void
+    {
+        $warmTemplates = function () use ($workerId) {
+            try {
+                app(BiometricTemplateService::class)->hydrateWorkerFingerprints($workerId);
+            } catch (\Throwable) {
+                // Si el servicio biométrico no está disponible, la huella se calentará en la primera búsqueda o con el comando manual.
+            }
+        };
+
+        $scheduleAfterCommit = function () use ($warmTemplates) {
+            if (app()->runningInConsole()) {
+                $warmTemplates();
+                return;
+            }
+
+            app()->terminating($warmTemplates);
+        };
+
+        if (DB::transactionLevel() > 0) {
+            DB::afterCommit($scheduleAfterCommit);
+            return;
+        }
+
+        $scheduleAfterCommit();
     }
 }

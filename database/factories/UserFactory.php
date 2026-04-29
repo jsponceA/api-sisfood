@@ -2,8 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Branch;
+use App\Models\Role;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -18,11 +19,14 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
+            'rol_id' => fn() => Role::query()->inRandomOrder()->value('id')
+                ?? Role::query()->create(['name' => 'ADMIN'])->id,
+            'branch_id' => fn() => Branch::query()->inRandomOrder()->value('id')
+                ?? Branch::query()->create(['name' => 'SEDE PRINCIPAL'])->id,
             'username' => fake()->unique()->userName(),
             'email' => fake()->safeEmail(),
-            'password' => bcrypt(123456)
+            'password' => '123456',
+            'photo' => null,
         ];
     }
-
-
 }

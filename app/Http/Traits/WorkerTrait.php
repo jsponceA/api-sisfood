@@ -23,7 +23,8 @@ trait WorkerTrait
         $allowedMeals = $request->input("allowed_meals");
 
         $workers = Worker::query()
-            ->with(["area", "typeForm","costCenter","payrollArea","campus","staffDivision","charge","organizationalUnit","gender","superior","business"])
+            ->with(["area", "typeForm", "costCenter", "payrollArea", "campus", "staffDivision", "charge", "organizationalUnit", "gender", "superior", "business"])
+            ->withCount("fingerprints")
             ->when(!empty($search), function ($q) use ($search) {
                 $q->where("names", "LIKE", "%{$search}%")
                     ->orWhere("numdoc", "LIKE", "%{$search}%");
@@ -56,9 +57,9 @@ trait WorkerTrait
                 $q->where("dinner", $dinner);
             })
             ->when(!empty($allowedMeals), function ($q) use ($allowedMeals) {
-                $q->whereJsonContains("allowed_meals",$allowedMeals);
+                $q->whereJsonContains("allowed_meals", $allowedMeals);
             })
-            ->orderBy("names","ASC");
+            ->orderBy("names", "ASC");
 
         return $workers;
     }

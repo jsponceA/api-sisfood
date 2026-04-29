@@ -31,4 +31,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'biometric' => [
+        'url' => env('BIOMETRIC_SERVICE_URL', 'http://127.0.0.1:8765'),
+        'timeout' => (int) env('BIOMETRIC_SERVICE_TIMEOUT', 120),
+        'score_threshold' => (float) env('BIOMETRIC_MATCH_SCORE_THRESHOLD', 30),
+    ],
+
 ];

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Sale extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
         "worker_id",
         "sale_date",
@@ -28,7 +29,7 @@ class Sale extends Model
 
     public function worker(): BelongsTo
     {
-        return $this->belongsTo(Worker::class)->with(["area","payrollArea","typeForm"])->withDefault();
+        return $this->belongsTo(Worker::class)->with(["area", "payrollArea", "typeForm"])->withDefault();
     }
     public function saleDetails(): HasMany
     {

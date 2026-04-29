@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Worker extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
         "type_form_id",
         "area_id",
@@ -67,7 +68,7 @@ class Worker extends Model
 
     protected function photoUrl(): Attribute
     {
-        return Attribute::get(fn() =>!empty($this->photo) ? Storage::url("workers/{$this->photo}") : null);
+        return Attribute::get(fn() => !empty($this->photo) ? Storage::url("workers/{$this->photo}") : null);
     }
 
     public function area(): BelongsTo
@@ -128,5 +129,10 @@ class Worker extends Model
     public function sales(): HasMany
     {
         return $this->hasMany(Sale::class);
+    }
+
+    public function fingerprints(): HasMany
+    {
+        return $this->hasMany(WorkerFingerprint::class)->orderByDesc("id");
     }
 }

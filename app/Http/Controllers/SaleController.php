@@ -34,14 +34,14 @@ class SaleController extends Controller
         $workerId = $request->input("workerId");
 
         $sales = Sale::query()
-            ->with(["worker","saleDetails"])
+            ->with(["worker", "saleDetails"])
             ->when(!empty($search), function ($q) use ($search) {
                 $q->where(DB::raw("CONCAT(serie,'-',num_document)"), "LIKE", "%{$search}%");
             })
             //->where("serie","001")
             //->where("deal_in_form","SUBVENCION")
             //->where("worker_id",$workerId)
-            ->whereDate("sale_date",now()->format("Y-m-d"))
+            ->whereDate("sale_date", now()->format("Y-m-d"))
             ->orderByDesc("id")
             ->paginate($perPage, ["*"], "page", $page);
 
@@ -61,16 +61,16 @@ class SaleController extends Controller
             $saleDetailsData = $request->input("sale_details");
 
             $saleData["sale_date"] = now()->format("Y-m-d H:i:s");
-            if ($saleData["deal_in_form"] == "DESCUENTO_PLANILLA"){
+            if ($saleData["deal_in_form"] == "DESCUENTO_PLANILLA") {
                 $saleData["serie"] = "001";
-                $saleData["num_document"] = Sale::query()->where("serie","001")->max("num_document") + 1;
+                $saleData["num_document"] = Sale::query()->where("serie", "001")->max("num_document") + 1;
                 $saleData["pay_type"] = "CREDITO";
                 $saleData["total_dsct_form"] = 0;
                 $saleData["total_pay_company"] = 0;
                 $saleData["total_igv"] = 0;
-            }else{
+            } else {
                 $saleData["serie"] = "002";
-                $saleData["num_document"] = Sale::query()->where("serie","002")->max("num_document") + 1;
+                $saleData["num_document"] = Sale::query()->where("serie", "002")->max("num_document") + 1;
                 $saleData["pay_type"] = "EFECTIVO";
                 $saleData["total_dsct_form"] = 0;
                 $saleData["total_pay_company"] = 0;
@@ -80,15 +80,13 @@ class SaleController extends Controller
             $sale->saleDetails()->createMany($saleDetailsData);
 
             DB::commit();
-            return response()->json(["message" => "venta creada satisfactoriamente","sale" => $sale], Response::HTTP_CREATED);
-
-        }catch (\Throwable $e){
+            return response()->json(["message" => "venta creada satisfactoriamente", "sale" => $sale], Response::HTTP_CREATED);
+        } catch (\Throwable $e) {
             DB::rollBack();
             return response()->json([
                 "message" => "No ha sido posible crear esta venta ocurrio el siguiente error {$e->getMessage()}",
             ], Response::HTTP_BAD_REQUEST);
         }
-
     }
     public function subVencionStore(Request $request): JsonResponse
     {
@@ -105,18 +103,18 @@ class SaleController extends Controller
             //validate worker
             $worker = Worker::query()->find($saleData["worker_id"] ?? null);
 
-            if (!empty($worker)){
+            if (!empty($worker)) {
 
                 $searchSale = Sale::query()
-                    ->with(["worker","saleDetails"])
-                    ->where("serie","001")
-                    ->where("deal_in_form","SUBVENCION")
-                    ->where("worker_id",$worker->id)
-                    ->whereDate("sale_date",$currentDay)
+                    ->with(["worker", "saleDetails"])
+                    ->where("serie", "001")
+                    ->where("deal_in_form", "SUBVENCION")
+                    ->where("worker_id", $worker->id)
+                    ->whereDate("sale_date", $currentDay)
                     ->get();
 
                 $product = Product::query()->findOrFail($saleDetailsData[0]["product_id"]);
-                $category = Category::query()->where("name",$selectedFoodType)->first();
+                $category = Category::query()->where("name", $selectedFoodType)->first();
 
 
                 $foodConsumed = null;
@@ -127,7 +125,7 @@ class SaleController extends Controller
                             $existsFoodType = true;
                             $foodConsumed = Sale::query()->find($saleDetail->sale_id);
                         }*/
-                        if ($saleDetail->product->category_id == $category->id){
+                        if ($saleDetail->product->category_id == $category->id) {
                             $existsFoodType = true;
                             $foodConsumed = Sale::query()->find($saleDetail->sale_id);
                         }
@@ -136,34 +134,33 @@ class SaleController extends Controller
 
 
 
-                if($worker->terminated_worker){
+                if ($worker->terminated_worker) {
                     $suspendDateFormat = now()->parse($worker->suspension_date)->format("d/m/Y");
                     $response["error"] = true;
                     $response["alertType"] = 4;
                     $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, ya fue cesado en la fecha {$suspendDateFormat} ";
                     $response["messageContent"] = "";
                     $response["worker"] = $worker;
-                }else if(!in_array($category->id,$worker->allowed_meals)){
+                } else if (is_array($worker->allowed_meals) && !in_array($category->id, $worker->allowed_meals)) {
                     $response["error"] = true;
                     $response["alertType"] = 4;
                     $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, no tienen acceso a {$product->name} ";
                     $response["messageContent"] = "";
                     $response["worker"] = $worker;
-                }elseif ($existsFoodType ){
+                } elseif ($existsFoodType) {
                     $response["error"] = true;
                     $response["alertType"] = 2;
-                    $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, ya consumio su {$product->name} el ".now()->parse($foodConsumed->sale_date)->format("d/m/Y h:i A");
+                    $response["messageTile"] = "!El trabajador con DNI {$worker->numdoc} {$worker->names} {$worker->surnames}, ya consumio su {$product->name} el " . now()->parse($foodConsumed->sale_date)->format("d/m/Y h:i A");
                     $response["messageContent"] = "";
                     $response["worker"] = $worker;
-                }else{
+                } else {
                     $response["error"] = false;
                     $response["alertType"] = 1;
                     $response["messageTile"] = "!Hola {$worker->names} {$worker->surnames}, se registro su {$product->name} con éxito¡";
                     $response["worker"] = $worker;
                     $response["messageContent"] = "Retire los tickets y pase a comedor, Gracias !";
                 }
-
-            }else{
+            } else {
                 $response["error"] = true;
                 $response["alertType"] = 3;
                 $response["messageTile"] = "!El trabajador con DNI {$searchWorker}, no esta registrado¡";
@@ -171,13 +168,13 @@ class SaleController extends Controller
             }
 
             //success - create sale and details
-            if (empty($response["error"])){
+            if (empty($response["error"])) {
 
                 $saleData["sale_date"] = now()->format("Y-m-d H:i:s");
                 $saleData["deal_in_form"] = "SUBVENCION";
                 $saleData["pay_type"] = "CREDITO";
                 $saleData["serie"] = "001";
-                $saleData["num_document"] = Sale::query()->where("serie","001")->max("num_document") + 1;
+                $saleData["num_document"] = Sale::query()->where("serie", "001")->max("num_document") + 1;
 
 
                 $sale = Sale::query()->create($saleData);
@@ -188,8 +185,7 @@ class SaleController extends Controller
 
             DB::commit();
             return response()->json($response, Response::HTTP_CREATED);
-
-        }catch (\Throwable $e){
+        } catch (\Throwable $e) {
             DB::rollBack();
             return response()->json([
                 "message" => "No ha sido posible crear esta venta ocurrio el siguiente error {$e->getMessage()}",
@@ -232,8 +228,7 @@ class SaleController extends Controller
             return response()->json([
                 "message" => "Venta modificado satisfactoriamente",
             ], Response::HTTP_OK);
-
-        }catch (\Throwable $e){
+        } catch (\Throwable $e) {
             DB::rollBack();
             return response()->json([
                 "message" => "No ha sido posible modificar esta venta ocurrio el siguiente error {$e->getMessage()}",
@@ -256,12 +251,12 @@ class SaleController extends Controller
     {
         try {
             $sale = Sale::query()
-                ->with(["worker","saleDetails"])
+                ->with(["worker", "saleDetails"])
                 ->findOrFail($request->input("id"));
             $user = auth()->user();
 
             //variables
-            $comensal = !empty($sale->worker->names) ? mb_strtoupper($sale->worker->names." ".$sale->worker->surnames) : 'PUBLICO GENERAL';
+            $comensal = !empty($sale->worker->names) ? mb_strtoupper($sale->worker->names . " " . $sale->worker->surnames) : 'PUBLICO GENERAL';
 
             $nombreImpresora = config("printerticket.name");
             $connector = new WindowsPrintConnector($nombreImpresora);
@@ -276,17 +271,17 @@ class SaleController extends Controller
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->setEmphasis(true);
             $printer->setFont(Printer::FONT_A);
-            $printer->text("CONCESIONARIO DE ALIMENTOS ".config("printerticket.company"));
+            $printer->text("CONCESIONARIO DE ALIMENTOS " . config("printerticket.company"));
             $printer->text("\n");
             $printer->setFont(Printer::FONT_B);
             $printer->setEmphasis(false);
-            $printer->text("TICKET: ".$sale->serie.'-'.Str::padLeft($sale->num_document,7,"0")."\n");
+            $printer->text("TICKET: " . $sale->serie . '-' . Str::padLeft($sale->num_document, 7, "0") . "\n");
             $printer->setFont(Printer::FONT_B);
-            $printer->text("FECHA Y HORA: ".now()->parse($sale->sale_date)->format("d/m/Y h:i A"). "\n");
+            $printer->text("FECHA Y HORA: " . now()->parse($sale->sale_date)->format("d/m/Y h:i A") . "\n");
             $printer->setJustification(Printer::JUSTIFY_LEFT);
-            $printer->text("CAJERO: ".mb_strtoupper($user->username)."\n");
-             $printer->text("PEDIDOS: ".config("printerticket.company_phone")."\n");
-            $printer->text("COMENSAL: ".$comensal."\n");
+            $printer->text("CAJERO: " . mb_strtoupper($user->username) . "\n");
+            $printer->text("PEDIDOS: " . config("printerticket.company_phone") . "\n");
+            $printer->text("COMENSAL: " . $comensal . "\n");
             $printer->text("\n");
 
             //$printer->text("------------------------------------------------------------"."\n");
@@ -303,13 +298,13 @@ class SaleController extends Controller
             //$printer->setTextSize(2,1);
             foreach ($sale->saleDetails as $detail) {
                 //$productName = wordwrap($detail->product_name, 20, "\n", true); // Dividir en líneas de 20 caracteres
-               if ($sale->serie == "001"){
-                   $printer->text(number_format($detail->quantity)."x ".mb_strtoupper($detail->product_name)." "."S/ ".number_format($detail->sale_price,2)."\n");
-               }else{
-                   $printer->text(number_format($detail->quantity)."x ".mb_strtoupper($detail->product_name)." "."S/ ".number_format($detail->sale_price,2)."      "."S/ ".number_format($detail->total,2)."\n");
-               }
+                if ($sale->serie == "001") {
+                    $printer->text(number_format($detail->quantity) . "x " . mb_strtoupper($detail->product_name) . " " . "S/ " . number_format($detail->sale_price, 2) . "\n");
+                } else {
+                    $printer->text(number_format($detail->quantity) . "x " . mb_strtoupper($detail->product_name) . " " . "S/ " . number_format($detail->sale_price, 2) . "      " . "S/ " . number_format($detail->total, 2) . "\n");
+                }
             }
-            $printer->setTextSize(1,1);
+            $printer->setTextSize(1, 1);
             $printer->setEmphasis(false);
             //$printer->text("------------------------------------------------"."\n");
 
@@ -317,13 +312,13 @@ class SaleController extends Controller
             $total = $sale->total_sale;
 
             $printer->setJustification(Printer::JUSTIFY_RIGHT);
-            $printer->text("------------"."\n");
-            $printer->text("TOTAL: S/ ".number_format($total,2)."\n");
+            $printer->text("------------" . "\n");
+            $printer->text("TOTAL: S/ " . number_format($total, 2) . "\n");
             $printer->text(" \n");
-            if (empty($sale->is_cash_payment_form)){
-                $printer->text("FORMA DE PAGO: ".($sale->pay_type == "EFECTIVO" ? 'EFECTIVO' : 'Descuento por planilla') ."\n");
-            }else{
-                $printer->text("FORMA DE PAGO: EFECTIVO / YAPE" ."\n");
+            if (empty($sale->is_cash_payment_form)) {
+                $printer->text("FORMA DE PAGO: " . ($sale->pay_type == "EFECTIVO" ? 'EFECTIVO' : 'Descuento por planilla') . "\n");
+            } else {
+                $printer->text("FORMA DE PAGO: EFECTIVO / YAPE" . "\n");
             }
 
 
@@ -332,9 +327,9 @@ class SaleController extends Controller
             $printer->pulse();
             $printer->close();
 
-            return response()->json(["message" => "Impresion OK"],Response::HTTP_OK);
-        }catch (\Throwable $t){
-            return response()->json(["message" => $t->getMessage()],Response::HTTP_BAD_REQUEST);
+            return response()->json(["message" => "Impresion OK"], Response::HTTP_OK);
+        } catch (\Throwable $t) {
+            return response()->json(["message" => $t->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -348,16 +343,16 @@ class SaleController extends Controller
              categories.name AS category_name,
              categories.color AS category_color
             ")
-            ->join("sale_details","sales.id","=","sale_details.sale_id")
-            ->join("products","sale_details.product_id","=","products.id")
-            ->join("categories","products.category_id","=","categories.id")
-            ->whereDate("sale_date",$now)
-            ->where("categories.name","!=","ALMUERZO")
-            ->groupBy("category_name","category_color")
-            ->orderBy("categories.id","ASC")
+            ->join("sale_details", "sales.id", "=", "sale_details.sale_id")
+            ->join("products", "sale_details.product_id", "=", "products.id")
+            ->join("categories", "products.category_id", "=", "categories.id")
+            ->whereDate("sale_date", $now)
+            ->where("categories.name", "!=", "ALMUERZO")
+            ->groupBy("category_name", "category_color")
+            ->orderBy("categories.id", "ASC")
             ->get();
 
-        return response()->json($salesQty,Response::HTTP_OK);
+        return response()->json($salesQty, Response::HTTP_OK);
     }
 
     public function totalsSaleProductsAlmuerzo(): JsonResponse
@@ -370,16 +365,16 @@ class SaleController extends Controller
              products.name AS product_name,
              categories.color AS category_color
             ")
-            ->join("sale_details","sales.id","=","sale_details.sale_id")
-            ->join("products","sale_details.product_id","=","products.id")
-            ->join("categories","products.category_id","=","categories.id")
-            ->whereDate("sale_date",$now)
-            ->where("categories.name","ALMUERZO")
-            ->groupBy("product_name","category_color")
-            ->orderBy("products.id","ASC")
+            ->join("sale_details", "sales.id", "=", "sale_details.sale_id")
+            ->join("products", "sale_details.product_id", "=", "products.id")
+            ->join("categories", "products.category_id", "=", "categories.id")
+            ->whereDate("sale_date", $now)
+            ->where("categories.name", "ALMUERZO")
+            ->groupBy("product_name", "category_color")
+            ->orderBy("products.id", "ASC")
             ->get();
 
-        return response()->json($salesQty,Response::HTTP_OK);
+        return response()->json($salesQty, Response::HTTP_OK);
     }
 
     /**
@@ -393,12 +388,12 @@ class SaleController extends Controller
 
         $response = [];
         if (in_array("payTypes", $resourceTypes)) {
-            $response["payTypes"] = ["CREDITO","EFECTIVO"];
+            $response["payTypes"] = ["CREDITO", "EFECTIVO"];
         }
         if (in_array("foodTypes", $resourceTypes)) {
             $response["foodTypes"] = Category::query()
-                ->whereIn("name",["DESAYUNO","ALMUERZO","CENA","LONCHE"])
-                ->orderBy("id","ASC")
+                ->whereIn("name", ["DESAYUNO", "ALMUERZO", "CENA", "LONCHE"])
+                ->orderBy("id", "ASC")
                 ->get();
         }
 

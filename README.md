@@ -1,66 +1,235 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Backend - LUCEMIR Huachipa
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API REST desarrollada en **Laravel 10** para la operación del sistema de alimentación de **Concesionario de Alimentos Lucemir - Huachipa**.
 
-## About Laravel
+## Objetivo del backend
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Este proyecto concentra la lógica de negocio para:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- autenticación de usuarios con **Laravel Sanctum**;
+- gestión de **trabajadores**;
+- gestión de **productos** y categorías;
+- registro de **ventas** y **ventas pasadas**;
+- aplicación de **subvenciones** parciales o completas;
+- generación de **tickets** de impresión;
+- exportación de reportes en **Excel** y **PDF**;
+- abastecimiento de datos para el **dashboard**.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Stack técnico
 
-## Learning Laravel
+- PHP `^8.1`
+- Laravel `^10.10`
+- Sanctum para autenticación por token
+- `maatwebsite/excel` para exportaciones
+- `barryvdh/laravel-dompdf` para PDF
+- `mike42/escpos-php` para impresión térmica
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Estructura relevante
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```text
+backend/
+├─ app/
+│  ├─ Exports/              # Reportes Excel
+│  ├─ Http/
+│  │  ├─ Controllers/       # Endpoints REST
+│  │  ├─ Middleware/        # Middleware, incluida la licencia
+│  │  ├─ Requests/          # Validaciones
+│  │  └─ Traits/            # Lógica compartida
+│  ├─ Imports/              # Importaciones de datos
+│  └─ Models/               # Entidades principales y catálogos
+├─ config/                  # Configuración Laravel + impresora + Excel + PDF
+├─ database/
+│  ├─ migrations/
+│  └─ seeders/
+├─ routes/
+│  ├─ api.php               # API principal
+│  └─ web.php               # Rutas utilitarias y fallback
+└─ tests/                   # Actualmente sólo pruebas base de ejemplo
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Módulos principales
 
-## Laravel Sponsors
+### Autenticación
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+- `POST /api/login`
+- `POST /api/logout`
 
-### Premium Partners
+La autenticación usa `auth:sanctum` y el frontend envía el token como `Bearer`.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+### Usuarios
 
-## Contributing
+- `GET /api/users`
+- `POST /api/users`
+- `GET /api/users/{id}`
+- `PUT/PATCH /api/users/{id}`
+- `DELETE /api/users/{id}`
+- `GET /api/users/getAllResources`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Trabajadores
 
-## Code of Conduct
+Controlados desde `WorkerController`.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Capacidades detectadas:
 
-## Security Vulnerabilities
+- CRUD completo
+- búsqueda sensible
+- exportación a Excel y PDF
+- catálogos auxiliares vía `getAllResources`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+El modelo `Worker` incluye relaciones con área, centro de costo, sede, planilla, documento, cargo, empresa y otros catálogos laborales. También soporta:
 
-## License
+- `allowed_meals` como arreglo;
+- foto con URL pública generada;
+- `SoftDeletes`.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Productos
+
+Controlados desde `ProductController`.
+
+Capacidades detectadas:
+
+- CRUD completo
+- filtros de productos
+- búsqueda exacta y sensible
+- soporte de generación/actualización de código de barras
+
+### Ventas
+
+Controladas desde `SaleController`.
+
+Capacidades detectadas:
+
+- listado y CRUD
+- registro de ventas normales
+- registro con subvención
+- generación de ticket
+- totales por categoría
+- totales de almuerzo
+- recursos auxiliares para formularios
+
+El modelo `Sale` está asociado a `Worker` y `SaleDetail`, y también usa `SoftDeletes`.
+
+### Ventas pasadas
+
+Controladas desde `PastSaleController`.
+
+Se usan para gestionar operaciones históricas, con soporte para:
+
+- listado;
+- registro;
+- subvención;
+- ticket;
+- eliminación.
+
+### Consumos y reportes
+
+Controlados desde `ConsumptionController`.
+
+Exportaciones detectadas:
+
+- consumo general;
+- subvención;
+- resumen por trabajador;
+- subvención por día.
+
+### Dashboard y perfil
+
+- `HomeController`: métricas y recursos del dashboard.
+- `ProfileController`: consulta y actualización del perfil del usuario.
+
+## Rutas especiales observadas
+
+En `routes/web.php` y `TestController` existen rutas operativas o utilitarias como:
+
+- `/optimize`
+- `/optimize-clear`
+- `/genera-link-storage`
+- `/api/pasarProductoAntiguos`
+- `/api/workers-listado`
+
+Estas rutas son útiles para soporte o migraciones puntuales, pero conviene **revisarlas antes de producción**.
+
+## Variables de entorno importantes
+
+El proyecto depende de `backend/.env`. Se creó una copia base desde `.env.example` porque el archivo no estaba presente.
+
+Variables clave detectadas:
+
+### Aplicación
+
+- `APP_NAME`
+- `APP_ENV`
+- `APP_KEY`
+- `APP_DEBUG`
+- `APP_URL`
+
+### Base de datos
+
+- `DB_CONNECTION`
+- `DB_HOST`
+- `DB_PORT`
+- `DB_DATABASE`
+- `DB_USERNAME`
+- `DB_PASSWORD`
+
+### Impresión de tickets
+
+- `PRINTER_NAME`
+- `PRINTER_COMPANY`
+- `PRINTER_COMPANY_PHONE`
+
+## Instalación y arranque
+
+### Requisitos
+
+- PHP 8.1 o superior
+- Composer
+- MySQL o MariaDB
+
+### Flujo recomendado
+
+1. Instalar dependencias de Composer.
+2. Revisar y completar `backend/.env`.
+3. Generar `APP_KEY`.
+4. Configurar base de datos.
+5. Ejecutar migraciones.
+6. Levantar Laravel en desarrollo.
+
+## Desarrollo frontend asociado
+
+El frontend consume esta API mediante Axios usando la variable `VITE_API_URL`, por lo que la URL del backend debe incluir el prefijo `/api` esperado por la SPA.
+
+## Estado actual observado
+
+### Fortalezas
+
+- estructura modular clara por dominio;
+- uso de Requests para validaciones;
+- soporte de exportaciones y ticketing;
+- modelo de trabajadores con relaciones ricas para contexto laboral.
+
+### Riesgos o puntos a revisar
+
+1. **Licencia vencida hardcodeada**: `app/Http/Middleware/LicenseMiddleware.php` contiene fecha fija `2024-04-30`, lo que hoy provoca estado expirado si el middleware se aplica.
+2. **Rutas utilitarias visibles**: hay endpoints de soporte y carga masiva que no deberían quedar abiertos sin control en producción.
+3. **Pruebas automatizadas escasas**: en `tests/` sólo se encontraron `ExampleTest.php` de base.
+4. **Datos masivos en rutas**: el endpoint `workers-listado` incluye datos inline que sería mejor mover a seeders o comandos.
+
+## Archivos útiles para orientarse rápido
+
+- `routes/api.php`
+- `app/Http/Controllers/AuthController.php`
+- `app/Http/Controllers/WorkerController.php`
+- `app/Http/Controllers/ProductController.php`
+- `app/Http/Controllers/SaleController.php`
+- `app/Http/Controllers/PastSaleController.php`
+- `app/Http/Controllers/ConsumptionController.php`
+- `app/Models/Worker.php`
+- `app/Models/Sale.php`
+
+## Recomendaciones siguientes
+
+- mover scripts y cargas masivas fuera de rutas públicas;
+- revisar la estrategia de licencia;
+- agregar pruebas para autenticación, ventas, subvenciones y reportes;
+- documentar ejemplos de requests/responses por módulo.
