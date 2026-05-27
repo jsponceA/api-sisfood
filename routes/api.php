@@ -589,6 +589,7 @@ Route::middleware(["auth:sanctum"])->group(function () {
     /* start routes workers*/
     Route::post("workers/generateExcel", [WorkerController::class, "generateExcel"]);
     Route::post("workers/generatePdf", [WorkerController::class, "generatePdf"]);
+    Route::post("workers/identifyFace", [WorkerController::class, "identifyFace"]);
     Route::post("workers/identifyFingerprint", [WorkerController::class, "identifyFingerprint"]);
     Route::get("workers/searchSensitive", [WorkerController::class, "searchSensitive"]);
     Route::get("workers/getAllResources", [WorkerController::class, "getAllResources"]);

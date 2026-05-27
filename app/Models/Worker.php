@@ -135,4 +135,9 @@ class Worker extends Model
     {
         return $this->hasMany(WorkerFingerprint::class)->orderByDesc("id");
     }
+
+    public function faces(): HasMany
+    {
+        return $this->hasMany(WorkerFaceProfile::class)->orderByDesc("id");
+    }
 }

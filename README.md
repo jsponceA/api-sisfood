@@ -178,6 +178,17 @@ Variables clave detectadas:
 - `PRINTER_COMPANY`
 - `PRINTER_COMPANY_PHONE`
 
+### Biometría local
+
+- `BIOMETRIC_SERVICE_URL`
+- `BIOMETRIC_SERVICE_TIMEOUT`
+- `BIOMETRIC_MATCH_SCORE_THRESHOLD`
+- `FACE_SERVICE_URL`
+- `FACE_SERVICE_TIMEOUT`
+- `FACE_MATCH_SCORE_THRESHOLD`
+- `FACE_MATCH_SCORE_GAP_THRESHOLD`
+- `FACE_MATCH_SUPPORT_SCORE_THRESHOLD`
+
 ## Instalación y arranque
 
 ### Requisitos
@@ -194,6 +205,78 @@ Variables clave detectadas:
 4. Configurar base de datos.
 5. Ejecutar migraciones.
 6. Levantar Laravel en desarrollo.
+
+## Biometría local: comandos útiles
+
+Cuando el servicio local de huellas o rostros ya está levantado, puedes precalentar plantillas para evitar que la primera búsqueda sea más lenta.
+
+### Huellas
+
+```text
+php artisan biometric:warm-templates
+```
+
+### Rostros
+
+```text
+php artisan face:warm-templates
+```
+
+## Cómo dejar listo el flujo facial completo
+
+### 1. Ejecutar la migración nueva
+
+```text
+php artisan migrate
+```
+
+Eso crea la tabla `worker_face_profiles` si todavía no existe.
+
+### 2. Verificar variables de entorno
+
+En `backend/.env` revisa que existan valores como estos:
+
+```env
+FACE_SERVICE_URL=http://127.0.0.1:8876
+FACE_SERVICE_TIMEOUT=20
+FACE_MATCH_SCORE_THRESHOLD=76
+FACE_MATCH_SCORE_GAP_THRESHOLD=4
+FACE_MATCH_SUPPORT_SCORE_THRESHOLD=68
+```
+
+### 3. Levantar el servicio facial local
+
+Puedes hacerlo manualmente desde `face-service/` o con `face-service/install_autostart_windows.bat` para dejarlo automático en Windows.
+
+### 4. Registrar un trabajador con rostro
+
+- entra a Crear o Editar trabajador;
+- usa el bloque de registro facial;
+- captura las 3 tomas guiadas;
+- guarda el trabajador.
+
+### 5. Precalentar plantillas faciales
+
+```text
+php artisan face:warm-templates
+```
+
+### 6. Probar reconocimiento en ventas
+
+- abre la vista de ventas;
+- deja activa la cámara facial;
+- captura el rostro del trabajador;
+- verifica que el sistema complete el trabajador correcto y continúe con la venta.
+
+### 7. Si algo falla
+
+Revisa estos puntos primero:
+
+- `http://127.0.0.1:8876/health` responde correctamente;
+- la tabla `worker_face_profiles` existe;
+- el trabajador tiene capturas faciales guardadas;
+- `storage/` está enlazado y accesible para las imágenes faciales;
+- no hay errores recientes en `storage/logs/laravel.log` ni en `face-service/logs/service.err.log`.
 
 ## Desarrollo frontend asociado
 
