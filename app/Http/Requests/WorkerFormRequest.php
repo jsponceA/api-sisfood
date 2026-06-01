@@ -24,14 +24,6 @@ class WorkerFormRequest extends FormRequest
                 'fingerprints' => is_array($fingerprints) ? $fingerprints : [],
             ]);
         }
-
-        if ($this->has('faces') && is_string($this->input('faces'))) {
-            $faces = json_decode($this->input('faces'), true);
-
-            $this->merge([
-                'faces' => is_array($faces) ? $faces : [],
-            ]);
-        }
     }
 
     public function rules(): array
@@ -85,40 +77,15 @@ class WorkerFormRequest extends FormRequest
             'fingerprints.*.capture_metadata' => ['nullable', 'array'],
         ];
 
-        $faceRules = [
-            'faces' => [
-                'nullable',
-                'array',
-                'max:5',
-                function (string $attribute, mixed $value, \Closure $fail) {
-                    foreach (($value ?? []) as $index => $face) {
-                        if (!is_array($face)) {
-                            $fail("La captura facial #" . ($index + 1) . " no tiene un formato válido.");
-                            return;
-                        }
-
-                        if (blank($face['id'] ?? null) && blank($face['image_data'] ?? null)) {
-                            $fail("La captura facial #" . ($index + 1) . " debe contener una imagen.");
-                            return;
-                        }
-                    }
-                },
-            ],
-            'faces.*.id' => ['nullable', 'integer'],
-            'faces.*.face_label' => ['nullable', 'string', 'max:100'],
-            'faces.*.image_data' => ['nullable', 'string'],
-            'faces.*.capture_metadata' => ['nullable', 'array'],
-        ];
-
         switch ($this->getMethod()) {
             case "POST":
                 return array_merge($workerRules, [
                     'numdoc' => ['required', 'max:20', Rule::unique('workers', 'numdoc')->whereNull('deleted_at')],
-                ], $fingerprintRules, $faceRules);
+                ], $fingerprintRules);
             case "PUT":
                 return array_merge($workerRules, [
                     'numdoc' => ['required', 'max:20', Rule::unique('workers', 'numdoc')->ignore($this->route()->parameter('worker'))->whereNull('deleted_at')],
-                ], $fingerprintRules, $faceRules);
+                ], $fingerprintRules);
             default:
                 return [];
         }
@@ -170,9 +137,6 @@ class WorkerFormRequest extends FormRequest
             'fingerprints.*.image_data' => 'imagen de huella',
             'fingerprints.*.device_uid' => 'lector de huella',
             'fingerprints.*.quality' => 'calidad de huella',
-            'faces' => 'capturas faciales',
-            'faces.*.face_label' => 'etiqueta facial',
-            'faces.*.image_data' => 'imagen facial',
         ];
     }
 }

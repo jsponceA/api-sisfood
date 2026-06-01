@@ -31,18 +31,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
-    'biometric' => [
-        'url' => env('BIOMETRIC_SERVICE_URL', 'http://127.0.0.1:8765'),
-        'timeout' => (int) env('BIOMETRIC_SERVICE_TIMEOUT', 120),
-        'score_threshold' => (float) env('BIOMETRIC_MATCH_SCORE_THRESHOLD', 30),
-    ],
-
-    'face' => [
-        'url' => env('FACE_SERVICE_URL', 'http://127.0.0.1:8876'),
-        'timeout' => (int) env('FACE_SERVICE_TIMEOUT', 20),
-        'score_threshold' => (float) env('FACE_MATCH_SCORE_THRESHOLD', 76),
-        'score_gap_threshold' => (float) env('FACE_MATCH_SCORE_GAP_THRESHOLD', 4),
-        'support_score_threshold' => (float) env('FACE_MATCH_SUPPORT_SCORE_THRESHOLD', 68),
+    'biometric_bridge' => [
+        'url' => env('BIOMETRIC_BRIDGE_URL', 'http://127.0.0.1:5107'),
+        'token' => env('BIOMETRIC_BRIDGE_TOKEN', 'change-this-token'),
+        'timeout' => (int) env('BIOMETRIC_BRIDGE_TIMEOUT', 5),
     ],
 
 ];

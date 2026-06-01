@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConsumptionController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Internal\BiometricBridgeController;
 use App\Http\Controllers\PastSaleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -566,6 +567,13 @@ Route::get("/health-check", fn() => response()->json(["status" => "OK"], Respons
 
 Route::get("/pasarProductoAntiguos", [TestController::class, "pasarProductoAntiguos"]);
 
+Route::prefix("internal/biometric-bridge")->group(function () {
+    Route::get("sales/{saleId}/ticket", [BiometricBridgeController::class, "saleTicket"]);
+    Route::get("past-sales/{saleId}/ticket", [BiometricBridgeController::class, "pastSaleTicket"]);
+    Route::get("fingerprints", [BiometricBridgeController::class, "fingerprints"]);
+    Route::post("templates", [BiometricBridgeController::class, "templates"]);
+});
+
 
 
 
@@ -589,8 +597,6 @@ Route::middleware(["auth:sanctum"])->group(function () {
     /* start routes workers*/
     Route::post("workers/generateExcel", [WorkerController::class, "generateExcel"]);
     Route::post("workers/generatePdf", [WorkerController::class, "generatePdf"]);
-    Route::post("workers/identifyFace", [WorkerController::class, "identifyFace"]);
-    Route::post("workers/identifyFingerprint", [WorkerController::class, "identifyFingerprint"]);
     Route::get("workers/searchSensitive", [WorkerController::class, "searchSensitive"]);
     Route::get("workers/getAllResources", [WorkerController::class, "getAllResources"]);
     Route::apiResource("workers", WorkerController::class);

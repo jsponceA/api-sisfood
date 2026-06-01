@@ -20,10 +20,18 @@ class WorkerFingerprint extends Model
         "device_uid",
         "quality",
         "capture_metadata",
+        "template_data",
+        "template_engine",
+        "template_version",
+        "template_hash",
+        "template_created_at",
+        "is_active",
     ];
 
     protected $casts = [
         "capture_metadata" => "array",
+        "template_created_at" => "datetime",
+        "is_active" => "boolean",
     ];
 
     public function worker(): BelongsTo
