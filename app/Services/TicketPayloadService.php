@@ -12,6 +12,12 @@ class TicketPayloadService
         $company = trim((string) config('printerticket.company'));
         $companyPhone = trim((string) config('printerticket.company_phone'));
         $worker = $sale->worker;
+        $workerArea = !empty($worker?->area?->name)
+            ? mb_strtoupper(trim((string) $worker->area->name))
+            : 'SIN AREA';
+        $workerNumdoc = !empty($worker?->numdoc)
+            ? trim((string) $worker->numdoc)
+            : '-';
         $comensal = !empty($worker?->names)
             ? mb_strtoupper(trim($worker->names . ' ' . $worker->surnames))
             : 'PUBLICO GENERAL';
@@ -24,6 +30,8 @@ class TicketPayloadService
             'ticket_number' => $sale->serie . '-' . Str::padLeft($sale->num_document, 7, '0'),
             'sale_date' => now()->parse($sale->sale_date)->toIso8601String(),
             'cashier' => mb_strtoupper(trim($cashierName ?: 'SISTEMA LOCAL')),
+            'worker_area' => $workerArea,
+            'worker_numdoc' => $workerNumdoc,
             'diner_name' => $comensal,
             'payment_label' => $this->resolvePaymentLabel($sale),
             'total' => (float) $sale->total_sale,
