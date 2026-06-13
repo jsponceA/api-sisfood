@@ -67,15 +67,12 @@ class WorkerBasicImport implements ToCollection
                 "numdoc" => $numdoc,
                 "cost_center_id" => $costCenter?->id,
                 "worker_type_id" => $workerType?->id,
-                "grant" => $grant,
+                "grant" => 0,
+                "grant_complete" => $grant,
             ]);
 
             if (empty($worker->allowed_meals)) {
                 $worker->allowed_meals = ["1", "2", "3"];
-            }
-
-            if ($worker->grant_complete === null) {
-                $worker->grant_complete = 0;
             }
 
             if ($worker->terminated_worker === null) {
