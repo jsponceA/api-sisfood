@@ -181,6 +181,7 @@ class WorkerController extends Controller
 
         $workers = Worker::query()
             ->where("numdoc", $search)
+            ->orWhere("personal_code", $search)
             ->orWhere("names", $search)
             ->orWhere("surnames", $search)
             ->orderByDesc("id")

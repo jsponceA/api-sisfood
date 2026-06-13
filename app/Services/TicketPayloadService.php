@@ -14,7 +14,10 @@ class TicketPayloadService
         $worker = $sale->worker;
         $workerArea = !empty($worker?->area?->name)
             ? mb_strtoupper(trim((string) $worker->area->name))
-            : 'SIN AREA';
+            : null;
+        $workerCostCenter = !empty($worker?->costCenter?->name)
+            ? mb_strtoupper(trim((string) $worker->costCenter->name))
+            : null;
         $workerNumdoc = !empty($worker?->numdoc)
             ? trim((string) $worker->numdoc)
             : '-';
@@ -31,6 +34,7 @@ class TicketPayloadService
             'sale_date' => now()->parse($sale->sale_date)->toIso8601String(),
             'cashier' => mb_strtoupper(trim($cashierName ?: 'SISTEMA LOCAL')),
             'worker_area' => $workerArea,
+            'worker_cost_center' => $workerCostCenter,
             'worker_numdoc' => $workerNumdoc,
             'diner_name' => $comensal,
             'payment_label' => $this->resolvePaymentLabel($sale),

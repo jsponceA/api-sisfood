@@ -3,13 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\Branch;
+use App\Models\Category;
 use App\Models\License;
 use App\Models\Product;
 use App\Models\Role;
-use App\Models\Sale;
-use App\Models\SaleDetail;
 use App\Models\User;
-use App\Models\Worker;
 use Illuminate\Database\Seeder;
 
 class DemoDataSeeder extends Seeder
@@ -43,69 +41,89 @@ class DemoDataSeeder extends Seeder
         );
 
         $targetUsers = 10;
-        $targetWorkers = 80;
-        $targetProducts = 36;
-        $targetSales = 60;
 
         $pendingUsers = max(0, $targetUsers - User::query()->count());
-        $pendingWorkers = max(0, $targetWorkers - Worker::query()->count());
-        $pendingProducts = max(0, $targetProducts - Product::query()->count());
-        $pendingSales = max(0, $targetSales - Sale::query()->count());
 
         if ($pendingUsers > 0) {
             User::factory()->count($pendingUsers)->create();
         }
 
-        if ($pendingWorkers > 0) {
-            Worker::factory()->count($pendingWorkers)->create();
-        }
+        $this->seedProducts();
+    }
 
-        if ($pendingProducts > 0) {
-            Product::factory()->count($pendingProducts)->create();
-        }
+    private function seedProducts(): void
+    {
+        $products = [
+            [
+                'name' => 'ALMUERZO ESPECIAL',
+                'category' => 'EXTRAS',
+                'barcode' => '5130626',
+                'purchase_price' => 0,
+                'sale_price' => 0,
+                'worker_price' => 0,
+                'igv_price' => 0,
+                'company_price' => 11.50,
+            ],
+            [
+                'name' => 'CENA SOBRETIEMPO',
+                'category' => 'CENA',
+                'barcode' => '4130626',
+                'purchase_price' => 0,
+                'sale_price' => 0,
+                'worker_price' => 0,
+                'igv_price' => 0,
+                'company_price' => 6.50,
+            ],
+            [
+                'name' => 'ALMUERZO SOBRETIEMPO',
+                'category' => 'EXTRAS',
+                'barcode' => '3130626',
+                'purchase_price' => 0,
+                'sale_price' => 0,
+                'worker_price' => 0,
+                'igv_price' => 0,
+                'company_price' => 6.50,
+            ],
+            [
+                'name' => 'VASO DE LECHE',
+                'category' => 'DESAYUNO',
+                'barcode' => '2130626',
+                'purchase_price' => 0,
+                'sale_price' => 0,
+                'worker_price' => 0,
+                'igv_price' => 0,
+                'company_price' => 1.50,
+            ],
+            [
+                'name' => 'MENU',
+                'category' => 'ALMUERZO',
+                'barcode' => '1130626',
+                'purchase_price' => 0,
+                'sale_price' => 2.92,
+                'worker_price' => 2.92,
+                'igv_price' => 0,
+                'company_price' => 3.58,
+            ],
+        ];
 
-        if ($pendingSales > 0) {
-            Sale::factory()->count($pendingSales)->create()->each(function (Sale $sale) {
-                $worker = $sale->worker;
-                $products = Product::query()->inRandomOrder()->limit(fake()->numberBetween(1, 4))->get();
-                $subtotal = 0;
+        foreach ($products as $product) {
+            $categoryId = Category::query()->where('name', $product['category'])->value('id');
 
-                foreach ($products as $product) {
-                    $quantity = fake()->randomFloat(2, 1, 3);
-                    $salePrice = (float) ($product->worker_price ?: $product->sale_price ?: 0);
-                    $lineTotal = round($quantity * $salePrice, 2);
-
-                    SaleDetail::factory()->create([
-                        'sale_id' => $sale->id,
-                        'product_id' => $product->id,
-                        'product_name' => $product->name,
-                        'quantity' => $quantity,
-                        'sale_price' => $salePrice,
-                        'total' => $lineTotal,
-                    ]);
-
-                    $subtotal += $lineTotal;
-                }
-
-                $discount = 0;
-                $dealInForm = 'SIN SUBVENCION';
-
-                if ($worker?->grant_complete) {
-                    $discount = round($subtotal * 0.7, 2);
-                    $dealInForm = 'SUBVENCION COMPLETA';
-                } elseif ($worker?->grant) {
-                    $discount = round($subtotal * 0.35, 2);
-                    $dealInForm = 'SUBVENCION PARCIAL';
-                }
-
-                $sale->update([
-                    'deal_in_form' => $dealInForm,
-                    'total_dsct_form' => $discount,
-                    'total_pay_company' => $discount,
-                    'total_igv' => round($subtotal * 0.18, 2),
-                    'total_sale' => round(max($subtotal - $discount, 0), 2),
-                ]);
-            });
+            Product::query()->updateOrCreate(
+                ['barcode' => $product['barcode']],
+                [
+                    'name' => $product['name'],
+                    'category_id' => $categoryId,
+                    'purchase_price' => $product['purchase_price'],
+                    'sale_price' => $product['sale_price'],
+                    'worker_price' => $product['worker_price'],
+                    'igv_price' => $product['igv_price'],
+                    'company_price' => $product['company_price'],
+                    'handle_stock' => 0,
+                    'current_stock' => null,
+                    'expiration_date' => null,
+                ]
+            );
         }
     }
 }

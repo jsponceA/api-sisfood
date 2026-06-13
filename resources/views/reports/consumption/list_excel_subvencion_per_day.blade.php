@@ -9,7 +9,7 @@
     <thead>
     <!-- PRIMERA FILA: Títulos principales -->
     <tr>
-        <th colspan="4" style="font-weight: bold;text-align: center;border: 1px solid black;">DATOS TRABAJADOR</th>
+        <th colspan="6" style="font-weight: bold;text-align: center;border: 1px solid black;">DATOS TRABAJADOR</th>
         @foreach($periodo as $p)
             <th colspan="4" style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">{{$p->format('d/m/Y')}}</th>
         @endforeach
@@ -20,7 +20,7 @@
 
     <!-- SEGUNDA FILA: ALMUERZO y CENA -->
     <tr>
-        <th colspan="4" style="border: 1px solid black;"></th>
+        <th colspan="6" style="border: 1px solid black;"></th>
         @foreach($periodo as $p)
             <th colspan="2" style="font-weight: bold;text-align: center;border: 1px solid black;">ALMUERZO</th>
             <th colspan="2" style="font-weight: bold;text-align: center;border: 1px solid black;">CENA</th>
@@ -35,6 +35,8 @@
         <th style="font-weight: bold;text-align: center;border: 1px solid black;">DNI</th>
         <th style="font-weight: bold;text-align: center;border: 1px solid black;">APELLIDOS Y NOMBRES</th>
         <th style="font-weight: bold;text-align: center;border: 1px solid black;">AREA</th>
+        <th style="font-weight: bold;text-align: center;border: 1px solid black;">TIPO TRABAJADOR</th>
+        <th style="font-weight: bold;text-align: center;border: 1px solid black;">CENTRO DE COSTO</th>
         @foreach($periodo as $p)
             <th style="font-weight: bold;text-align: center;border: 1px solid black;">SUBVENCION</th>
             <th style="font-weight: bold;text-align: center;border: 1px solid black;">DESCUENTO</th>
@@ -72,6 +74,8 @@
             <td style="text-align: center;border: 1px solid black">{{$w->numdoc.''}}</td>
             <td style="text-align: center;border: 1px solid black">{{$w->fullName}}</td>
             <td style="text-align: center;border: 1px solid black">{{$w->area?->name}}</td>
+            <td style="text-align: center;border: 1px solid black">{{$w->workerType?->name}}</td>
+            <td style="text-align: center;border: 1px solid black">{{$w->costCenter?->name}}</td>
 
             @foreach($periodo as $p)
                 @php

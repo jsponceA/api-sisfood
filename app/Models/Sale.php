@@ -29,7 +29,7 @@ class Sale extends Model
 
     public function worker(): BelongsTo
     {
-        return $this->belongsTo(Worker::class)->with(["area", "payrollArea", "typeForm"])->withDefault();
+        return $this->belongsTo(Worker::class)->with(["area", "costCenter", "workerType", "payrollArea", "typeForm"])->withDefault();
     }
     public function saleDetails(): HasMany
     {

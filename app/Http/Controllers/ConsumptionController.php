@@ -9,7 +9,9 @@ use App\Exports\WorkerSummaryExport;
 use App\Http\Traits\ConsumptionTrait;
 use App\Models\Area;
 use App\Models\Category;
+use App\Models\CostCenter;
 use App\Models\TypeForm;
+use App\Models\WorkerType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -74,6 +76,12 @@ class ConsumptionController extends Controller
         }
         if (in_array("areas", $resourceTypes)) {
             $response["areas"] = Area::query()->orderByDesc("id")->get();
+        }
+        if (in_array("costCenters", $resourceTypes)) {
+            $response["costCenters"] = CostCenter::query()->orderByDesc("id")->get();
+        }
+        if (in_array("workerTypes", $resourceTypes)) {
+            $response["workerTypes"] = WorkerType::query()->orderByDesc("id")->get();
         }
         if (in_array("typeDiscounts", $resourceTypes)) {
             $response["typeDiscounts"] = ["SUBVENCION","DESCUENTO_PLANILLA","NO_DESCONTAR"];

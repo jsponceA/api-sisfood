@@ -81,6 +81,11 @@ class Worker extends Model
         return $this->belongsTo(TypeForm::class)->withDefault();
     }
 
+    public function workerType(): BelongsTo
+    {
+        return $this->belongsTo(WorkerType::class)->withDefault();
+    }
+
     public function costCenter(): BelongsTo
     {
         return $this->belongsTo(CostCenter::class)->withDefault();

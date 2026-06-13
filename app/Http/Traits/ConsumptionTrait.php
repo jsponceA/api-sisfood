@@ -18,12 +18,14 @@ trait ConsumptionTrait
         $categoryId = $request->input("categoryId");
         $typeFormId = $request->input("typeFormId");
         $areaId = $request->input("areaId");
+        $workerTypeId = $request->input("workerTypeId");
+        $costCenterId = $request->input("costCenterId");
         $typeDiscount = $request->input("typeDiscount");
 
 
         $sales = SaleDetail::query()
             ->with(["sale", "product"])
-            ->whereHas("sale.worker", function ($query) use ($search, $typeFormId, $areaId) {
+            ->whereHas("sale.worker", function ($query) use ($search, $typeFormId, $areaId, $workerTypeId, $costCenterId) {
                 $query
                     ->when(!empty($typeFormId), function ($query) use ($typeFormId) {
                         $query
@@ -33,13 +35,22 @@ trait ConsumptionTrait
                         $query
                             ->where("area_id", $areaId);
                     })
+                    ->when(!empty($workerTypeId), function ($query) use ($workerTypeId) {
+                        $query
+                            ->where("worker_type_id", $workerTypeId);
+                    })
+                    ->when(!empty($costCenterId), function ($query) use ($costCenterId) {
+                        $query
+                            ->where("cost_center_id", $costCenterId);
+                    })
                     ->when(!empty($search), function ($query) use ($search) {
                         $query
                             ->where(function ($query) use ($search){
                                 $query
                                     ->where("names", "LIKE", "%{$search}%")
                                     ->orWhere("surnames", "LIKE", "%{$search}%")
-                                    ->orWhere("numdoc", "LIKE", "%{$search}%");
+                                    ->orWhere("numdoc", "LIKE", "%{$search}%")
+                                    ->orWhere("personal_code", "LIKE", "%{$search}%");
                             });
                     });
             })
@@ -73,6 +84,8 @@ trait ConsumptionTrait
         $categoryId = $request->input("categoryId");
         $typeFormId = $request->input("typeFormId");
         $areaId = $request->input("areaId");
+        $workerTypeId = $request->input("workerTypeId");
+        $costCenterId = $request->input("costCenterId");
         $typeDiscount = $request->input("typeDiscount");
 
 
@@ -87,7 +100,7 @@ trait ConsumptionTrait
             ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
                 $query->whereDate("sale_date", "<=", $dateEndConsumption);
             })
-            ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId) {
+            ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId, $workerTypeId, $costCenterId) {
                 $query
                     ->when(!empty($typeFormId), function ($query) use ($typeFormId) {
                         $query
@@ -97,13 +110,22 @@ trait ConsumptionTrait
                         $query
                             ->where("area_id", $areaId);
                     })
+                    ->when(!empty($workerTypeId), function ($query) use ($workerTypeId) {
+                        $query
+                            ->where("worker_type_id", $workerTypeId);
+                    })
+                    ->when(!empty($costCenterId), function ($query) use ($costCenterId) {
+                        $query
+                            ->where("cost_center_id", $costCenterId);
+                    })
                     ->when(!empty($search), function ($query) use ($search) {
                         $query
                             ->where(function ($query) use ($search){
                                 $query
                                     ->where("names", "LIKE", "%{$search}%")
                                     ->orWhere("surnames", "LIKE", "%{$search}%")
-                                    ->orWhere("numdoc", "LIKE", "%{$search}%");
+                                    ->orWhere("numdoc", "LIKE", "%{$search}%")
+                                    ->orWhere("personal_code", "LIKE", "%{$search}%");
                             });
                     });
             })
@@ -126,10 +148,15 @@ trait ConsumptionTrait
         $categoryId = $request->input("categoryId");
         $typeFormId = $request->input("typeFormId");
         $areaId = $request->input("areaId");
+        $workerTypeId = $request->input("workerTypeId");
+        $costCenterId = $request->input("costCenterId");
         $typeDiscount = $request->input("typeDiscount");
 
         $workers = Worker::query()
             ->with([
+                'area',
+                'costCenter',
+                'workerType',
                 'sales' => function ($query) use ($dateStartConsumption, $dateEndConsumption, $typeDiscount, $categoryId) {
                     $query
                         ->with(['saleDetails.product'])
@@ -159,12 +186,19 @@ trait ConsumptionTrait
             ->when(!empty($areaId), function ($query) use ($areaId) {
                 $query->where("area_id", $areaId);
             })
+            ->when(!empty($workerTypeId), function ($query) use ($workerTypeId) {
+                $query->where("worker_type_id", $workerTypeId);
+            })
+            ->when(!empty($costCenterId), function ($query) use ($costCenterId) {
+                $query->where("cost_center_id", $costCenterId);
+            })
             ->when(!empty($search), function ($query) use ($search) {
                 $query->where(function ($query) use ($search){
                     $query
                         ->where("names", "LIKE", "%{$search}%")
                         ->orWhere("surnames", "LIKE", "%{$search}%")
-                        ->orWhere("numdoc", "LIKE", "%{$search}%");
+                        ->orWhere("numdoc", "LIKE", "%{$search}%")
+                        ->orWhere("personal_code", "LIKE", "%{$search}%");
                 });
             })
             ->orderBy("surnames","ASC")
@@ -182,6 +216,8 @@ trait ConsumptionTrait
         $categoryId = $request->input("categoryId");
         $typeFormId = $request->input("typeFormId");
         $areaId = $request->input("areaId");
+        $workerTypeId = $request->input("workerTypeId");
+        $costCenterId = $request->input("costCenterId");
         $typeDiscount = $request->input("typeDiscount");
 
 
@@ -196,7 +232,7 @@ trait ConsumptionTrait
             ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
                 $query->whereDate("sale_date", "<=", $dateEndConsumption);
             })
-            ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId) {
+            ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId, $workerTypeId, $costCenterId) {
                 $query
                     ->when(!empty($typeFormId), function ($query) use ($typeFormId) {
                         $query
@@ -206,13 +242,22 @@ trait ConsumptionTrait
                         $query
                             ->where("area_id", $areaId);
                     })
+                    ->when(!empty($workerTypeId), function ($query) use ($workerTypeId) {
+                        $query
+                            ->where("worker_type_id", $workerTypeId);
+                    })
+                    ->when(!empty($costCenterId), function ($query) use ($costCenterId) {
+                        $query
+                            ->where("cost_center_id", $costCenterId);
+                    })
                     ->when(!empty($search), function ($query) use ($search) {
                         $query
                             ->where(function ($query) use ($search){
                                 $query
                                     ->where("names", "LIKE", "%{$search}%")
                                     ->orWhere("surnames", "LIKE", "%{$search}%")
-                                    ->orWhere("numdoc", "LIKE", "%{$search}%");
+                                    ->orWhere("numdoc", "LIKE", "%{$search}%")
+                                    ->orWhere("personal_code", "LIKE", "%{$search}%");
                             });
                     });
             })
@@ -234,6 +279,8 @@ trait ConsumptionTrait
         $categoryId = $request->input("categoryId");
         $typeFormId = $request->input("typeFormId");
         $areaId = $request->input("areaId");
+        $workerTypeId = $request->input("workerTypeId");
+        $costCenterId = $request->input("costCenterId");
         $typeDiscount = $request->input("typeDiscount");
 
 
@@ -304,7 +351,7 @@ trait ConsumptionTrait
             ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
                 $query->whereDate("sale_date", "<=", $dateEndConsumption);
             })
-            ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId) {
+            ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId, $workerTypeId, $costCenterId) {
                 $query
                     ->when(!empty($typeFormId), function ($query) use ($typeFormId) {
                         $query
@@ -314,13 +361,22 @@ trait ConsumptionTrait
                         $query
                             ->where("area_id", $areaId);
                     })
+                    ->when(!empty($workerTypeId), function ($query) use ($workerTypeId) {
+                        $query
+                            ->where("worker_type_id", $workerTypeId);
+                    })
+                    ->when(!empty($costCenterId), function ($query) use ($costCenterId) {
+                        $query
+                            ->where("cost_center_id", $costCenterId);
+                    })
                     ->when(!empty($search), function ($query) use ($search) {
                         $query
                             ->where(function ($query) use ($search){
                                 $query
                                     ->where("names", "LIKE", "%{$search}%")
                                     ->orWhere("surnames", "LIKE", "%{$search}%")
-                                    ->orWhere("numdoc", "LIKE", "%{$search}%");
+                                    ->orWhere("numdoc", "LIKE", "%{$search}%")
+                                    ->orWhere("personal_code", "LIKE", "%{$search}%");
                             });
                     });
             })
