@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Exports\WorkerExport;
+use App\Exports\WorkerImportTemplateExport;
 use App\Http\Requests\WorkerFormRequest;
 use App\Http\Traits\WorkerTrait;
+use App\Imports\WorkerBasicImport;
 use App\Models\Area;
 use App\Models\Business;
 use App\Models\Campus;
@@ -146,6 +148,31 @@ class WorkerController extends Controller
     public function generateExcel(Request $request)
     {
         return Excel::download(new WorkerExport($request), 'reporte_trabajadores.xlsx');
+    }
+
+    public function importTemplate()
+    {
+        return Excel::download(new WorkerImportTemplateExport(), 'plantilla_importacion_trabajadores.xlsx');
+    }
+
+    public function importExcel(Request $request): JsonResponse
+    {
+        $request->validate([
+            "file" => ["required", "file", "mimes:xlsx,xls,csv,txt"],
+        ]);
+
+        $import = new WorkerBasicImport();
+
+        DB::transaction(function () use ($request, $import) {
+            Excel::import($import, $request->file("file"));
+        });
+
+        $this->scheduleBiometricBridgeReload();
+
+        return response()->json([
+            "message" => "Importación de trabajadores finalizada.",
+            "summary" => $import->getSummary(),
+        ], Response::HTTP_OK);
     }
 
     public function searchSensitive(Request $request)
