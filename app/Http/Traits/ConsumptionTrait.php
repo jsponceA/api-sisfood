@@ -159,7 +159,7 @@ trait ConsumptionTrait
                 'workerType',
                 'sales' => function ($query) use ($dateStartConsumption, $dateEndConsumption, $typeDiscount, $categoryId) {
                     $query
-                        ->with(['saleDetails.product'])
+                        ->with(['saleDetails.product.category'])
                         ->where('serie', '001')
                         ->where('deal_in_form', 'SUBVENCION')
                         ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
