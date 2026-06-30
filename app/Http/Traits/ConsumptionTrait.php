@@ -12,7 +12,7 @@ trait ConsumptionTrait
 {
     public function queryList(Request $request)
     {
-        $search = trim($request->input("search"));
+        $search = trim($request->input("search") ?? "");
         $dateStartConsumption = $request->input("dateStartConsumption");
         $dateEndConsumption = $request->input("dateEndConsumption");
         $categoryId = $request->input("categoryId");
@@ -78,7 +78,7 @@ trait ConsumptionTrait
 
     public function queryListSubvencion(Request $request)
     {
-        $search = trim($request->input("search"));
+        $search = trim($request->input("search") ?? "");
         $dateStartConsumption = $request->input("dateStartConsumption");
         $dateEndConsumption = $request->input("dateEndConsumption");
         $categoryId = $request->input("categoryId");
@@ -142,7 +142,7 @@ trait ConsumptionTrait
 
     public function queryListSubvencionPerDay(Request $request)
     {
-        $search = trim($request->input("search"));
+        $search = trim($request->input("search") ?? "");
         $dateStartConsumption = $request->input("dateStartConsumption");
         $dateEndConsumption = $request->input("dateEndConsumption");
         $categoryId = $request->input("categoryId");
@@ -210,7 +210,7 @@ trait ConsumptionTrait
 
     public function queryListConsumption(Request $request)
     {
-        $search = trim($request->input("search"));
+        $search = trim($request->input("search") ?? "");
         $dateStartConsumption = $request->input("dateStartConsumption");
         $dateEndConsumption = $request->input("dateEndConsumption");
         $categoryId = $request->input("categoryId");
@@ -273,7 +273,7 @@ trait ConsumptionTrait
 
     public function queryListWorkerSummany(Request $request)
     {
-        $search = trim($request->input("search"));
+        $search = trim($request->input("search") ?? "");
         $dateStartConsumption = $request->input("dateStartConsumption");
         $dateEndConsumption = $request->input("dateEndConsumption");
         $categoryId = $request->input("categoryId");

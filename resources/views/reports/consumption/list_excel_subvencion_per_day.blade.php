@@ -9,7 +9,7 @@
     <thead>
     <!-- PRIMERA FILA: Títulos principales -->
     <tr>
-        <th colspan="6" style="font-weight: bold;text-align: center;border: 1px solid black;">DATOS TRABAJADOR</th>
+        <th colspan="7" style="font-weight: bold;text-align: center;border: 1px solid black;">DATOS TRABAJADOR</th>
         @foreach($periodo as $p)
             <th colspan="6" style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">{{$p->format('d/m/Y')}}</th>
         @endforeach
@@ -21,7 +21,7 @@
 
     <!-- SEGUNDA FILA: DESAYUNO, ALMUERZO y CENA -->
     <tr>
-        <th colspan="6" style="border: 1px solid black;"></th>
+        <th colspan="7" style="border: 1px solid black;"></th>
         @foreach($periodo as $p)
             <th colspan="2" style="font-weight: bold;text-align: center;border: 1px solid black;">DESAYUNO</th>
             <th colspan="2" style="font-weight: bold;text-align: center;border: 1px solid black;">ALMUERZO</th>
@@ -36,6 +36,7 @@
     <tr>
         <th style="font-weight: bold;text-align: center;border: 1px solid black;">N°</th>
         <th style="font-weight: bold;text-align: center;border: 1px solid black;">DNI</th>
+        <th style="font-weight: bold;text-align: center;border: 1px solid black;">CODIGO TRABAJADOR</th>
         <th style="font-weight: bold;text-align: center;border: 1px solid black;">APELLIDOS Y NOMBRES</th>
         <th style="font-weight: bold;text-align: center;border: 1px solid black;">AREA</th>
         <th style="font-weight: bold;text-align: center;border: 1px solid black;">TIPO TRABAJADOR</th>
@@ -86,6 +87,7 @@
             <!-- Datos del trabajador -->
             <td style="text-align: center;border: 1px solid black">{{$key + 1}}</td>
             <td style="text-align: center;border: 1px solid black">{{$w->numdoc.''}}</td>
+            <td style="text-align: center;border: 1px solid black">{{$w->personal_code}}</td>
             <td style="text-align: center;border: 1px solid black">{{$w->fullName}}</td>
             <td style="text-align: center;border: 1px solid black">{{$w->area?->name}}</td>
             <td style="text-align: center;border: 1px solid black">{{$w->workerType?->name}}</td>
@@ -124,14 +126,28 @@
                     $hasCena = false;
                     $montoAlmuerzoVenta = 0; // total del/los almuerzo(s) de esta venta (dinámico desde sale_details)
 
+                    // Precios dinámicos del producto/menú: subvención = company_price, descuento = worker_price
+                    $desayunoCompanyPrice = 0; // subvención desayuno
+                    $desayunoWorkerPrice = 0;  // descuento desayuno
+                    $almuerzoCompanyPrice = 0; // subvención almuerzo (días normales)
+                    $almuerzoWorkerPrice = 0;  // descuento almuerzo
+                    $almuerzoSalePrice = 0;    // precio total del menú (sábados: factura completa a la empresa)
+                    $cenaCompanyPrice = 0;     // subvención cena
+                    $cenaWorkerPrice = 0;      // descuento cena
+
                     foreach($sale->saleDetails as $detail) {
                         $categoryName = $detail->product?->category?->name;
 
                         if($categoryName == 'DESAYUNO') {
                             $hasDesayuno = true;
+                            $desayunoCompanyPrice = $detail->product?->company_price ?? 0;
+                            $desayunoWorkerPrice = $detail->product?->worker_price ?? 0;
                         }
                         else if($categoryName == 'ALMUERZO') {
                             $hasAlmuerzo = true;
+                            $almuerzoCompanyPrice = $detail->product?->company_price ?? 0;
+                            $almuerzoWorkerPrice = $detail->product?->worker_price ?? 0;
+                            $almuerzoSalePrice = $detail->product?->sale_price ?? 0;
                             // Costo del menú completo del almuerzo = precio de venta del producto (dinámico desde la BD)
                             $cantidadAlmuerzo = $detail->quantity ?? 1;
                             $precioMenuAlmuerzo = $detail->product?->sale_price ?? 0;
@@ -145,18 +161,20 @@
                         }
                         else if($categoryName == 'CENA') {
                             $hasCena = true;
+                            $cenaCompanyPrice = $detail->product?->company_price ?? 0;
+                            $cenaWorkerPrice = $detail->product?->worker_price ?? 0;
                         }
                     }
 
-                    // Marcar con 1 si hubo desayuno, almuerzo o cena según el tipo
+                    // Marcar con el precio del producto (subvención = company_price, descuento = worker_price)
                     if($hasDesayuno) {
                         if($sale->deal_in_form == 'SUBVENCION') {
-                            $desayunoSubvencion = 1;
+                            $desayunoSubvencion = $desayunoCompanyPrice;
                             $cantidadDesayunoSubvencion++;
                             $totalSubvencionDesayuno += $sale->total_pay_company ?? 0;
                         }
                         if($sale->deal_in_form == 'SUBVENCION' && $sale->total_dsct_form > 0) {
-                            $desayunoDescuento = 1;
+                            $desayunoDescuento = $desayunoWorkerPrice;
                             $cantidadDesayunoDescuento++;
                             $totalDescuentoDesayuno += $sale->total_dsct_form ?? 0;
                         }
@@ -164,21 +182,22 @@
 
                     if($hasAlmuerzo) {
                         if($esSabado) {
-                            // Regla sábado: subvención=1, descuento vacío.
+                            // Regla sábado: la empresa factura el menú completo, sin descuento al trabajador.
+                            // SUBVENCION usa sale_price (precio total del menú); descuento vacío.
                             // FACTURA suma el total del almuerzo (desde el detalle de venta) y PLANILLA = 0.
-                            $almuerzoSubvencion = 1;
+                            $almuerzoSubvencion = $almuerzoSalePrice;
                             $almuerzoDescuento = 0;
                             $cantidadAlmuerzoSubvencion++;
                             $totalSubvencionAlmuerzo += $montoAlmuerzoVenta;
                             // PLANILLA (totalDescuentoAlmuerzo) no se incrementa los sábados
                         } else {
                             if($sale->deal_in_form == 'SUBVENCION') {
-                                $almuerzoSubvencion = 1;
+                                $almuerzoSubvencion = $almuerzoCompanyPrice;
                                 $cantidadAlmuerzoSubvencion++;
                                 $totalSubvencionAlmuerzo += $sale->total_pay_company ?? 0;
                             }
                             if($sale->deal_in_form == 'SUBVENCION' && $sale->total_dsct_form > 0) {
-                                $almuerzoDescuento = 1;
+                                $almuerzoDescuento = $almuerzoWorkerPrice;
                                 $cantidadAlmuerzoDescuento++;
                                 $totalDescuentoAlmuerzo += $sale->total_dsct_form ?? 0;
                             }
@@ -187,12 +206,12 @@
 
                     if($hasCena) {
                         if($sale->deal_in_form == 'SUBVENCION') {
-                            $cenaSubvencion = 1;
+                            $cenaSubvencion = $cenaCompanyPrice;
                             $cantidadCenaSubvencion++;
                             $totalSubvencionCena += $sale->total_pay_company ?? 0;
                         }
                         if($sale->deal_in_form == 'SUBVENCION' && $sale->total_dsct_form > 0) {
-                            $cenaDescuento = 1;
+                            $cenaDescuento = $cenaWorkerPrice;
                             $cantidadCenaDescuento++;
                             $totalDescuentoCena += $sale->total_dsct_form ?? 0;
                         }
@@ -203,37 +222,37 @@
                 <!-- DESAYUNO: SUBVENCION -->
                 <td style="text-align: center;border: 1px solid black">
                     @if($desayunoSubvencion > 0)
-                        {{$desayunoSubvencion}}
+                        {{number_format($desayunoSubvencion, 2)}}
                     @endif
                 </td>
                 <!-- DESAYUNO: DESCUENTO -->
                 <td style="text-align: center;border: 1px solid black">
                     @if($desayunoDescuento > 0)
-                        {{$desayunoDescuento}}
+                        {{number_format($desayunoDescuento, 2)}}
                     @endif
                 </td>
                 <!-- ALMUERZO: SUBVENCION -->
                 <td style="text-align: center;border: 1px solid black">
                     @if($almuerzoSubvencion > 0)
-                        {{$almuerzoSubvencion}}
+                        {{number_format($almuerzoSubvencion, 2)}}
                     @endif
                 </td>
                 <!-- ALMUERZO: DESCUENTO -->
                 <td style="text-align: center;border: 1px solid black">
                     @if($almuerzoDescuento > 0)
-                        {{$almuerzoDescuento}}
+                        {{number_format($almuerzoDescuento, 2)}}
                     @endif
                 </td>
                 <!-- CENA: SUBVENCION -->
                 <td style="text-align: center;border: 1px solid black">
                     @if($cenaSubvencion > 0)
-                        {{$cenaSubvencion}}
+                        {{number_format($cenaSubvencion, 2)}}
                     @endif
                 </td>
                 <!-- CENA: DESCUENTO -->
                 <td style="text-align: center;border: 1px solid black">
                     @if($cenaDescuento > 0)
-                        {{$cenaDescuento}}
+                        {{number_format($cenaDescuento, 2)}}
                     @endif
                 </td>
             @endforeach

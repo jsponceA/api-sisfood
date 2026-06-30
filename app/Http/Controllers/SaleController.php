@@ -251,7 +251,7 @@ class SaleController extends Controller
     {
         try {
             $sale = Sale::query()
-                ->with(["worker", "saleDetails"])
+                ->with(["worker", "saleDetails.product"])
                 ->findOrFail($request->input("id"));
             $user = auth()->user();
 
@@ -296,20 +296,27 @@ class SaleController extends Controller
             $printer->setEmphasis(true);
             /*EN ALGUNAS IMPRESORAS SALE MAL*/
             //$printer->setTextSize(2,1);
+            $totalMostrar = 0;
             foreach ($sale->saleDetails as $detail) {
                 //$productName = wordwrap($detail->product_name, 20, "\n", true); // Dividir en líneas de 20 caracteres
+                // En subvención (serie 001) el detalle vale 0; se muestra el costo del menú (worker_price del producto)
+                $precioMostrar = $detail->sale_price > 0
+                    ? $detail->sale_price
+                    : ($detail->product?->worker_price ?? 0);
+                $lineaTotal = $precioMostrar * $detail->quantity;
+                $totalMostrar += $lineaTotal;
                 if ($sale->serie == "001") {
-                    $printer->text(number_format($detail->quantity) . "x " . mb_strtoupper($detail->product_name) . " " . "S/ " . number_format($detail->sale_price, 2) . "\n");
+                    $printer->text(number_format($detail->quantity) . "x " . mb_strtoupper($detail->product_name) . " " . "S/ " . number_format($precioMostrar, 2) . "\n");
                 } else {
-                    $printer->text(number_format($detail->quantity) . "x " . mb_strtoupper($detail->product_name) . " " . "S/ " . number_format($detail->sale_price, 2) . "      " . "S/ " . number_format($detail->total, 2) . "\n");
+                    $printer->text(number_format($detail->quantity) . "x " . mb_strtoupper($detail->product_name) . " " . "S/ " . number_format($precioMostrar, 2) . "      " . "S/ " . number_format($lineaTotal, 2) . "\n");
                 }
             }
             $printer->setTextSize(1, 1);
             $printer->setEmphasis(false);
             //$printer->text("------------------------------------------------"."\n");
 
-            # Para mostrar el total
-            $total = $sale->total_sale;
+            # Para mostrar el total (si la venta no carga monto, usa el costo del menú)
+            $total = $sale->total_sale > 0 ? $sale->total_sale : $totalMostrar;
 
             $printer->setJustification(Printer::JUSTIFY_RIGHT);
             $printer->text("------------" . "\n");

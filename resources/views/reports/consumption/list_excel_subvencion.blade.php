@@ -9,16 +9,18 @@
     <thead>
     <tr>
         <th style="font-weight: bold;text-align: center">DNI</th>
+        <th style="font-weight: bold;text-align: center">CODIGO TRABAJADOR</th>
         <th style="font-weight: bold;text-align: center">CLIENTE</th>
         <th style="font-weight: bold;text-align: center">AREA DE PERSONAL</th>
         <th style="font-weight: bold;text-align: center">TIPO TRABAJADOR</th>
         <th style="font-weight: bold;text-align: center">CENTRO DE COSTO</th>
         <th style="font-weight: bold;text-align: center">FECHA</th>
         <th style="font-weight: bold;text-align: center">PRODUCTO</th>
-        <th style="font-weight: bold;text-align: center">PRECIO</th>
-        <th style="font-weight: bold;text-align: center">CANTIDAD</th>
-        <th style="font-weight: bold;text-align: center">SUBVENCION</th>
-        <th style="font-weight: bold;text-align: center">TRABAJADOR</th>
+        {{-- Columnas ocultas a pedido: PRECIO, CANTIDAD, SUBVENCION, TRABAJADOR --}}
+        {{-- <th style="font-weight: bold;text-align: center">PRECIO</th> --}}
+        {{-- <th style="font-weight: bold;text-align: center">CANTIDAD</th> --}}
+        {{-- <th style="font-weight: bold;text-align: center">SUBVENCION</th> --}}
+        {{-- <th style="font-weight: bold;text-align: center">TRABAJADOR</th> --}}
         <th style="font-weight: bold;text-align: center">SUBTOTAL</th>
         <th style="font-weight: bold;text-align: center">TIPO DE DESCUENTO</th>
     </tr>
@@ -34,20 +36,22 @@
         @endphp
         <tr>
             <td style="text-align: center">{{$c->worker?->numdoc.''}}</td>
+            <td style="text-align: center">{{$c->worker?->personal_code}}</td>
             <td style="text-align: center">{{$c->worker?->fullName}}</td>
             <td style="text-align: center">{{$c->worker?->area?->name}}</td>
             <td style="text-align: center">{{$c->worker?->workerType?->name}}</td>
             <td style="text-align: center">{{$c->worker?->costCenter?->name}}</td>
             <td style="text-align: center">{{ !empty($c->sale_date) ? now()->parse($c->sale_date)->format("d/m/Y") : ""}}</td>
             <td style="text-align: center">{{$c->saleDetails()->get()->map(fn($q)=> number_format($q->quantity).'x '.$q->product->name)->implode("/ ")}}</td>
-            <td style="text-align: center">{{$priceUnit}}</td>
-            <td style="text-align: center">{{number_format($quantity)}}</td>
-            <td style="text-align: center">{{$subvencion}}</td>
-            <td style="text-align: center">{{$workerPrice}}</td>
+            {{-- Columnas ocultas a pedido: PRECIO, CANTIDAD, SUBVENCION, TRABAJADOR --}}
+            {{-- <td style="text-align: center">{{$priceUnit}}</td> --}}
+            {{-- <td style="text-align: center">{{number_format($quantity)}}</td> --}}
+            {{-- <td style="text-align: center">{{$subvencion}}</td> --}}
+            {{-- <td style="text-align: center">{{$workerPrice}}</td> --}}
             <td style="text-align: center">{{$total}}</td>
             <td style="text-align: center">
                 @if($c->worker?->grant)
-                    SI SUBVENCIÓN
+                    DESCUENTO_PLANILLA
                 @elseif($c->worker?->grant_complete)
                     SI SUBVENCIÓN COMPLETA
                  @else
