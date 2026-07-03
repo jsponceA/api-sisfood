@@ -177,13 +177,21 @@ class WorkerController extends Controller
 
     public function searchSensitive(Request $request)
     {
-        $search = trim($request->input("search"));
+        $search = trim($request->input("search") ?? "");
 
         $workers = Worker::query()
-            ->where("numdoc", $search)
-            ->orWhere("personal_code", $search)
-            ->orWhere("names", $search)
-            ->orWhere("surnames", $search)
+            ->where(function ($query) use ($search) {
+                $query
+                    ->where("numdoc", $search)
+                    ->orWhere("personal_code", $search)
+                    ->orWhere("names", $search)
+                    ->orWhere("surnames", $search);
+
+                // Permite digitar el código de trabajador sin ceros a la izquierda (p.ej. 504 => 000504)
+                if ($search !== "" && ctype_digit($search) && (int) $search > 0) {
+                    $query->orWhereRaw("CAST(personal_code AS UNSIGNED) = ?", [(int) $search]);
+                }
+            })
             ->orderByDesc("id")
             ->take(10)
             ->get();
