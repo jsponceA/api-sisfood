@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ConsumptionExport;
+use App\Exports\DiningSummaryExport;
 use App\Exports\SubvencionExport;
 use App\Exports\SubvencionPerDay;
 use App\Exports\WorkerSummaryExport;
@@ -10,6 +11,7 @@ use App\Http\Traits\ConsumptionTrait;
 use App\Models\Area;
 use App\Models\Category;
 use App\Models\CostCenter;
+use App\Models\Managent;
 use App\Models\TypeForm;
 use App\Models\WorkerType;
 use Illuminate\Http\JsonResponse;
@@ -58,6 +60,11 @@ class ConsumptionController extends Controller
         return Excel::download(new SubvencionPerDay($request), 'reporte_planilla.xlsx');
     }
 
+    public function generateExcelDiningSummary(Request $request)
+    {
+        return Excel::download(new DiningSummaryExport($request), 'reporte_consumo_comedor.xlsx');
+    }
+
 
     public function getAllResources(Request $request): JsonResponse
     {
@@ -85,6 +92,9 @@ class ConsumptionController extends Controller
         }
         if (in_array("typeDiscounts", $resourceTypes)) {
             $response["typeDiscounts"] = ["SUBVENCION","DESCUENTO_PLANILLA","NO_DESCONTAR"];
+        }
+        if (in_array("managents", $resourceTypes)) {
+            $response["managents"] = Managent::query()->orderByDesc("id")->get();
         }
 
 

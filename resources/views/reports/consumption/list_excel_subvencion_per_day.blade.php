@@ -5,278 +5,121 @@
     <title>PLANILLA DE TRABAJADORES</title>
 </head>
 <body>
+@php
+    // Orden de las comidas en cada grupo (según reporte solicitado)
+    $mealKeys = ['DESAYUNO', 'ALMUERZO', 'LONCHE', 'CENA'];
+
+    // Normaliza el nombre de categoría a una de las comidas del reporte
+    $resolveBucket = function ($categoryName) {
+        $name = strtoupper(trim((string) $categoryName));
+        if ($name === 'DESAYUNO') return 'DESAYUNO';
+        if ($name === 'ALMUERZO') return 'ALMUERZO';
+        if ($name === 'CENA') return 'CENA';
+        if (in_array($name, ['LONCHE', 'LONCHES', 'LOCHE', 'LOCHES'], true)) return 'LONCHE';
+        return null;
+    };
+@endphp
 <table>
     <thead>
-    <!-- PRIMERA FILA: Títulos principales -->
+    <!-- PRIMERA FILA: Títulos de grupo -->
     <tr>
-        <th colspan="7" style="font-weight: bold;text-align: center;border: 1px solid black;">DATOS TRABAJADOR</th>
+        <th colspan="5" style="font-weight: bold;text-align: center;border: 1px solid black;">DATOS TRABAJADOR</th>
         @foreach($periodo as $p)
-            <th colspan="6" style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">{{$p->format('d/m/Y')}}</th>
+            <th colspan="4" style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">{{$p->format('d/m/Y')}}</th>
         @endforeach
-        <th colspan="4" style="font-weight: bold;text-align: center;border: 1px solid black;">TOT. DESAYUNO</th>
-        <th colspan="4" style="font-weight: bold;text-align: center;border: 1px solid black;">TOT. ALMUERZO</th>
-        <th colspan="4" style="font-weight: bold;text-align: center;border: 1px solid black;">TOT. CENA</th>
-        <th rowspan="3" style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">AUTORIZO<br>DESCUENTO</th>
+        <th colspan="4" style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">CANTIDAD TOTAL</th>
+        <th colspan="4" style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">IMPORTE TOTAL</th>
     </tr>
 
-    <!-- SEGUNDA FILA: DESAYUNO, ALMUERZO y CENA -->
-    <tr>
-        <th colspan="7" style="border: 1px solid black;"></th>
-        @foreach($periodo as $p)
-            <th colspan="2" style="font-weight: bold;text-align: center;border: 1px solid black;">DESAYUNO</th>
-            <th colspan="2" style="font-weight: bold;text-align: center;border: 1px solid black;">ALMUERZO</th>
-            <th colspan="2" style="font-weight: bold;text-align: center;border: 1px solid black;">CENA</th>
-        @endforeach
-        <th colspan="4" style="border: 1px solid black;"></th>
-        <th colspan="4" style="border: 1px solid black;"></th>
-        <th colspan="4" style="border: 1px solid black;"></th>
-    </tr>
-
-    <!-- TERCERA FILA: Columnas específicas -->
+    <!-- SEGUNDA FILA: Sub-encabezados (datos del trabajador + comidas por grupo) -->
     <tr>
         <th style="font-weight: bold;text-align: center;border: 1px solid black;">N°</th>
         <th style="font-weight: bold;text-align: center;border: 1px solid black;">DNI</th>
-        <th style="font-weight: bold;text-align: center;border: 1px solid black;">CODIGO TRABAJADOR</th>
         <th style="font-weight: bold;text-align: center;border: 1px solid black;">APELLIDOS Y NOMBRES</th>
+        <th style="font-weight: bold;text-align: center;border: 1px solid black;">GERENCIA</th>
         <th style="font-weight: bold;text-align: center;border: 1px solid black;">AREA</th>
-        <th style="font-weight: bold;text-align: center;border: 1px solid black;">TIPO TRABAJADOR</th>
-        <th style="font-weight: bold;text-align: center;border: 1px solid black;">CENTRO DE COSTO</th>
         @foreach($periodo as $p)
-            <th style="font-weight: bold;text-align: center;border: 1px solid black;">SUBVENCION</th>
-            <th style="font-weight: bold;text-align: center;border: 1px solid black;">DESCUENTO</th>
-            <th style="font-weight: bold;text-align: center;border: 1px solid black;">SUBVENCION</th>
-            <th style="font-weight: bold;text-align: center;border: 1px solid black;">DESCUENTO</th>
-            <th style="font-weight: bold;text-align: center;border: 1px solid black;">SUBVENCION</th>
-            <th style="font-weight: bold;text-align: center;border: 1px solid black;">DESCUENTO</th>
+            <th style="font-weight: bold;text-align: center;border: 1px solid black;">DESAYUNO</th>
+            <th style="font-weight: bold;text-align: center;border: 1px solid black;">ALMUERZO</th>
+            <th style="font-weight: bold;text-align: center;border: 1px solid black;">LONCHE</th>
+            <th style="font-weight: bold;text-align: center;border: 1px solid black;">CENA</th>
         @endforeach
-        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">TOT.SUBVENCION</th>
-        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">TOT.DESCUENTO</th>
-        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">FACTURA</th>
-        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">PLANILLA</th>
-        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">TOT.SUBVENCION</th>
-        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">TOT.DESCUENTO</th>
-        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">FACTURA</th>
-        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">PLANILLA</th>
-        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">TOT.SUBVENCION</th>
-        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">TOT.DESCUENTO</th>
-        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">FACTURA</th>
-        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">PLANILLA</th>
+        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">CANTIDAD DESAYUNO</th>
+        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">CANTIDAD ALMUERZO</th>
+        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">CANTIDAD LONCHE</th>
+        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">CANTIDAD CENA</th>
+        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">TOT. DESAYUNO</th>
+        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">TOT. ALMUERZO</th>
+        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">TOT. LONCHE</th>
+        <th style="font-weight: bold;text-align: center;border: 1px solid black;background-color:yellow">TOT. CENA</th>
     </tr>
     </thead>
     <tbody>
     @foreach ($workers as $key => $w)
         @php
-        $cantidadAlmuerzo = 0;
-        $cantidadCena = 0;
-        $totalSubvencionAlmuerzo = 0;
-        $totalSubvencionCena = 0;
-        $totalDescuentoAlmuerzo = 0;
-        $totalDescuentoCena = 0;
-
-        $cantidadDesayunoSubvencion = 0;
-        $cantidadDesayunoDescuento = 0;
-        $totalSubvencionDesayuno = 0;
-        $totalDescuentoDesayuno = 0;
-
-        $cantidadAlmuerzoSubvencion = 0;
-        $cantidadAlmuerzoDescuento = 0;
-        $cantidadCenaSubvencion = 0;
-        $cantidadCenaDescuento = 0;
+            // Acumuladores por tipo de comida (cantidad e importe) para el trabajador
+            $cantidad = ['DESAYUNO' => 0, 'ALMUERZO' => 0, 'LONCHE' => 0, 'CENA' => 0];
+            $importe  = ['DESAYUNO' => 0, 'ALMUERZO' => 0, 'LONCHE' => 0, 'CENA' => 0];
         @endphp
         <tr>
             <!-- Datos del trabajador -->
             <td style="text-align: center;border: 1px solid black">{{$key + 1}}</td>
             <td style="text-align: center;border: 1px solid black">{{$w->numdoc.''}}</td>
-            <td style="text-align: center;border: 1px solid black">{{$w->personal_code}}</td>
             <td style="text-align: center;border: 1px solid black">{{$w->fullName}}</td>
+            <td style="text-align: center;border: 1px solid black">{{$w->managent?->name}}</td>
             <td style="text-align: center;border: 1px solid black">{{$w->area?->name}}</td>
-            <td style="text-align: center;border: 1px solid black">{{$w->workerType?->name}}</td>
-            <td style="text-align: center;border: 1px solid black">{{$w->costCenter?->name}}</td>
 
             @foreach($periodo as $p)
                 @php
-                // Los sábados el almuerzo se factura completo a la empresa (subvención), sin descuento a planilla
-                $esSabado = $p->isSaturday();
+                    // Importe por comida en este día (precio de venta x cantidad, dinámico)
+                    $dia = ['DESAYUNO' => 0, 'ALMUERZO' => 0, 'LONCHE' => 0, 'CENA' => 0];
 
-                $desayunoSubvencion = 0;
-                $desayunoDescuento = 0;
-                $almuerzoSubvencion = 0;
-                $almuerzoDescuento = 0;
-                $cenaSubvencion = 0;
-                $cenaDescuento = 0;
+                    foreach($w->sales as $sale) {
+                        if(empty($sale->sale_date)) {
+                            continue;
+                        }
+                        if(!\Carbon\Carbon::parse($sale->sale_date)->isSameDay($p)) {
+                            continue;
+                        }
 
-
-
-                // Recorrer las ventas del trabajador para el día específico
-                foreach($w->sales as $sale) {
-                      // Verificar si la venta corresponde a la fecha del período actual
-                        if(!empty($sale->sale_date)) {
-                            $saleDate = \Carbon\Carbon::parse($sale->sale_date);
-                            if(!$saleDate->isSameDay($p)) {
-                                continue; // Saltar a la siguiente venta si la fecha no coincide
+                        foreach($sale->saleDetails as $detail) {
+                            $bucket = $resolveBucket($detail->product?->category?->name);
+                            if($bucket === null) {
+                                continue;
                             }
-                        } else {
-                            continue; // Saltar si no hay fecha de venta
-                        }
 
-
-                    // Verificar si esta venta tiene productos de desayuno, almuerzo o cena
-                    $hasDesayuno = false;
-                    $hasAlmuerzo = false;
-                    $hasCena = false;
-                    $montoAlmuerzoVenta = 0; // total del/los almuerzo(s) de esta venta (dinámico desde sale_details)
-
-                    // Precios dinámicos del producto/menú: subvención = company_price, descuento = worker_price
-                    $desayunoCompanyPrice = 0; // subvención desayuno
-                    $desayunoWorkerPrice = 0;  // descuento desayuno
-                    $almuerzoCompanyPrice = 0; // subvención almuerzo (días normales)
-                    $almuerzoWorkerPrice = 0;  // descuento almuerzo
-                    $almuerzoSalePrice = 0;    // precio total del menú (sábados: factura completa a la empresa)
-                    $cenaCompanyPrice = 0;     // subvención cena
-                    $cenaWorkerPrice = 0;      // descuento cena
-
-                    foreach($sale->saleDetails as $detail) {
-                        $categoryName = $detail->product?->category?->name;
-
-                        if($categoryName == 'DESAYUNO') {
-                            $hasDesayuno = true;
-                            $desayunoCompanyPrice = $detail->product?->company_price ?? 0;
-                            $desayunoWorkerPrice = $detail->product?->worker_price ?? 0;
-                        }
-                        else if($categoryName == 'ALMUERZO') {
-                            $hasAlmuerzo = true;
-                            $almuerzoCompanyPrice = $detail->product?->company_price ?? 0;
-                            $almuerzoWorkerPrice = $detail->product?->worker_price ?? 0;
-                            $almuerzoSalePrice = $detail->product?->sale_price ?? 0;
-                            // Costo del menú completo del almuerzo = precio de venta del producto (dinámico desde la BD)
-                            $cantidadAlmuerzo = $detail->quantity ?? 1;
-                            $precioMenuAlmuerzo = $detail->product?->sale_price ?? 0;
-                            if($precioMenuAlmuerzo <= 0) {
-                                // Respaldo: total del detalle o precio del detalle x cantidad
-                                $precioMenuAlmuerzo = ($detail->total ?? 0) > 0
-                                    ? ($detail->total / max($cantidadAlmuerzo, 1))
-                                    : ($detail->sale_price ?? 0);
+                            $qty = (float) ($detail->quantity ?? 0);
+                            if($qty <= 0) {
+                                $qty = 1;
                             }
-                            $montoAlmuerzoVenta += $precioMenuAlmuerzo * $cantidadAlmuerzo;
-                        }
-                        else if($categoryName == 'CENA') {
-                            $hasCena = true;
-                            $cenaCompanyPrice = $detail->product?->company_price ?? 0;
-                            $cenaWorkerPrice = $detail->product?->worker_price ?? 0;
+                            // SALE_PRICE del producto que corresponde a la comida (dinámico desde la BD)
+                            $price = (float) ($detail->product?->sale_price ?? $detail->sale_price ?? 0);
+                            $amount = $price * $qty;
+
+                            $dia[$bucket] += $amount;
+                            $cantidad[$bucket] += $qty;
+                            $importe[$bucket] += $amount;
                         }
                     }
-
-                    // Marcar con el precio del producto (subvención = company_price, descuento = worker_price)
-                    if($hasDesayuno) {
-                        if($sale->deal_in_form == 'SUBVENCION') {
-                            $desayunoSubvencion = $desayunoCompanyPrice;
-                            $cantidadDesayunoSubvencion++;
-                            $totalSubvencionDesayuno += $sale->total_pay_company ?? 0;
-                        }
-                        if($sale->deal_in_form == 'SUBVENCION' && $sale->total_dsct_form > 0) {
-                            $desayunoDescuento = $desayunoWorkerPrice;
-                            $cantidadDesayunoDescuento++;
-                            $totalDescuentoDesayuno += $sale->total_dsct_form ?? 0;
-                        }
-                    }
-
-                    if($hasAlmuerzo) {
-                        if($esSabado) {
-                            // Regla sábado: la empresa factura el menú completo, sin descuento al trabajador.
-                            // SUBVENCION usa sale_price (precio total del menú); descuento vacío.
-                            // FACTURA suma el total del almuerzo (desde el detalle de venta) y PLANILLA = 0.
-                            $almuerzoSubvencion = $almuerzoSalePrice;
-                            $almuerzoDescuento = 0;
-                            $cantidadAlmuerzoSubvencion++;
-                            $totalSubvencionAlmuerzo += $montoAlmuerzoVenta;
-                            // PLANILLA (totalDescuentoAlmuerzo) no se incrementa los sábados
-                        } else {
-                            if($sale->deal_in_form == 'SUBVENCION') {
-                                $almuerzoSubvencion = $almuerzoCompanyPrice;
-                                $cantidadAlmuerzoSubvencion++;
-                                $totalSubvencionAlmuerzo += $sale->total_pay_company ?? 0;
-                            }
-                            if($sale->deal_in_form == 'SUBVENCION' && $sale->total_dsct_form > 0) {
-                                $almuerzoDescuento = $almuerzoWorkerPrice;
-                                $cantidadAlmuerzoDescuento++;
-                                $totalDescuentoAlmuerzo += $sale->total_dsct_form ?? 0;
-                            }
-                        }
-                    }
-
-                    if($hasCena) {
-                        if($sale->deal_in_form == 'SUBVENCION') {
-                            $cenaSubvencion = $cenaCompanyPrice;
-                            $cantidadCenaSubvencion++;
-                            $totalSubvencionCena += $sale->total_pay_company ?? 0;
-                        }
-                        if($sale->deal_in_form == 'SUBVENCION' && $sale->total_dsct_form > 0) {
-                            $cenaDescuento = $cenaWorkerPrice;
-                            $cantidadCenaDescuento++;
-                            $totalDescuentoCena += $sale->total_dsct_form ?? 0;
-                        }
-                    }
-                }
                 @endphp
 
-                <!-- DESAYUNO: SUBVENCION -->
-                <td style="text-align: center;border: 1px solid black">
-                    @if($desayunoSubvencion > 0)
-                        {{number_format($desayunoSubvencion, 2)}}
-                    @endif
-                </td>
-                <!-- DESAYUNO: DESCUENTO -->
-                <td style="text-align: center;border: 1px solid black">
-                    @if($desayunoDescuento > 0)
-                        {{number_format($desayunoDescuento, 2)}}
-                    @endif
-                </td>
-                <!-- ALMUERZO: SUBVENCION -->
-                <td style="text-align: center;border: 1px solid black">
-                    @if($almuerzoSubvencion > 0)
-                        {{number_format($almuerzoSubvencion, 2)}}
-                    @endif
-                </td>
-                <!-- ALMUERZO: DESCUENTO -->
-                <td style="text-align: center;border: 1px solid black">
-                    @if($almuerzoDescuento > 0)
-                        {{number_format($almuerzoDescuento, 2)}}
-                    @endif
-                </td>
-                <!-- CENA: SUBVENCION -->
-                <td style="text-align: center;border: 1px solid black">
-                    @if($cenaSubvencion > 0)
-                        {{number_format($cenaSubvencion, 2)}}
-                    @endif
-                </td>
-                <!-- CENA: DESCUENTO -->
-                <td style="text-align: center;border: 1px solid black">
-                    @if($cenaDescuento > 0)
-                        {{number_format($cenaDescuento, 2)}}
-                    @endif
-                </td>
+                <td style="text-align: center;border: 1px solid black">@if($dia['DESAYUNO'] > 0){{ $dia['DESAYUNO'] }}@endif</td>
+                <td style="text-align: center;border: 1px solid black">@if($dia['ALMUERZO'] > 0){{ $dia['ALMUERZO'] }}@endif</td>
+                <td style="text-align: center;border: 1px solid black">@if($dia['LONCHE'] > 0){{ $dia['LONCHE'] }}@endif</td>
+                <td style="text-align: center;border: 1px solid black">@if($dia['CENA'] > 0){{ $dia['CENA'] }}@endif</td>
             @endforeach
 
-            <!-- TOTALES DESAYUNO -->
-            <td style="text-align: center;border: 1px solid black;">{{number_format($cantidadDesayunoSubvencion, 2)}}</td>
-            <td style="text-align: center;border: 1px solid black;">{{number_format($cantidadDesayunoDescuento, 2)}}</td>
-            <td style="text-align: center;border: 1px solid black;">{{number_format($totalSubvencionDesayuno, 2)}}</td>
-            <td style="text-align: center;border: 1px solid black;">{{number_format($totalDescuentoDesayuno, 2)}}</td>
+            <!-- CANTIDAD TOTAL -->
+            <td style="text-align: center;border: 1px solid black">{{ $cantidad['DESAYUNO'] }}</td>
+            <td style="text-align: center;border: 1px solid black">{{ $cantidad['ALMUERZO'] }}</td>
+            <td style="text-align: center;border: 1px solid black">{{ $cantidad['LONCHE'] }}</td>
+            <td style="text-align: center;border: 1px solid black">{{ $cantidad['CENA'] }}</td>
 
-            <!-- TOTALES ALMUERZO -->
-            <td style="text-align: center;border: 1px solid black;">{{number_format($cantidadAlmuerzoSubvencion, 2)}}</td>
-            <td style="text-align: center;border: 1px solid black;">{{number_format($cantidadAlmuerzoDescuento, 2)}}</td>
-            <td style="text-align: center;border: 1px solid black;">{{number_format($totalSubvencionAlmuerzo, 2)}}</td>
-            <td style="text-align: center;border: 1px solid black;">{{number_format($totalDescuentoAlmuerzo, 2)}}</td>
-
-            <!-- TOTALES CENA -->
-            <td style="text-align: center;border: 1px solid black;">{{number_format($cantidadCenaSubvencion, 2)}}</td>
-            <td style="text-align: center;border: 1px solid black;">{{number_format($cantidadCenaDescuento, 2)}}</td>
-            <td style="text-align: center;border: 1px solid black;">{{number_format($totalSubvencionCena, 2)}}</td>
-            <td style="text-align: center;border: 1px solid black;">{{number_format($totalDescuentoCena, 2)}}</td>
-
-            <!-- AUTORIZO DESCUENTO -->
-            <td style="text-align: center;border: 1px solid black"></td>
+            <!-- IMPORTE TOTAL -->
+            <td style="text-align: center;border: 1px solid black">{{ $importe['DESAYUNO'] }}</td>
+            <td style="text-align: center;border: 1px solid black">{{ $importe['ALMUERZO'] }}</td>
+            <td style="text-align: center;border: 1px solid black">{{ $importe['LONCHE'] }}</td>
+            <td style="text-align: center;border: 1px solid black">{{ $importe['CENA'] }}</td>
         </tr>
     @endforeach
     </tbody>

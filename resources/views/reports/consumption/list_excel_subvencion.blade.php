@@ -11,6 +11,7 @@
         <th style="font-weight: bold;text-align: center">DNI</th>
         <th style="font-weight: bold;text-align: center">CODIGO TRABAJADOR</th>
         <th style="font-weight: bold;text-align: center">CLIENTE</th>
+        <th style="font-weight: bold;text-align: center">GERENCIA</th>
         <th style="font-weight: bold;text-align: center">AREA DE PERSONAL</th>
         <th style="font-weight: bold;text-align: center">TIPO TRABAJADOR</th>
         <th style="font-weight: bold;text-align: center">CENTRO DE COSTO</th>
@@ -38,6 +39,7 @@
             <td style="text-align: center">{{$c->worker?->numdoc.''}}</td>
             <td style="text-align: center">{{$c->worker?->personal_code}}</td>
             <td style="text-align: center">{{$c->worker?->fullName}}</td>
+            <td style="text-align: center">{{$c->worker?->managent?->name}}</td>
             <td style="text-align: center">{{$c->worker?->area?->name}}</td>
             <td style="text-align: center">{{$c->worker?->workerType?->name}}</td>
             <td style="text-align: center">{{$c->worker?->costCenter?->name}}</td>

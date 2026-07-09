@@ -39,27 +39,30 @@ class SubvencionPerDay implements FromView, ShouldAutoSize, WithEvents
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
                 $highestRow = $sheet->getHighestRow();
-                $highestColumn = $sheet->getHighestColumn();
-                $highestColumnIndex = Coordinate::columnIndexFromString($highestColumn);
+                $highestColumnIndex = Coordinate::columnIndexFromString($sheet->getHighestColumn());
 
-                // Las últimas 13 columnas: 12 totales (3 conceptos x 4 cols: SUBV, DESC, FACTURA, PLANILLA) + 1 AUTORIZO
-                $totalColumnsStart = $highestColumnIndex - 12;
+                // Estructura: 5 columnas de datos del trabajador + (4 x días) + 4 CANTIDAD TOTAL + 4 IMPORTE TOTAL.
+                $firstDayCol   = 6;                        // F: primera columna de comida por día (monto)
+                $dayColEnd     = $highestColumnIndex - 8;  // última columna de días
+                $cantidadStart = $highestColumnIndex - 7;  // primera columna CANTIDAD TOTAL
+                $cantidadEnd   = $highestColumnIndex - 4;  // última columna CANTIDAD TOTAL
+                $importeStart  = $highestColumnIndex - 3;  // primera columna IMPORTE TOTAL
+                $importeEnd    = $highestColumnIndex;      // última columna IMPORTE TOTAL
 
-                for ($row = 4; $row <= $highestRow; $row++) {
-                    for ($col = $totalColumnsStart; $col < $highestColumnIndex; $col++) {
-                        $positionInTotals = $col - $totalColumnsStart; // 0-11
-                        $positionInGroup = $positionInTotals % 4;      // 0=SUBV, 1=DESC, 2=FACTURA, 3=PLANILLA
-
-                        $cell = $sheet->getCellByColumnAndRow($col, $row);
-                        $numberFormat = $cell->getStyle()->getNumberFormat();
-
-                        if ($positionInGroup === 0 || $positionInGroup === 1) {
-                            // TOT.SUBVENCION (0) y TOT.DESCUENTO (1): enteros, sin decimales
-                            $numberFormat->setFormatCode(NumberFormat::FORMAT_NUMBER);
-                        } else {
-                            // FACTURA (2) y PLANILLA (3): 2 decimales
-                            $numberFormat->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
-                        }
+                for ($row = 3; $row <= $highestRow; $row++) {
+                    // Montos por día (comidas) e IMPORTE TOTAL: 2 decimales
+                    for ($col = $firstDayCol; $col <= $dayColEnd; $col++) {
+                        $sheet->getCellByColumnAndRow($col, $row)->getStyle()
+                            ->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+                    }
+                    for ($col = $importeStart; $col <= $importeEnd; $col++) {
+                        $sheet->getCellByColumnAndRow($col, $row)->getStyle()
+                            ->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+                    }
+                    // CANTIDAD TOTAL: enteros, sin decimales
+                    for ($col = $cantidadStart; $col <= $cantidadEnd; $col++) {
+                        $sheet->getCellByColumnAndRow($col, $row)->getStyle()
+                            ->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER);
                     }
                 }
             },

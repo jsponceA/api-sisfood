@@ -17,13 +17,14 @@ trait WorkerTrait
         $dateEndAdmissionSuspended = $request->input("dateEndAdmissionSuspended");
         $typeFormId = $request->input("typeFormId");
         $areaId = $request->input("areaId");
+        $managentId = $request->input("managentId");
         $breakfast = $request->input("breakfast");
         $lunch = $request->input("lunch");
         $dinner = $request->input("dinner");
         $allowedMeals = $request->input("allowed_meals");
 
         $workers = Worker::query()
-            ->with(["area", "typeForm", "costCenter", "payrollArea", "campus", "staffDivision", "charge", "organizationalUnit", "gender", "superior", "business"])
+            ->with(["area", "typeForm", "costCenter", "payrollArea", "campus", "staffDivision", "charge", "organizationalUnit", "gender", "superior", "business", "managent"])
             ->withCount("fingerprints")
             ->when(!empty($search), function ($q) use ($search) {
                 $q->where("names", "LIKE", "%{$search}%")
@@ -46,6 +47,9 @@ trait WorkerTrait
             })
             ->when(!empty($areaId), function ($q) use ($areaId) {
                 $q->where("area_id", $areaId);
+            })
+            ->when(!empty($managentId), function ($q) use ($managentId) {
+                $q->where("managent_id", $managentId);
             })
             ->when(!empty($breakfast), function ($q) use ($breakfast) {
                 $q->where("breakfast", $breakfast);

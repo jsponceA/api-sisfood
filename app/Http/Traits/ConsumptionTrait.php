@@ -20,12 +20,13 @@ trait ConsumptionTrait
         $areaId = $request->input("areaId");
         $workerTypeId = $request->input("workerTypeId");
         $costCenterId = $request->input("costCenterId");
+        $managentId = $request->input("managentId");
         $typeDiscount = $request->input("typeDiscount");
 
 
         $sales = SaleDetail::query()
             ->with(["sale", "product"])
-            ->whereHas("sale.worker", function ($query) use ($search, $typeFormId, $areaId, $workerTypeId, $costCenterId) {
+            ->whereHas("sale.worker", function ($query) use ($search, $typeFormId, $areaId, $workerTypeId, $costCenterId, $managentId) {
                 $query
                     ->when(!empty($typeFormId), function ($query) use ($typeFormId) {
                         $query
@@ -42,6 +43,10 @@ trait ConsumptionTrait
                     ->when(!empty($costCenterId), function ($query) use ($costCenterId) {
                         $query
                             ->where("cost_center_id", $costCenterId);
+                    })
+                    ->when(!empty($managentId), function ($query) use ($managentId) {
+                        $query
+                            ->where("managent_id", $managentId);
                     })
                     ->when(!empty($search), function ($query) use ($search) {
                         $query
@@ -86,6 +91,7 @@ trait ConsumptionTrait
         $areaId = $request->input("areaId");
         $workerTypeId = $request->input("workerTypeId");
         $costCenterId = $request->input("costCenterId");
+        $managentId = $request->input("managentId");
         $typeDiscount = $request->input("typeDiscount");
 
 
@@ -100,7 +106,7 @@ trait ConsumptionTrait
             ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
                 $query->whereDate("sale_date", "<=", $dateEndConsumption);
             })
-            ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId, $workerTypeId, $costCenterId) {
+            ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId, $workerTypeId, $costCenterId, $managentId) {
                 $query
                     ->when(!empty($typeFormId), function ($query) use ($typeFormId) {
                         $query
@@ -117,6 +123,10 @@ trait ConsumptionTrait
                     ->when(!empty($costCenterId), function ($query) use ($costCenterId) {
                         $query
                             ->where("cost_center_id", $costCenterId);
+                    })
+                    ->when(!empty($managentId), function ($query) use ($managentId) {
+                        $query
+                            ->where("managent_id", $managentId);
                     })
                     ->when(!empty($search), function ($query) use ($search) {
                         $query
@@ -150,6 +160,7 @@ trait ConsumptionTrait
         $areaId = $request->input("areaId");
         $workerTypeId = $request->input("workerTypeId");
         $costCenterId = $request->input("costCenterId");
+        $managentId = $request->input("managentId");
         $typeDiscount = $request->input("typeDiscount");
 
         $workers = Worker::query()
@@ -157,6 +168,7 @@ trait ConsumptionTrait
                 'area',
                 'costCenter',
                 'workerType',
+                'managent',
                 'sales' => function ($query) use ($dateStartConsumption, $dateEndConsumption, $typeDiscount, $categoryId) {
                     $query
                         ->with(['saleDetails.product.category'])
@@ -192,6 +204,9 @@ trait ConsumptionTrait
             ->when(!empty($costCenterId), function ($query) use ($costCenterId) {
                 $query->where("cost_center_id", $costCenterId);
             })
+            ->when(!empty($managentId), function ($query) use ($managentId) {
+                $query->where("managent_id", $managentId);
+            })
             ->when(!empty($search), function ($query) use ($search) {
                 $query->where(function ($query) use ($search){
                     $query
@@ -218,6 +233,7 @@ trait ConsumptionTrait
         $areaId = $request->input("areaId");
         $workerTypeId = $request->input("workerTypeId");
         $costCenterId = $request->input("costCenterId");
+        $managentId = $request->input("managentId");
         $typeDiscount = $request->input("typeDiscount");
 
 
@@ -232,7 +248,7 @@ trait ConsumptionTrait
             ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
                 $query->whereDate("sale_date", "<=", $dateEndConsumption);
             })
-            ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId, $workerTypeId, $costCenterId) {
+            ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId, $workerTypeId, $costCenterId, $managentId) {
                 $query
                     ->when(!empty($typeFormId), function ($query) use ($typeFormId) {
                         $query
@@ -249,6 +265,10 @@ trait ConsumptionTrait
                     ->when(!empty($costCenterId), function ($query) use ($costCenterId) {
                         $query
                             ->where("cost_center_id", $costCenterId);
+                    })
+                    ->when(!empty($managentId), function ($query) use ($managentId) {
+                        $query
+                            ->where("managent_id", $managentId);
                     })
                     ->when(!empty($search), function ($query) use ($search) {
                         $query
@@ -281,6 +301,7 @@ trait ConsumptionTrait
         $areaId = $request->input("areaId");
         $workerTypeId = $request->input("workerTypeId");
         $costCenterId = $request->input("costCenterId");
+        $managentId = $request->input("managentId");
         $typeDiscount = $request->input("typeDiscount");
 
 
@@ -351,7 +372,7 @@ trait ConsumptionTrait
             ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
                 $query->whereDate("sale_date", "<=", $dateEndConsumption);
             })
-            ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId, $workerTypeId, $costCenterId) {
+            ->whereHas("worker", function ($query) use ($search, $typeFormId, $areaId, $workerTypeId, $costCenterId, $managentId) {
                 $query
                     ->when(!empty($typeFormId), function ($query) use ($typeFormId) {
                         $query
@@ -368,6 +389,10 @@ trait ConsumptionTrait
                     ->when(!empty($costCenterId), function ($query) use ($costCenterId) {
                         $query
                             ->where("cost_center_id", $costCenterId);
+                    })
+                    ->when(!empty($managentId), function ($query) use ($managentId) {
+                        $query
+                            ->where("managent_id", $managentId);
                     })
                     ->when(!empty($search), function ($query) use ($search) {
                         $query
