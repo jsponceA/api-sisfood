@@ -273,7 +273,7 @@ class SaleController extends Controller
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->setEmphasis(true);
             $printer->setFont(Printer::FONT_A);
-            $printer->text("CONCESIONARIO DE ALIMENTOS LUCEMIR\n");
+            $printer->text("CONCESIONARIO DE ALIMENTOS DELICIOUS FOOD.\n");
             $printer->text("\n");
             $printer->setFont(Printer::FONT_B);
             $printer->setEmphasis(false);
