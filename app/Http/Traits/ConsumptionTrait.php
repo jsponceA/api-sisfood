@@ -131,7 +131,7 @@ trait ConsumptionTrait
             })
             ->whereHas("saleDetails.product", function ($query) use ($categoryId) {
                 $query->when(!empty($categoryId), function ($query) use ($categoryId) {
-                    $query->where("category", $categoryId);
+                    $query->where("category_id", $categoryId);
                 });
             })
             ->orderByDesc("sale_date")
@@ -160,8 +160,6 @@ trait ConsumptionTrait
                 'sales' => function ($query) use ($dateStartConsumption, $dateEndConsumption, $typeDiscount, $categoryId) {
                     $query
                         ->with(['saleDetails.product.category'])
-                        ->where('serie', '001')
-                        ->where('deal_in_form', 'SUBVENCION')
                         ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
                             $query->where("deal_in_form", $typeDiscount);
                         })
@@ -263,7 +261,7 @@ trait ConsumptionTrait
             })
             ->whereHas("saleDetails.product", function ($query) use ($categoryId) {
                 $query->when(!empty($categoryId), function ($query) use ($categoryId) {
-                    $query->where("category", $categoryId);
+                    $query->where("category_id", $categoryId);
                 });
             })
             ->orderByDesc("id");
@@ -382,7 +380,7 @@ trait ConsumptionTrait
             })
             ->whereHas("saleDetails.product", function ($query) use ($categoryId) {
                 $query->when(!empty($categoryId), function ($query) use ($categoryId) {
-                    $query->where("category", $categoryId);
+                    $query->where("category_id", $categoryId);
                 });
             })
             ->orderBy("workers.surnames","ASC")

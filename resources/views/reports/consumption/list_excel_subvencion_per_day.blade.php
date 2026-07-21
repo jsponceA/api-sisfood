@@ -82,6 +82,10 @@
         $cantidadAlmuerzoDescuento = 0;
         $cantidadCenaSubvencion = 0;
         $cantidadCenaDescuento = 0;
+
+        $almuerzoDescuentoBaseDia = 0;
+        $almuerzoExtrasDia = 0;
+        $tieneAlmuerzoDia = false;
         @endphp
         <tr>
             <!-- Datos del trabajador -->
@@ -104,6 +108,9 @@
                 $almuerzoDescuento = 0;
                 $cenaSubvencion = 0;
                 $cenaDescuento = 0;
+                $almuerzoDescuentoBaseDia = 0;
+                $almuerzoExtrasDia = 0;
+                $tieneAlmuerzoDia = false;
 
 
 
@@ -137,6 +144,12 @@
 
                     foreach($sale->saleDetails as $detail) {
                         $categoryName = $detail->product?->category?->name;
+                        $detailAmount = $detail->total ?? 0;
+
+                        if($detailAmount <= 0) {
+                            $detailQuantity = max($detail->quantity ?? 1, 1);
+                            $detailAmount = ($detail->sale_price ?? 0) * $detailQuantity;
+                        }
 
                         if($categoryName == 'DESAYUNO') {
                             $hasDesayuno = true;
@@ -145,6 +158,7 @@
                         }
                         else if($categoryName == 'ALMUERZO') {
                             $hasAlmuerzo = true;
+                            $tieneAlmuerzoDia = true;
                             $almuerzoCompanyPrice = $detail->product?->company_price ?? 0;
                             $almuerzoWorkerPrice = $detail->product?->worker_price ?? 0;
                             $almuerzoSalePrice = $detail->product?->sale_price ?? 0;
@@ -158,11 +172,18 @@
                                     : ($detail->sale_price ?? 0);
                             }
                             $montoAlmuerzoVenta += $precioMenuAlmuerzo * $cantidadAlmuerzo;
+                                $almuerzoDescuentoBaseDia += $almuerzoWorkerPrice;
                         }
                         else if($categoryName == 'CENA') {
                             $hasCena = true;
                             $cenaCompanyPrice = $detail->product?->company_price ?? 0;
                             $cenaWorkerPrice = $detail->product?->worker_price ?? 0;
+                            }
+                            else if(!empty($categoryName) && !in_array($categoryName, ['DESAYUNO','LONCHE','ALMUERZO','CENA'])) {
+                                // Cualquier categoría que no sea comida (DESAYUNO, LONCHE, ALMUERZO,
+                                // CENA) se considera adicional/EXTRA del trabajador (EXTRAS, SNACKS,
+                                // BEBIDAS, GASEOSAS, TORTAS, etc.) y se suma al DESCUENTO del almuerzo.
+                                $almuerzoExtrasDia += $detailAmount;
                         }
                     }
 
@@ -196,11 +217,6 @@
                                 $cantidadAlmuerzoSubvencion++;
                                 $totalSubvencionAlmuerzo += $sale->total_pay_company ?? 0;
                             }
-                            if($sale->deal_in_form == 'SUBVENCION' && $sale->total_dsct_form > 0) {
-                                $almuerzoDescuento = $almuerzoWorkerPrice;
-                                $cantidadAlmuerzoDescuento++;
-                                $totalDescuentoAlmuerzo += $sale->total_dsct_form ?? 0;
-                            }
                         }
                     }
 
@@ -217,6 +233,22 @@
                         }
                     }
                 }
+
+                // Descuento a planilla del almuerzo:
+                //  - Días normales (no sábado) con almuerzo: costo del menú para el trabajador
+                //    (worker_price) + adicionales/EXTRAS del día.
+                //  - Sábados: el menú se factura completo a la empresa, sin base para el trabajador,
+                //    pero los adicionales/EXTRAS sí se descuentan.
+                //  - Días con adicionales/EXTRAS pero SIN almuerzo: se descuentan igualmente los EXTRAS.
+                if(!$esSabado && $tieneAlmuerzoDia) {
+                    $almuerzoDescuento = $almuerzoDescuentoBaseDia + $almuerzoExtrasDia;
+                    $cantidadAlmuerzoDescuento++;
+                    $totalDescuentoAlmuerzo += $almuerzoDescuento;
+                } elseif($almuerzoExtrasDia > 0) {
+                    $almuerzoDescuento = $almuerzoExtrasDia;
+                    $totalDescuentoAlmuerzo += $almuerzoDescuento;
+                }
+
                 @endphp
 
                 <!-- DESAYUNO: SUBVENCION -->
