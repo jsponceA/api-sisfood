@@ -172,9 +172,17 @@ class SaleController extends Controller
 
                 $saleData["sale_date"] = now()->format("Y-m-d H:i:s");
                 $saleData["deal_in_form"] = "SUBVENCION";
-                $saleData["pay_type"] = "CREDITO";
                 $saleData["serie"] = "001";
                 $saleData["num_document"] = Sale::query()->where("serie", "001")->max("num_document") + 1;
+
+                if (!empty($saleData["is_cash_payment_form"])) {
+                    // El comensal paga en caja: no se le descuenta nada por planilla.
+                    // La subvencion de la empresa (total_pay_company) se mantiene.
+                    $saleData["pay_type"] = "EFECTIVO";
+                    $saleData["total_dsct_form"] = 0;
+                } else {
+                    $saleData["pay_type"] = "CREDITO";
+                }
 
 
                 $sale = Sale::query()->create($saleData);

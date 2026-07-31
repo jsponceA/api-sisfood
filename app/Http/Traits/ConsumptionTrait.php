@@ -152,32 +152,41 @@ trait ConsumptionTrait
         $costCenterId = $request->input("costCenterId");
         $typeDiscount = $request->input("typeDiscount");
 
+        // Filtros de las ventas del rango solicitado. Se reutiliza para cargar las
+        // ventas y para descartar del reporte a los trabajadores sin consumos.
+        $filtroVentas = function ($query) use ($dateStartConsumption, $dateEndConsumption, $typeDiscount, $categoryId) {
+            $query
+                ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
+                    $query->where("deal_in_form", $typeDiscount);
+                })
+                ->when(!empty($dateStartConsumption), function ($query) use ($dateStartConsumption) {
+                    $query->whereDate("sale_date", ">=", $dateStartConsumption);
+                })
+                ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
+                    $query->whereDate("sale_date", "<=", $dateEndConsumption);
+                })
+                ->when(!empty($categoryId), function ($query) use ($categoryId) {
+                    $query->whereHas("saleDetails.product", function ($query) use ($categoryId) {
+                        $query->where("category_id", $categoryId);
+                    });
+                });
+        };
+
         $workers = Worker::query()
             ->with([
                 'area',
                 'costCenter',
                 'workerType',
-                'sales' => function ($query) use ($dateStartConsumption, $dateEndConsumption, $typeDiscount, $categoryId) {
+                'sales' => function ($query) use ($filtroVentas) {
+                    $filtroVentas($query);
+
                     $query
                         ->with(['saleDetails.product.category'])
-                        ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
-                            $query->where("deal_in_form", $typeDiscount);
-                        })
-                        ->when(!empty($dateStartConsumption), function ($query) use ($dateStartConsumption) {
-                            $query->whereDate("sale_date", ">=", $dateStartConsumption);
-                        })
-                        ->when(!empty($dateEndConsumption), function ($query) use ($dateEndConsumption) {
-                            $query->whereDate("sale_date", "<=", $dateEndConsumption);
-                        })
-                        ->when(!empty($categoryId), function ($query) use ($categoryId) {
-                            $query->whereHas("saleDetails.product", function ($query) use ($categoryId) {
-                                $query->where("category_id", $categoryId);
-                            });
-                        })
                         ->orderByDesc("sale_date")
                         ->orderByDesc("id");
                 }
             ])
+            ->whereHas("sales", $filtroVentas)
             ->when(!empty($typeFormId), function ($query) use ($typeFormId) {
                 $query->where("type_form_id", $typeFormId);
             })
@@ -203,6 +212,196 @@ trait ConsumptionTrait
             ->orderBy("names","ASC");
 
         return $workers;
+    }
+
+    /**
+     * Calcula, para un trabajador, la subvencion de la empresa y el descuento a
+     * planilla de cada dia del periodo, ademas de los acumulados por tipo de comida.
+     *
+     * Concentra las reglas de negocio de los reportes de planilla para que todos
+     * apliquen exactamente el mismo criterio:
+     *  - Solo se descuenta a planilla si la venta registro descuento
+     *    (total_dsct_form > 0). En pagos en efectivo o subvencion completa va cero.
+     *  - Los sabados el almuerzo se factura completo a la empresa, sin descuento
+     *    al trabajador, pero los adicionales/EXTRAS si se descuentan.
+     *  - Cualquier categoria que no sea DESAYUNO, LONCHE, ALMUERZO o CENA se
+     *    considera adicional y se suma al descuento del almuerzo.
+     *
+     * @param  \App\Models\Worker  $worker  con la relacion "sales.saleDetails.product.category" cargada
+     * @param  iterable  $periodo  dias del rango (CarbonPeriod)
+     */
+    public function calcularPlanillaPorDia($worker, $periodo): array
+    {
+        $totales = [
+            "cantidadDesayunoSubvencion" => 0,
+            "cantidadDesayunoDescuento" => 0,
+            "totalSubvencionDesayuno" => 0,
+            "totalDescuentoDesayuno" => 0,
+            "cantidadAlmuerzoSubvencion" => 0,
+            "cantidadAlmuerzoDescuento" => 0,
+            "totalSubvencionAlmuerzo" => 0,
+            "totalDescuentoAlmuerzo" => 0,
+            "cantidadCenaSubvencion" => 0,
+            "cantidadCenaDescuento" => 0,
+            "totalSubvencionCena" => 0,
+            "totalDescuentoCena" => 0,
+            "descuentoGeneral" => 0,
+        ];
+
+        $dias = [];
+
+        foreach ($periodo as $p) {
+            // Los sabados el almuerzo se factura completo a la empresa (subvencion),
+            // sin descuento a planilla.
+            $esSabado = $p->isSaturday();
+
+            $desayunoSubvencion = 0;
+            $desayunoDescuento = 0;
+            $almuerzoSubvencion = 0;
+            $almuerzoDescuento = 0;
+            $cenaSubvencion = 0;
+            $cenaDescuento = 0;
+            $almuerzoDescuentoBaseDia = 0;
+            $almuerzoExtrasDia = 0;
+            $tieneAlmuerzoDia = false;
+
+            foreach ($worker->sales as $sale) {
+                if (empty($sale->sale_date)) {
+                    continue;
+                }
+                if (!\Carbon\Carbon::parse($sale->sale_date)->isSameDay($p)) {
+                    continue;
+                }
+
+                $hasDesayuno = false;
+                $hasAlmuerzo = false;
+                $hasCena = false;
+                $montoAlmuerzoVenta = 0; // total del/los almuerzo(s) de esta venta
+
+                // Precios dinamicos del producto: subvencion = company_price, descuento = worker_price
+                $desayunoCompanyPrice = 0;
+                $desayunoWorkerPrice = 0;
+                $almuerzoCompanyPrice = 0;
+                $almuerzoWorkerPrice = 0;
+                $almuerzoSalePrice = 0;
+                $cenaCompanyPrice = 0;
+                $cenaWorkerPrice = 0;
+
+                foreach ($sale->saleDetails as $detail) {
+                    $categoryName = $detail->product?->category?->name;
+                    $detailAmount = $detail->total ?? 0;
+
+                    if ($detailAmount <= 0) {
+                        $detailQuantity = max($detail->quantity ?? 1, 1);
+                        $detailAmount = ($detail->sale_price ?? 0) * $detailQuantity;
+                    }
+
+                    if ($categoryName == "DESAYUNO") {
+                        $hasDesayuno = true;
+                        $desayunoCompanyPrice = $detail->product?->company_price ?? 0;
+                        $desayunoWorkerPrice = $detail->product?->worker_price ?? 0;
+                    } elseif ($categoryName == "ALMUERZO") {
+                        $hasAlmuerzo = true;
+                        $tieneAlmuerzoDia = true;
+                        $almuerzoCompanyPrice = $detail->product?->company_price ?? 0;
+                        $almuerzoWorkerPrice = $detail->product?->worker_price ?? 0;
+                        $almuerzoSalePrice = $detail->product?->sale_price ?? 0;
+
+                        // Costo del menu completo = precio de venta del producto
+                        $cantidadAlmuerzo = $detail->quantity ?? 1;
+                        $precioMenuAlmuerzo = $detail->product?->sale_price ?? 0;
+                        if ($precioMenuAlmuerzo <= 0) {
+                            // Respaldo: total del detalle o precio del detalle x cantidad
+                            $precioMenuAlmuerzo = ($detail->total ?? 0) > 0
+                                ? ($detail->total / max($cantidadAlmuerzo, 1))
+                                : ($detail->sale_price ?? 0);
+                        }
+                        $montoAlmuerzoVenta += $precioMenuAlmuerzo * $cantidadAlmuerzo;
+
+                        // Solo se descuenta por planilla si la venta realmente lo registro.
+                        if (($sale->total_dsct_form ?? 0) > 0) {
+                            $almuerzoDescuentoBaseDia += $almuerzoWorkerPrice;
+                        }
+                    } elseif ($categoryName == "CENA") {
+                        $hasCena = true;
+                        $cenaCompanyPrice = $detail->product?->company_price ?? 0;
+                        $cenaWorkerPrice = $detail->product?->worker_price ?? 0;
+                    } elseif (!empty($categoryName) && !in_array($categoryName, ["DESAYUNO", "LONCHE", "ALMUERZO", "CENA"])) {
+                        // Adicionales del trabajador (EXTRAS, SNACKS, BEBIDAS, GASEOSAS, TORTAS...)
+                        $almuerzoExtrasDia += $detailAmount;
+                    }
+                }
+
+                if ($hasDesayuno) {
+                    if ($sale->deal_in_form == "SUBVENCION") {
+                        $desayunoSubvencion = $desayunoCompanyPrice;
+                        $totales["cantidadDesayunoSubvencion"]++;
+                        $totales["totalSubvencionDesayuno"] += $sale->total_pay_company ?? 0;
+                    }
+                    if ($sale->deal_in_form == "SUBVENCION" && $sale->total_dsct_form > 0) {
+                        $desayunoDescuento = $desayunoWorkerPrice;
+                        $totales["cantidadDesayunoDescuento"]++;
+                        $totales["totalDescuentoDesayuno"] += $sale->total_dsct_form ?? 0;
+                    }
+                }
+
+                if ($hasAlmuerzo) {
+                    if ($esSabado) {
+                        $almuerzoSubvencion = $almuerzoSalePrice;
+                        $almuerzoDescuento = 0;
+                        $totales["cantidadAlmuerzoSubvencion"]++;
+                        $totales["totalSubvencionAlmuerzo"] += $montoAlmuerzoVenta;
+                    } else {
+                        if ($sale->deal_in_form == "SUBVENCION") {
+                            $almuerzoSubvencion = $almuerzoCompanyPrice;
+                            $totales["cantidadAlmuerzoSubvencion"]++;
+                            $totales["totalSubvencionAlmuerzo"] += $sale->total_pay_company ?? 0;
+                        }
+                    }
+                }
+
+                if ($hasCena) {
+                    if ($sale->deal_in_form == "SUBVENCION") {
+                        $cenaSubvencion = $cenaCompanyPrice;
+                        $totales["cantidadCenaSubvencion"]++;
+                        $totales["totalSubvencionCena"] += $sale->total_pay_company ?? 0;
+                    }
+                    if ($sale->deal_in_form == "SUBVENCION" && $sale->total_dsct_form > 0) {
+                        $cenaDescuento = $cenaWorkerPrice;
+                        $totales["cantidadCenaDescuento"]++;
+                        $totales["totalDescuentoCena"] += $sale->total_dsct_form ?? 0;
+                    }
+                }
+            }
+
+            // Descuento a planilla del almuerzo del dia: menu + adicionales.
+            if (!$esSabado && $tieneAlmuerzoDia) {
+                $almuerzoDescuento = $almuerzoDescuentoBaseDia + $almuerzoExtrasDia;
+                // Si se pago en efectivo y no hubo adicionales no hay nada que descontar.
+                if ($almuerzoDescuento > 0) {
+                    $totales["cantidadAlmuerzoDescuento"]++;
+                    $totales["totalDescuentoAlmuerzo"] += $almuerzoDescuento;
+                }
+            } elseif ($almuerzoExtrasDia > 0) {
+                $almuerzoDescuento = $almuerzoExtrasDia;
+                $totales["totalDescuentoAlmuerzo"] += $almuerzoDescuento;
+            }
+
+            $descuentoDia = $desayunoDescuento + $almuerzoDescuento + $cenaDescuento;
+            $totales["descuentoGeneral"] += $descuentoDia;
+
+            $dias[$p->format("Y-m-d")] = [
+                "desayunoSubvencion" => $desayunoSubvencion,
+                "desayunoDescuento" => $desayunoDescuento,
+                "almuerzoSubvencion" => $almuerzoSubvencion,
+                "almuerzoDescuento" => $almuerzoDescuento,
+                "cenaSubvencion" => $cenaSubvencion,
+                "cenaDescuento" => $cenaDescuento,
+                "descuentoDia" => $descuentoDia,
+            ];
+        }
+
+        return ["dias" => $dias, "totales" => $totales];
     }
 
 

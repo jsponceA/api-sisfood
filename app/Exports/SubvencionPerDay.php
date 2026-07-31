@@ -30,7 +30,14 @@ class SubvencionPerDay implements FromView, ShouldAutoSize, WithEvents
         $dateEndConsumption = $this->params->dateEndConsumption;
         $periodo = CarbonPeriod::create($dateStartConsumption, $dateEndConsumption);
 
-        return view("reports.consumption.list_excel_subvencion_per_day")->with(compact("workers","periodo"));
+        // El calculo vive en ConsumptionTrait para que este reporte y el de
+        // planilla mensual apliquen exactamente las mismas reglas.
+        $planilla = [];
+        foreach ($workers as $worker) {
+            $planilla[$worker->id] = $this->calcularPlanillaPorDia($worker, $periodo);
+        }
+
+        return view("reports.consumption.list_excel_subvencion_per_day")->with(compact("workers","periodo","planilla"));
     }
 
     public function registerEvents(): array
