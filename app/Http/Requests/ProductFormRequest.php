@@ -29,6 +29,7 @@ class ProductFormRequest extends FormRequest
                     'name' => ['required','max:255'],
                     'category' => ['required'],
                     'barcode' => ['nullable', "max:100"],
+                    'company_price_no_grant' => ['nullable', "numeric", "min:0"],
                 ];
             case "PUT":
                 return [
@@ -36,6 +37,7 @@ class ProductFormRequest extends FormRequest
                     'name' => ['required','max:255'],
                     'category' => ['required'],
                     'barcode' => ['nullable', "max:100"],
+                    'company_price_no_grant' => ['nullable', "numeric", "min:0"],
                 ];
             default:
                 return [];
@@ -49,6 +51,7 @@ class ProductFormRequest extends FormRequest
             'name' => "nombre",
             'category' => "categoria",
             'barcode' => "codigo barras",
+            'company_price_no_grant' => "precio empresa (no subvencionado)",
         ];
     }
 }

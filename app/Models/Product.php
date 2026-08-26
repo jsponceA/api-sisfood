@@ -15,6 +15,7 @@ class Product extends Model
         "worker_price",
         "igv_price",
         "company_price",
+        "company_price_no_grant",
         "handle_stock",
         "current_stock",
         "expiration_date",

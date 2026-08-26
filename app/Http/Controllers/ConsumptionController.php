@@ -66,7 +66,7 @@ class ConsumptionController extends Controller
             $response["areas"] = Area::query()->orderByDesc("id")->get();
         }
         if (in_array("typeDiscounts", $resourceTypes)) {
-            $response["typeDiscounts"] = ["SUBVENCION","DESCUENTO_PLANILLA","NO_DESCONTAR"];
+            $response["typeDiscounts"] = ["SUBVENCION","SUBVENCION_TOTAL","DESCUENTO_PLANILLA","NO_DESCONTAR"];
         }
 
 

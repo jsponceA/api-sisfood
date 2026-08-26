@@ -194,16 +194,12 @@ trait ConsumptionTrait
             SUM( CASE WHEN sale_details.product_name='CENA' THEN sale_details.total ELSE 0 END) AS  monto_cenas,
             SUM( CASE WHEN sale_details.product_name != 'DESAYUNO' AND sale_details.product_name != 'ALMUERZO' AND sale_details.product_name != 'CENA' THEN sale_details.total ELSE 0 END) AS monto_snacks,
 
-             SUM(CASE
-                WHEN workers.grant = 1 AND (sale_details.product_name = 'ALMUERZO' OR sale_details.product_name = 'CENA') THEN 7.5 * sale_details.quantity
+            SUM(CASE
+                WHEN sales.deal_in_form IN ('SUBVENCION','SUBVENCION_TOTAL') THEN sales.total_pay_company
                 ELSE 0
             END) AS total_subvencion,
 
-            SUM(CASE
-                WHEN workers.grant = 1 AND (sale_details.product_name = 'ALMUERZO' OR sale_details.product_name = 'CENA') THEN 1.5
-
-                ELSE sale_details.total
-            END) AS worker_price
+            SUM(sale_details.total) AS worker_price
             "))
             ->when(!empty($typeDiscount), function ($query) use ($typeDiscount) {
                 $query->where("deal_in_form", $typeDiscount);

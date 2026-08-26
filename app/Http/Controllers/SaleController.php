@@ -109,7 +109,7 @@ class SaleController extends Controller
                 $searchSale = Sale::query()
                     ->with(["worker","saleDetails"])
                     ->where("serie","001")
-                    ->where("deal_in_form","SUBVENCION")
+                    ->whereIn("deal_in_form",["SUBVENCION","SUBVENCION_TOTAL"])
                     ->where("worker_id",$worker->id)
                     ->whereDate("sale_date",$currentDay)
                     ->get();
@@ -174,7 +174,8 @@ class SaleController extends Controller
             if (empty($response["error"])){
 
                 $saleData["sale_date"] = now()->format("Y-m-d H:i:s");
-                $saleData["deal_in_form"] = "SUBVENCION";
+                //cuando la empresa asume el 100% del costo se marca con un tipo propio para poder filtrarlo en reportes
+                $saleData["deal_in_form"] = $request->boolean("company_assumes_all") ? "SUBVENCION_TOTAL" : "SUBVENCION";
                 $saleData["pay_type"] = "CREDITO";
                 $saleData["serie"] = "001";
                 $saleData["num_document"] = Sale::query()->where("serie","001")->max("num_document") + 1;
