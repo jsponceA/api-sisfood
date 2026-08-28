@@ -218,7 +218,15 @@ class PastSaleController extends Controller
             //variables
             $comensal = !empty($sale->worker->names) ? mb_strtoupper($sale->worker->names." ".$sale->worker->surnames) : 'PUBLICO GENERAL';
 
-            $nombreImpresora = env("PRINTER_NAME");
+            //se lee con config() y no con env(): con la configuracion cacheada env() devuelve null
+            $nombreImpresora = config("printer.name");
+
+            if (empty($nombreImpresora)) {
+                return response()->json([
+                    "message" => "No hay una impresora configurada. Revise PRINTER_NAME en el archivo .env del servidor."
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
             $connector = new WindowsPrintConnector($nombreImpresora);
             //$connector = new FilePrintConnector(storage_path('app/simulated-print.txt'));
             $printer = new Printer($connector);
