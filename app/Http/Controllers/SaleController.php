@@ -60,7 +60,16 @@ class SaleController extends Controller
             $saleDetailsData = $request->input("sale_details");
 
             $saleData["sale_date"] = now()->format("Y-m-d H:i:s");
-            if ($saleData["deal_in_form"] == "DESCUENTO_PLANILLA"){
+            if ($saleData["deal_in_form"] == "SUBVENCION_TOTAL"){
+                //la empresa asume el 100% del consumo: el trabajador no paga nada
+                //total_pay_company llega con el costo total del consumo
+                $saleData["serie"] = "001";
+                $saleData["num_document"] = Sale::query()->where("serie","001")->max("num_document") + 1;
+                $saleData["pay_type"] = "CREDITO";
+                $saleData["total_sale"] = 0;
+                $saleData["total_dsct_form"] = 0;
+                $saleData["total_igv"] = 0;
+            }elseif ($saleData["deal_in_form"] == "DESCUENTO_PLANILLA"){
                 $saleData["serie"] = "001";
                 $saleData["num_document"] = Sale::query()->where("serie","001")->max("num_document") + 1;
                 $saleData["pay_type"] = "CREDITO";

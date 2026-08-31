@@ -29,52 +29,23 @@
     <tbody>
     @foreach ($consumptions as $c)
         @php
-            $quantity = $c->saleDetails()->sum("quantity");
+            //los importes se toman de la venta, no de valores fijos:
+            //asi el reporte refleja el reparto real registrado en cada consumo
+            $detalles = $c->saleDetails;
+            $quantity = $detalles->sum("quantity");
 
-            $priceUnit = 0;
-            $subvencion = 0;
-            $workerPrice = 0;
-            $total = 0;
-            if ($c->worker?->grant){
-
-                /*if (in_array("DESAYUNO",$c->saleDetails()->pluck("product_name")->toArray())){
-                    $priceUnit = $c->sale_price;
-                    $subvencion = 0;
-                    $workerPrice = $c->total_dsct_form;
-                    $total = $subvencion;
-
-                }*/
-                if (in_array("ALMUERZO",$c->saleDetails()->pluck("product_name")->toArray())){
-                    $priceUnit = 9;
-                    $subvencion = 7.5;
-                    $workerPrice = 1.5;
-                    $total = 9 * $quantity;
-                }elseif (in_array("CENA",$c->saleDetails()->pluck("product_name")->toArray())){
-                     $priceUnit = 9;
-                    $subvencion = 7.5;
-                    $workerPrice = 1.5;
-                    $total = 9 * $quantity;
-                }else{
-                    $priceUnit = $c->total_sale / $quantity;
-                    $subvencion = 0;
-                    //$workerPrice = $priceUnit;
-                    //$total = $priceUnit;
-                    $workerPrice = $c->total_sale;
-                    $total = $c->total_sale;
-                }
-            }elseif ( $c->deal_in_form == "DESCUENTO_PLANILLA"){
-                 $priceUnit = $c->total_sale / $quantity;
-                 $subvencion = 0;
-                 $workerPrice = $c->total_sale;
-                 $total = $c->total_sale;
-            }else{
-                 $priceUnit = $c->total_sale / $quantity;
-                 $subvencion = 0;
-                 $workerPrice = $c->total_sale;
-                 $total = $c->total_sale;
+            if (in_array($c->deal_in_form, ["SUBVENCION","SUBVENCION_TOTAL"])) {
+                $subvencion  = (float) $c->total_pay_company;   //lo que asume la empresa
+                $workerPrice = (float) $c->total_dsct_form;     //lo que paga el trabajador
+                $total       = $subvencion + $workerPrice;      //costo del consumo
+            } else {
+                //descuento por planilla o efectivo: el trabajador asume el importe completo
+                $subvencion  = 0;
+                $workerPrice = (float) $c->total_sale;
+                $total       = (float) $c->total_sale;
             }
 
-
+            $priceUnit = $quantity > 0 ? round($total / $quantity, 2) : 0;
         @endphp
         <tr>
             <td style="text-align: center">{{$c->worker?->payrollArea?->name}}</td>
@@ -91,24 +62,16 @@
             <td style="text-align: center">{{$workerPrice}}</td>
             <td style="text-align: center">{{$total}}</td>
             <td style="text-align: center">
-                @if($c->worker?->grant)
-                    @if(in_array("ALMUERZO",$c->saleDetails()->pluck("product_name")->toArray()))
-                        SI SUBVENCIÓN
-                    @elseif(in_array("CENA",$c->saleDetails()->pluck("product_name")->toArray()))
+                @if($c->deal_in_form == 'SUBVENCION_TOTAL')
+                    SUBVENCIÓN 100% EMPRESA
+                @elseif($c->deal_in_form == 'SUBVENCION')
+                    @if($c->worker?->grant)
                         SI SUBVENCIÓN
                     @else
-                        @if($c->deal_in_form == 'SUBVENCION')
-                            NO SUBVENCIÓN
-                        @else
-                            {{$c->deal_in_form}}
-                        @endif
+                        NO SUBVENCIÓN
                     @endif
                 @else
-                   @if($c->deal_in_form == 'SUBVENCION')
-                        NO SUBVENCIÓN
-                   @else
-                        {{$c->deal_in_form}}
-                   @endif
+                    {{$c->deal_in_form}}
                 @endif
             </td>
             <td style="text-align: center">{{$c->worker?->typeForm?->name}}</td>
