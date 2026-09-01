@@ -60,7 +60,16 @@ class PastSaleController extends Controller
             $saleData["updated_at"] = $currentDay;
 
 
-            if ($saleData["deal_in_form"] == "DESCUENTO_PLANILLA"){
+            if ($saleData["deal_in_form"] == "SUBVENCION_TOTAL"){
+                //la empresa asume el 100% del consumo: el trabajador no paga nada
+                //total_pay_company llega con el costo total del consumo
+                $saleData["serie"] = "001";
+                $saleData["num_document"] = Sale::query()->where("serie","001")->max("num_document") + 1;
+                $saleData["pay_type"] = "CREDITO";
+                $saleData["total_sale"] = 0;
+                $saleData["total_dsct_form"] = 0;
+                $saleData["total_igv"] = 0;
+            }elseif ($saleData["deal_in_form"] == "DESCUENTO_PLANILLA"){
                 $saleData["serie"] = "001";
                 $saleData["num_document"] = Sale::query()->where("serie","001")->max("num_document") + 1;
                 $saleData["pay_type"] = "CREDITO";
